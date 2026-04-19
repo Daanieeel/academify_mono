@@ -1,10 +1,10 @@
 /** @type {import('tailwindcss').Config} */
-const typography = require("./themes/typography");
+const typography = require('./themes/typography');
 
 module.exports = {
   // NOTE: Update this to include the paths to all files that contain Nativewind classes.
-  content: ["./app/**/*.{js,jsx,ts,tsx}", "./comps/**/*.{js,jsx,ts,tsx}"],
-  presets: [require("nativewind/preset")],
+  content: ['./app/**/*.{js,jsx,ts,tsx}', './comps/**/*.{js,jsx,ts,tsx}'],
+  presets: [require('nativewind/preset')],
   theme: {
     colors: {
       'neutral-900': 'var(--color-neutral-900)',
@@ -72,21 +72,19 @@ module.exports = {
       'yellow-200': 'var(--color-yellow-200)',
       'yellow-100': 'var(--color-yellow-100)',
       'yellow-50': 'var(--color-yellow-50)',
-
     },
     extend: {
       colors: {
         'untis-orange': 'var(--color-untis-orange)',
-
       },
       fontFamily: {
-        normalBlack: "MartianGrotesk-NrBl",
-        standardBlack: "MartianGrotesk-StdBl",
-        standardRegular: "MartianGrotesk-StdRg",
-        standardMedium: "MartianGrotesk-StdMd",
-        standardExtrabold: "MartianGrotesk-StdxBd",
-        superWideBlack: "MartianGrotesk-sWdBl",
-      }
+        normalBlack: 'MartianGrotesk-NrBl',
+        standardBlack: 'MartianGrotesk-StdBl',
+        standardRegular: 'MartianGrotesk-StdRg',
+        standardMedium: 'MartianGrotesk-StdMd',
+        standardExtrabold: 'MartianGrotesk-StdxBd',
+        superWideBlack: 'MartianGrotesk-sWdBl',
+      },
     },
   },
   plugins: [
@@ -94,4 +92,4 @@ module.exports = {
       addUtilities(typography);
     },
   ],
-}
+};

@@ -15,7 +15,7 @@
     "dev": "echo \"MLS package has no dev server\"",
     "build": "tsc -b",
     "test": "echo \"No tests yet for mls\"",
-    "lint": "echo \"No lint target configured for mls\"",
+    "lint": "bunx oxlint -c ../config/oxlint/base.json --import-plugin --promise-plugin --deny-warnings .",
     "typecheck": "tsc --noEmit"
   },
   "devDependencies": {

@@ -142,9 +142,7 @@
         "path": "M455.4 127.6A375 375 0 0 1 676 500M199.8 724.8A375 375 0 0 1 412 347.7M844.8 647.6A375 375 0 0 1 412 652.3",
         "width": 1000
       },
-      "search": [
-        "volleyball"
-      ]
+      "search": ["volleyball"]
     },
     {
       "uid": "639cccf5719c7be514de7a0a4f5e3f59",
@@ -156,9 +154,7 @@
         "path": "",
         "width": 1000
       },
-      "search": [
-        "wall"
-      ]
+      "search": ["wall"]
     },
     {
       "uid": "e804978a3db9fc3ce7ce08eb04fe9c67",
@@ -170,9 +166,7 @@
         "path": "",
         "width": 1000
       },
-      "search": [
-        "warehouse"
-      ]
+      "search": ["warehouse"]
     }
   ]
 }

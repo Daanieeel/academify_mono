@@ -1,0 +1,16 @@
+#!/bin/sh
+
+echo "🔍 Running oxfmt/oxlint via lint-staged on staged files..."
+
+bunx lint-staged --allow-empty 2>&1 || {
+  EXIT_CODE=$?
+  echo ""
+  echo "❌ Pre-commit hook failed (code $EXIT_CODE)"
+  echo "💡 Common fixes:"
+  echo "   • Make sure all staged files are properly formatted"
+  echo "   • Run: bun run format"
+  echo "   • Also be aware that git commits cannot be empty. Make sure to stage your changes with 'git add <file>' before committing."
+  exit $EXIT_CODE
+}
+
+echo "✅ Ox formatting/lint fixes complete - ready to commit"

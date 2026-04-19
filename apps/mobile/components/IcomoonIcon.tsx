@@ -4,6 +4,10 @@ import createIconSetFromIcoMoon from '@expo/vector-icons/createIconSetFromIcoMoo
 
 import icoMoonConfig from '../assets/icomoon/selection.json';
 
-const IcomoonIcon = createIconSetFromIcoMoon(icoMoonConfig, 'Icomoon', 'icomoon.ttf');
+const IcomoonIcon = createIconSetFromIcoMoon(
+  icoMoonConfig,
+  'Icomoon',
+  'icomoon.ttf',
+);
 
 export default IcomoonIcon;

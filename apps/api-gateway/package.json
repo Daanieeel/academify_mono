@@ -9,16 +9,16 @@
     "dev": "bun --watch src/index.ts",
     "build": "tsc -b",
     "test": "echo \"No tests yet for api-gateway\"",
-    "lint": "echo \"No lint target configured for api-gateway\"",
+    "lint": "bunx oxlint -c ../../packages/config/oxlint/base.json --node-plugin --import-plugin --promise-plugin --deny-warnings .",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@sinclair/typebox": "^0.34.41",
-    "elysia": "^1.4.11",
     "@repo/auth": "workspace:*",
     "@repo/database": "workspace:*",
     "@repo/redis": "workspace:*",
-    "@repo/sync-protocol": "workspace:*"
+    "@repo/sync-protocol": "workspace:*",
+    "@sinclair/typebox": "^0.34.41",
+    "elysia": "^1.4.11"
   },
   "devDependencies": {
     "typescript": "^6.0.3"

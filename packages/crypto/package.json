@@ -15,7 +15,7 @@
     "dev": "echo \"Crypto package has no dev server\"",
     "build": "tsc -b",
     "test": "echo \"No tests yet for crypto\"",
-    "lint": "echo \"No lint target configured for crypto\"",
+    "lint": "bunx oxlint -c ../config/oxlint/base.json --import-plugin --promise-plugin --deny-warnings .",
     "typecheck": "tsc --noEmit"
   },
   "devDependencies": {

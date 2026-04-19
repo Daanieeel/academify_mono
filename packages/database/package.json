@@ -1,21 +1,24 @@
 {
   "name": "@repo/database",
+  "private": true,
+  "type": "module",
   "module": "dist/index.js",
   "types": "dist/index.d.ts",
-  "type": "module",
-  "private": true,
-  "scripts": {
-    "dev": "echo \"Database package has no dev server\"",
-    "build": "tsc -b",
-    "test": "echo \"No tests yet for database\"",
-    "lint": "echo \"No lint target configured for database\"",
-    "typecheck": "tsc --noEmit"
-  },
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
       "import": "./dist/index.js"
     }
+  },
+  "scripts": {
+    "dev": "echo \"Database package has no dev server\"",
+    "build": "tsc -b",
+    "test": "echo \"No tests yet for database\"",
+    "lint": "bunx oxlint -c ../config/oxlint/base.json --node-plugin --import-plugin --promise-plugin --deny-warnings .",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@prisma/client": "^7.7.0"
   },
   "devDependencies": {
     "@types/bun": "latest",
@@ -24,8 +27,5 @@
   },
   "peerDependencies": {
     "typescript": "^6"
-  },
-  "dependencies": {
-    "@prisma/client": "^7.7.0"
   }
 }

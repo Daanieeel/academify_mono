@@ -13,7 +13,7 @@ Make sure to set up widely used rules, also on a per-framework/technology basis.
 
 docs/adr/ contains template and 4 ADRs.
 CONTRIBUTING.md includes commit style, testing minimums, and definition of done.
-oxlint and oxfmt are set up with .vscode/settings.json set up correctly to format/lint on save
+oxlint and oxfmt are set up with .vscode/settings.json set up correctly to format/lint on save, as well as .vscode/extensions.json for recommendations for all needed extensions
 pre-commit hook using husky is set up that formats and lints 
 
 

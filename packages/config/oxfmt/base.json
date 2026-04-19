@@ -1,0 +1,14 @@
+{
+  "printWidth": 80,
+  "singleQuote": true,
+  "ignorePatterns": [
+    "**/node_modules/**",
+    "**/dist/**",
+    "**/build/**",
+    "**/out/**",
+    "**/.next/**",
+    "**/.expo/**",
+    "**/coverage/**",
+    "**/.turbo/**"
+  ]
+}
