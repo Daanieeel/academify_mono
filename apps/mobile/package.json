@@ -1,7 +1,8 @@
 {
   "name": "@app/mobile",
-  "main": "expo-router/entry",
   "version": "1.0.0",
+  "private": true,
+  "main": "expo-router/entry",
   "scripts": {
     "generate:icons": "node ./scripts/generate-icons.js",
     "start": "expo start",
@@ -46,6 +47,5 @@
   "devDependencies": {
     "@types/react": "~19.1.0",
     "typescript": "^6.0.3"
-  },
-  "private": true
+  }
 }

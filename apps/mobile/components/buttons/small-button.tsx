@@ -1,8 +1,8 @@
-import { useThemeColor } from "@/hooks/use-theme-color";
-import React from "react";
-import { StyleSheet, TouchableOpacity } from "react-native";
-import IcomoonIcon from "../IcomoonIcon";
-import { ThemedText } from "../themed-text";
+import { useThemeColor } from '@/hooks/use-theme-color';
+import React from 'react';
+import { StyleSheet, TouchableOpacity } from 'react-native';
+import IcomoonIcon from '../IcomoonIcon';
+import { ThemedText } from '../themed-text';
 
 type SmallButtonProps = {
   onPress?: () => void;
@@ -11,41 +11,41 @@ type SmallButtonProps = {
   iconSize?: number;
   customPaddingHorizontal?: number;
   customPaddingVertical?: number;
-  type?: "normal" | "inverted" | "dotted" | "red";
+  type?: 'normal' | 'inverted' | 'dotted' | 'red';
   disabled?: boolean;
 };
 
 const SmallButton = ({
   iconName,
   disabled = false,
-  type = "normal",
+  type = 'normal',
   ...props
 }: SmallButtonProps) => {
   let backgroundColor;
   let foregroundColor;
   let borderWidth;
 
-  const borderColor = useThemeColor({}, "neutral-400");
+  const borderColor = useThemeColor({}, 'neutral-400');
 
   switch (type) {
-    case "normal":
-      foregroundColor = useThemeColor({}, "neutral-900");
-      backgroundColor = useThemeColor({}, "neutral-200");
+    case 'normal':
+      foregroundColor = useThemeColor({}, 'neutral-900');
+      backgroundColor = useThemeColor({}, 'neutral-200');
       borderWidth = 0;
       break;
-    case "inverted":
-      foregroundColor = useThemeColor({}, "neutral-100");
-      backgroundColor = useThemeColor({}, "neutral-900");
+    case 'inverted':
+      foregroundColor = useThemeColor({}, 'neutral-100');
+      backgroundColor = useThemeColor({}, 'neutral-900');
       borderWidth = 0;
       break;
-    case "dotted":
-      foregroundColor = useThemeColor({}, "neutral-900");
-      backgroundColor = "transparent";
+    case 'dotted':
+      foregroundColor = useThemeColor({}, 'neutral-900');
+      backgroundColor = 'transparent';
       borderWidth = 2;
       break;
-    case "red":
-      foregroundColor = useThemeColor({}, "neutral-50");
-      backgroundColor = useThemeColor({}, "red-600");
+    case 'red':
+      foregroundColor = useThemeColor({}, 'neutral-50');
+      backgroundColor = useThemeColor({}, 'red-600');
       borderWidth = 0;
   }
 
@@ -54,7 +54,7 @@ const SmallButton = ({
       activeOpacity={0.7}
       onPress={props.onPress}
       style={[
-        styles["main-container"],
+        styles['main-container'],
         {
           paddingHorizontal: props.customPaddingHorizontal ?? 20,
           paddingVertical: props.customPaddingVertical ?? 10,
@@ -82,10 +82,10 @@ const SmallButton = ({
 };
 
 const styles = StyleSheet.create({
-  "main-container": {
+  'main-container': {
     borderRadius: 18,
-    flexDirection: "row",
-    alignItems: "center",
+    flexDirection: 'row',
+    alignItems: 'center',
     gap: 8,
   },
 });

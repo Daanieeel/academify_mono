@@ -25,12 +25,10 @@ Implements ticket 0.2.
 ## Testing Minimums
 
 - Every code change must include one of:
-
   - New or updated automated test coverage.
   - A documented justification in the PR body when tests are not feasible.
 
 - At minimum before opening a PR:
-
   - `bun run format:check`
   - `bun run lint`
   - `bun run typecheck`

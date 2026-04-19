@@ -1,7 +1,7 @@
-import { useSession } from "@/context/auth-context";
-import { useFonts } from "expo-font";
-import { SplashScreen, Stack } from "expo-router";
-import React, { useEffect } from "react";
+import { useSession } from '@/context/auth-context';
+import { useFonts } from 'expo-font';
+import { SplashScreen, Stack } from 'expo-router';
+import React, { useEffect } from 'react';
 
 SplashScreen.preventAutoHideAsync();
 
@@ -9,14 +9,14 @@ const RootNavigator = () => {
   const { isLoading } = useSession();
 
   const [loaded, error] = useFonts({
-    "MartianGrotesk-NrBl": require("../assets/fonts/MartianGrotesk-NrBl.ttf"),
-    "MartianGrotesk-StdBl": require("../assets/fonts/MartianGrotesk-StdBl.ttf"),
-    "MartianGrotesk-StdRg": require("../assets/fonts/MartianGrotesk-StdRg.ttf"),
-    "MartianGrotesk-StdMd": require("../assets/fonts/MartianGrotesk-StdMd.ttf"),
-    "MartianGrotesk-StdxBd": require("../assets/fonts/MartianGrotesk-StdxBd.ttf"),
-    "MartianGrotesk-sWdBl": require("../assets/fonts/MartianGrotesk-sWdBl.ttf"),
-    Fontello: require("../assets/fontello/fontello.ttf"),
-    Icomoon: require("../assets/icomoon/icomoon.ttf"),
+    'MartianGrotesk-NrBl': require('../assets/fonts/MartianGrotesk-NrBl.ttf'),
+    'MartianGrotesk-StdBl': require('../assets/fonts/MartianGrotesk-StdBl.ttf'),
+    'MartianGrotesk-StdRg': require('../assets/fonts/MartianGrotesk-StdRg.ttf'),
+    'MartianGrotesk-StdMd': require('../assets/fonts/MartianGrotesk-StdMd.ttf'),
+    'MartianGrotesk-StdxBd': require('../assets/fonts/MartianGrotesk-StdxBd.ttf'),
+    'MartianGrotesk-sWdBl': require('../assets/fonts/MartianGrotesk-sWdBl.ttf'),
+    Fontello: require('../assets/fontello/fontello.ttf'),
+    Icomoon: require('../assets/icomoon/icomoon.ttf'),
   });
 
   useEffect(() => {
@@ -30,7 +30,7 @@ const RootNavigator = () => {
   }
 
   const { session } = useSession();
-  console.log("from root-navigator: session is " + session);
+  console.log('from root-navigator: session is ' + session);
   let isAuthenticated;
 
   if (session == null) {
@@ -48,7 +48,7 @@ const RootNavigator = () => {
       <Stack.Protected guard={isAuthenticated}>
         <Stack.Screen
           name="/(locked)/(tabs)"
-          options={{ animation: "none" }}
+          options={{ animation: 'none' }}
         ></Stack.Screen>
       </Stack.Protected>
 

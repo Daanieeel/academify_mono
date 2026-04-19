@@ -1,22 +1,22 @@
-import { useThemeColor } from "@/hooks/use-theme-color";
-import React, { useState } from "react";
-import { Image, StyleSheet, View } from "react-native";
-import IcomoonIcon from "./IcomoonIcon";
-import ThemedPressable from "./themed-pressable";
+import { useThemeColor } from '@/hooks/use-theme-color';
+import React, { useState } from 'react';
+import { Image, StyleSheet, View } from 'react-native';
+import IcomoonIcon from './IcomoonIcon';
+import ThemedPressable from './themed-pressable';
 
 export type ProfilePicProps = {
-  size: "small" | "medium" | "large" | "extra-large";
+  size: 'small' | 'medium' | 'large' | 'extra-large';
   source?: string;
   customBorderColor?: string;
   onPress?: () => void;
   icomoonIcon?: string;
   showBorder?: boolean;
-  avatarType?: "person" | "group";
+  avatarType?: 'person' | 'group';
 };
 
 const ProfilePic = ({
-  size = "small",
-  avatarType = "person",
+  size = 'small',
+  avatarType = 'person',
   source,
   showBorder = true,
   ...props
@@ -24,28 +24,28 @@ const ProfilePic = ({
   let avatarSize;
   let icomoonIcon;
 
-  const avatarIconColor = useThemeColor({}, "neutral-700");
-  const avatarBackgroundColor = useThemeColor({}, "neutral-200");
+  const avatarIconColor = useThemeColor({}, 'neutral-700');
+  const avatarBackgroundColor = useThemeColor({}, 'neutral-200');
   const [modalShown, setModalShown] = useState(false);
 
   const borderColor = showBorder
-    ? (props.customBorderColor ?? useThemeColor({}, "neutral-100"))
-    : "transparent";
-  const borderRadius = avatarType == "person" ? 9999 : 40;
+    ? (props.customBorderColor ?? useThemeColor({}, 'neutral-100'))
+    : 'transparent';
+  const borderRadius = avatarType === 'person' ? 9999 : 40;
 
   const onPress = () => {
     props.onPress && props.onPress();
   };
 
   switch (avatarType) {
-    case "person":
-      icomoonIcon = "user";
+    case 'person':
+      icomoonIcon = 'user';
       break;
-    case "group":
-      icomoonIcon = "users-three";
+    case 'group':
+      icomoonIcon = 'users-three';
       break;
     default:
-      icomoonIcon = "question-mark";
+      icomoonIcon = 'question-mark';
   }
 
   if (props.icomoonIcon != null) {
@@ -53,16 +53,16 @@ const ProfilePic = ({
   }
 
   switch (size) {
-    case "small":
+    case 'small':
       avatarSize = 45;
       break;
-    case "medium":
+    case 'medium':
       avatarSize = 60;
       break;
-    case "large":
+    case 'large':
       avatarSize = 110;
       break;
-    case "extra-large":
+    case 'extra-large':
       avatarSize = 150;
   }
 
@@ -70,10 +70,10 @@ const ProfilePic = ({
     <ThemedPressable animationEnabled={props.onPress != null} onPress={onPress}>
       <View
         style={{
-          overflow: "hidden",
+          overflow: 'hidden',
           backgroundColor: avatarBackgroundColor,
-          alignItems: "center",
-          justifyContent: "center",
+          alignItems: 'center',
+          justifyContent: 'center',
           borderRadius,
           height: avatarSize,
           width: avatarSize,

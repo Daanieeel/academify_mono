@@ -1,21 +1,21 @@
-import { useThemeColor } from "@/hooks/use-theme-color";
-import React from "react";
-import { StyleSheet, View } from "react-native";
-import ProfilePic from "../profile-pic";
-import ThemedGridView from "../themed-grid-view";
-import ThemedModal from "./themed-modal";
+import { useThemeColor } from '@/hooks/use-theme-color';
+import React from 'react';
+import { StyleSheet, View } from 'react-native';
+import ProfilePic from '../profile-pic';
+import ThemedGridView from '../themed-grid-view';
+import ThemedModal from './themed-modal';
 
 const ITEM_WIDTH = 110;
 const GAP = 10;
 
 export const IMAGE_URIS = [
-  "https://i.ibb.co/7JspsbLL/Bio.png",
-  "https://i.ibb.co/m5K8cScv/Chemie.png",
-  "https://i.ibb.co/L2Ly7WP/Cornwell.png",
-  "https://i.ibb.co/0j0fDB9Q/Deutsch.png",
-  "https://i.ibb.co/7dNsQNrT/Physik.png",
-  "https://i.ibb.co/MD0qBR37/SMV.png",
-  "https://i.ibb.co/ccjQ8xrv/Sport.png",
+  'https://i.ibb.co/7JspsbLL/Bio.png',
+  'https://i.ibb.co/m5K8cScv/Chemie.png',
+  'https://i.ibb.co/L2Ly7WP/Cornwell.png',
+  'https://i.ibb.co/0j0fDB9Q/Deutsch.png',
+  'https://i.ibb.co/7dNsQNrT/Physik.png',
+  'https://i.ibb.co/MD0qBR37/SMV.png',
+  'https://i.ibb.co/ccjQ8xrv/Sport.png',
 ];
 
 export type ThemedImagePickerModalProps = {
@@ -49,7 +49,7 @@ const ThemedImagePickerModal = (props: ThemedImagePickerModalProps) => {
     props.onRequestClose();
   };
 
-  const backgroundColor = useThemeColor({}, "neutral-100");
+  const backgroundColor = useThemeColor({}, 'neutral-100');
 
   return (
     <ThemedModal visible={props.visible} onRequestClose={props.onRequestClose}>

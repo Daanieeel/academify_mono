@@ -1,7 +1,7 @@
-import { useHaptic } from "@/hooks/use-haptics";
-import { useThemeColor } from "@/hooks/use-theme-color";
-import React, { useRef } from "react";
-import { Animated, Pressable } from "react-native";
+import { useHaptic } from '@/hooks/use-haptics';
+import { useThemeColor } from '@/hooks/use-theme-color';
+import React, { useRef } from 'react';
+import { Animated, Pressable } from 'react-native';
 
 export type ThemedSelectableProps = {
   children?: React.ReactNode;
@@ -15,12 +15,12 @@ const ThemedSelectable = ({
   selected = false,
   ...props
 }: ThemedSelectableProps) => {
-  const borderColor = useThemeColor({}, "neutral-900");
-  const checkmarkBackgroundColor = useThemeColor({}, "neutral-900");
-  const checkmarkColor = useThemeColor({}, "neutral-900");
+  const borderColor = useThemeColor({}, 'neutral-900');
+  const checkmarkBackgroundColor = useThemeColor({}, 'neutral-900');
+  const checkmarkColor = useThemeColor({}, 'neutral-900');
 
   const scale = useRef(new Animated.Value(1)).current;
-  const haptic = useHaptic("medium");
+  const haptic = useHaptic('medium');
 
   const handlePressIn = () => {
     Animated.timing(scale, {
@@ -49,9 +49,9 @@ const ThemedSelectable = ({
     >
       <Animated.View
         style={{
-          overflow: "hidden",
+          overflow: 'hidden',
           borderRadius: 20,
-          borderColor: selected ? borderColor : "transparent",
+          borderColor: selected ? borderColor : 'transparent',
           borderWidth: 2,
           transform: [
             {

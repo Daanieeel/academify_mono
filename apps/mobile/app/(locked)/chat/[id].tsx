@@ -1,31 +1,31 @@
-import ThemedMessageWrapper from "@/components/pages/chat-page/message-components/themed-message-wrapper";
-import ThemedChatPageFooter from "@/components/pages/chat-page/themed-chat-page-footer";
-import ThemedChatPageHeader from "@/components/pages/chat-page/themed-chat-page-header";
-import ThemedAcademiBackground from "@/components/themed-academi-background";
-import { MOCK_MESSAGE_DATA } from "@/constants/mock-data/MockChatMessageData";
-import { useThemeColor } from "@/hooks/use-theme-color";
-import { router, useGlobalSearchParams } from "expo-router";
-import React, { useRef, useState } from "react";
-import { FlatList, StyleSheet, View } from "react-native";
+import ThemedMessageWrapper from '@/components/pages/chat-page/message-components/themed-message-wrapper';
+import ThemedChatPageFooter from '@/components/pages/chat-page/themed-chat-page-footer';
+import ThemedChatPageHeader from '@/components/pages/chat-page/themed-chat-page-header';
+import ThemedAcademiBackground from '@/components/themed-academi-background';
+import { MOCK_MESSAGE_DATA } from '@/constants/mock-data/MockChatMessageData';
+import { useThemeColor } from '@/hooks/use-theme-color';
+import { router, useGlobalSearchParams } from 'expo-router';
+import React, { useRef, useState } from 'react';
+import { FlatList, StyleSheet, View } from 'react-native';
 
 const ChatPage = () => {
   const chatName = useGlobalSearchParams().id;
-  const neutral50Color = useThemeColor({}, "neutral-50");
+  const neutral50Color = useThemeColor({}, 'neutral-50');
 
   const isScrollingRef = useRef(false);
 
   const [footerCurrentDisplay, setFooterCurrentDisplay] = useState<
-    "keyboard" | "none" | "attachments"
-  >("none");
+    'keyboard' | 'none' | 'attachments'
+  >('none');
 
   const onChatAboutPressed = () => {
-    router.push("/(locked)/chat-about/123");
+    router.push('/(locked)/chat-about/123');
   };
 
   return (
     <View
       style={[
-        styles["main-container"],
+        styles['main-container'],
         {
           backgroundColor: neutral50Color,
         },
@@ -39,7 +39,7 @@ const ChatPage = () => {
 
       {/* Container for the actual message list */}
 
-      <View style={[{}, styles["message-list-container"]]}>
+      <View style={[{}, styles['message-list-container']]}>
         <FlatList
           onScrollBeginDrag={() => {
             isScrollingRef.current = true;
@@ -61,10 +61,10 @@ const ChatPage = () => {
           }}
           onTouchEnd={() => {
             if (!isScrollingRef.current) {
-              setFooterCurrentDisplay("none");
+              setFooterCurrentDisplay('none');
             }
           }}
-          style={styles["message-list"]}
+          style={styles['message-list']}
           data={MOCK_MESSAGE_DATA}
           scrollEventThrottle={16}
           ItemSeparatorComponent={() => <View style={{ height: 15 }}></View>}
@@ -72,7 +72,7 @@ const ChatPage = () => {
             <ThemedMessageWrapper {...item.item}></ThemedMessageWrapper>
           )}
         ></FlatList>
-        <View style={styles["message-list-background"]}>
+        <View style={styles['message-list-background']}>
           <ThemedAcademiBackground></ThemedAcademiBackground>
         </View>
       </View>
@@ -88,22 +88,22 @@ const ChatPage = () => {
 };
 
 const styles = StyleSheet.create({
-  "main-container": {
+  'main-container': {
     flex: 1,
-    justifyContent: "space-between",
-    flexDirection: "column",
+    justifyContent: 'space-between',
+    flexDirection: 'column',
   },
-  "message-list-container": {
+  'message-list-container': {
     flex: 1,
   },
-  "message-list": {
+  'message-list': {
     zIndex: 9999,
     flex: 1,
     paddingVertical: 10,
     paddingHorizontal: 5,
   },
-  "message-list-background": {
-    position: "absolute",
+  'message-list-background': {
+    position: 'absolute',
     bottom: 0,
     top: 0,
     left: 0,

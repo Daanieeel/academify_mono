@@ -1,7 +1,7 @@
-import { useThemeColor } from "@/hooks/use-theme-color";
-import React from "react";
-import { StyleSheet, View } from "react-native";
-import { ThemedText } from "./themed-text";
+import { useThemeColor } from '@/hooks/use-theme-color';
+import React from 'react';
+import { StyleSheet, View } from 'react-native';
+import { ThemedText } from './themed-text';
 
 export type ThemedHeaderProps = {
   headerTitle: string;
@@ -10,7 +10,7 @@ export type ThemedHeaderProps = {
 };
 
 const ThemedHeader = (props: ThemedHeaderProps) => {
-  const neutral50Color = useThemeColor({}, "neutral-50");
+  const neutral50Color = useThemeColor({}, 'neutral-50');
 
   return (
     <View
@@ -18,13 +18,13 @@ const ThemedHeader = (props: ThemedHeaderProps) => {
         {
           backgroundColor: neutral50Color,
         },
-        styles["header-container"],
+        styles['header-container'],
       ]}
     >
-      <View style={styles["header-title-container"]}>
+      <View style={styles['header-title-container']}>
         <ThemedText
           numberOfLines={1}
-          style={{ textAlign: "left" }}
+          style={{ textAlign: 'left' }}
           type="heading2"
         >
           {props.headerTitle}
@@ -37,17 +37,17 @@ const ThemedHeader = (props: ThemedHeaderProps) => {
 };
 
 const styles = StyleSheet.create({
-  "header-container": {
+  'header-container': {
     paddingHorizontal: 15,
-    overflow: "hidden",
+    overflow: 'hidden',
     paddingTop: 30,
     gap: 10,
   },
-  "header-title-container": {
-    width: "100%",
-    justifyContent: "space-between",
-    flexDirection: "row",
-    alignItems: "center",
+  'header-title-container': {
+    width: '100%',
+    justifyContent: 'space-between',
+    flexDirection: 'row',
+    alignItems: 'center',
   },
 });
 

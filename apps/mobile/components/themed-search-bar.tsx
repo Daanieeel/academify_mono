@@ -1,7 +1,7 @@
-import { useThemeColor } from "@/hooks/use-theme-color";
-import React from "react";
-import { TextInput, View } from "react-native";
-import IcomoonIcon from "./IcomoonIcon";
+import { useThemeColor } from '@/hooks/use-theme-color';
+import React from 'react';
+import { TextInput, View } from 'react-native';
+import IcomoonIcon from './IcomoonIcon';
 
 export type ThemedSearchBarProps = {
   placeholder: string;
@@ -14,8 +14,8 @@ const ThemedSearchBar = ({
   value,
   onInputChanged,
 }: ThemedSearchBarProps) => {
-  const neutral200Color = useThemeColor({}, "neutral-200");
-  const neutral600Color = useThemeColor({}, "neutral-600");
+  const neutral200Color = useThemeColor({}, 'neutral-200');
+  const neutral600Color = useThemeColor({}, 'neutral-600');
 
   return (
     <View
@@ -23,10 +23,10 @@ const ThemedSearchBar = ({
         backgroundColor: neutral200Color,
         borderRadius: 18,
         height: 45,
-        width: "100%",
-        flexDirection: "row",
+        width: '100%',
+        flexDirection: 'row',
         paddingHorizontal: 15,
-        alignItems: "center",
+        alignItems: 'center',
         gap: 10,
       }}
     >
@@ -42,10 +42,10 @@ const ThemedSearchBar = ({
         placeholder={placeholder}
         placeholderTextColor={neutral600Color}
         style={{
-          width: "100%",
-          backgroundColor: "transparent",
+          width: '100%',
+          backgroundColor: 'transparent',
           fontSize: 14,
-          fontFamily: "MartianGrotesk-StdRg",
+          fontFamily: 'MartianGrotesk-StdRg',
         }}
       ></TextInput>
     </View>

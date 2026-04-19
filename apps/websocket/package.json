@@ -1,19 +1,19 @@
 {
   "name": "websocket",
   "version": "1.0.50",
+  "module": "src/index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "bun run --watch src/index.ts",
     "lint": "bunx oxlint -c ../../packages/config/oxlint/base.json --node-plugin --import-plugin --promise-plugin --deny-warnings ."
   },
   "dependencies": {
-    "elysia": "latest",
     "@repo/database": "workspace:*",
     "@repo/redis": "workspace:*",
-    "@repo/sync-protocol": "workspace:*"
+    "@repo/sync-protocol": "workspace:*",
+    "elysia": "latest"
   },
   "devDependencies": {
     "bun-types": "latest"
-  },
-  "module": "src/index.js"
+  }
 }

@@ -1,14 +1,14 @@
-import { useThemeColor } from "@/hooks/use-theme-color";
-import React, { useState } from "react";
-import { StyleSheet } from "react-native";
+import { useThemeColor } from '@/hooks/use-theme-color';
+import React, { useState } from 'react';
+import { StyleSheet } from 'react-native';
 import Animated, {
   Easing,
   interpolateColor,
   useAnimatedStyle,
   useSharedValue,
   withTiming,
-} from "react-native-reanimated";
-import { ThemedText } from "./themed-text";
+} from 'react-native-reanimated';
+import { ThemedText } from './themed-text';
 
 type ThemedToggleProps = {
   labelActive?: string;
@@ -23,15 +23,15 @@ const THUMB_WIDTH = 45;
 const EASING = Easing.bezier(0.4, 0, 0.2, 1);
 
 const ThemedToggle = ({
-  labelActive = "an",
-  labelInactive = "aus",
+  labelActive = 'an',
+  labelInactive = 'aus',
   onValueChange,
   ...props
 }: ThemedToggleProps) => {
-  const primary900Color = useThemeColor({}, "primary-900");
-  const primary100Color = useThemeColor({}, "primary-100");
+  const primary900Color = useThemeColor({}, 'primary-900');
+  const primary100Color = useThemeColor({}, 'primary-100');
 
-  const [isActive, setIsActive] = useState(props.isActive ?? "false");
+  const [isActive, setIsActive] = useState(props.isActive ?? 'false');
   const progress = useSharedValue(isActive ? 1 : 0);
 
   const onPress = () => {
@@ -48,12 +48,12 @@ const ThemedToggle = ({
     backgroundColor: interpolateColor(
       progress.value,
       [0, 1],
-      ["transparent", primary900Color],
+      ['transparent', primary900Color],
     ),
     borderColor: interpolateColor(
       progress.value,
       [0, 1],
-      [primary900Color, "transparent"],
+      [primary900Color, 'transparent'],
     ),
   }));
 
@@ -80,16 +80,16 @@ const ThemedToggle = ({
     <Animated.View
       onTouchEndCapture={onPress}
       style={[
-        styles["main-container"],
+        styles['main-container'],
         containerAnimatedStyle,
         {
-          justifyContent: "center",
+          justifyContent: 'center',
           borderWidth: 1.5,
-          borderStyle: "dashed",
+          borderStyle: 'dashed',
         },
       ]}
     >
-      <Animated.View style={[styles["thumb"], thumbAnimatedStyle]}>
+      <Animated.View style={[styles['thumb'], thumbAnimatedStyle]}>
         <ThemedText
           type="caption"
           color={isActive ? primary900Color : primary100Color}
@@ -102,7 +102,7 @@ const ThemedToggle = ({
 };
 
 const styles = StyleSheet.create({
-  "main-container": {
+  'main-container': {
     paddingVertical: 1.5,
     paddingHorizontal: 1.5,
     width: TOGGLE_WIDTH,
@@ -112,10 +112,10 @@ const styles = StyleSheet.create({
   thumb: {
     width: THUMB_WIDTH,
     borderRadius: 9999,
-    height: "100%",
-    justifyContent: "center",
-    alignItems: "center",
-    alignSelf: "flex-start",
+    height: '100%',
+    justifyContent: 'center',
+    alignItems: 'center',
+    alignSelf: 'flex-start',
   },
 });
 

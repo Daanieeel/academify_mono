@@ -1,10 +1,10 @@
-const fs = require("fs");
-const path = require("path");
+const fs = require('fs');
+const path = require('path');
 
-const iconsDir = path.join(__dirname, "..", "assets", "icons");
-const outPutfile = path.join(iconsDir, "index.ts");
+const iconsDir = path.join(__dirname, '..', 'assets', 'icons');
+const outPutfile = path.join(iconsDir, 'index.ts');
 
-const files = fs.readdirSync(iconsDir).filter((f) => f.endsWith(".svg"));
+const files = fs.readdirSync(iconsDir).filter((f) => f.endsWith('.svg'));
 
 const lines = files.map((f) => {
   const name = path.parse(f).name;
@@ -15,5 +15,5 @@ const lines = files.map((f) => {
   return `export { default as '${name}' } from './${name}.svg';`;
 });
 
-fs.writeFileSync(outPutfile, lines.join("\n"));
+fs.writeFileSync(outPutfile, lines.join('\n'));
 console.log(`Generated icons index with ${files.length} icons.`);

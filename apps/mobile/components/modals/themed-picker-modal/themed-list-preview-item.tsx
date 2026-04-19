@@ -1,9 +1,9 @@
-import SmallButton from "@/components/buttons/small-button";
-import { useThemeColor } from "@/hooks/use-theme-color";
-import React from "react";
-import { View } from "react-native";
-import ProfilePic from "../../profile-pic";
-import { ThemedText } from "../../themed-text";
+import SmallButton from '@/components/buttons/small-button';
+import { useThemeColor } from '@/hooks/use-theme-color';
+import React from 'react';
+import { View } from 'react-native';
+import ProfilePic from '../../profile-pic';
+import { ThemedText } from '../../themed-text';
 
 export type ThemedListPreviewItemProps = {
   avatar?: React.ReactNode;
@@ -21,7 +21,7 @@ const ThemedListPreviewItem = ({
   showRemoveButton = false,
   ...props
 }: ThemedListPreviewItemProps) => {
-  const previewBackgroundColor = useThemeColor({}, "neutral-100");
+  const previewBackgroundColor = useThemeColor({}, 'neutral-100');
 
   return (
     <View
@@ -29,20 +29,20 @@ const ThemedListPreviewItem = ({
         backgroundColor: props.backgroundColor ?? previewBackgroundColor,
         paddingVertical: props.paddingVertical ?? 15,
         paddingHorizontal: props.paddingHorizontal,
-        justifyContent: "space-between",
+        justifyContent: 'space-between',
         borderRadius: props.borderRadius,
-        alignItems: "center",
-        flexDirection: "row",
+        alignItems: 'center',
+        flexDirection: 'row',
       }}
     >
       <View
-        style={{ flex: 1, gap: 20, alignItems: "center", flexDirection: "row" }}
+        style={{ flex: 1, gap: 20, alignItems: 'center', flexDirection: 'row' }}
       >
         <ProfilePic showBorder={false} size="small"></ProfilePic>
         <View
           style={{
-            flexDirection: "column",
-            alignItems: "flex-start",
+            flexDirection: 'column',
+            alignItems: 'flex-start',
           }}
         >
           <ThemedText type="body">{props.heading}</ThemedText>

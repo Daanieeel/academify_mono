@@ -1,43 +1,43 @@
-import { useThemeColor } from "@/hooks/use-theme-color";
-import React from "react";
-import { View } from "react-native";
+import { useThemeColor } from '@/hooks/use-theme-color';
+import React from 'react';
+import { View } from 'react-native';
 
-import IcomoonIcon from "@/components/IcomoonIcon";
-import { ThemedText } from "@/components/themed-text";
-import ThemedToggle from "@/components/themed-toggle";
+import IcomoonIcon from '@/components/IcomoonIcon';
+import { ThemedText } from '@/components/themed-text';
+import ThemedToggle from '@/components/themed-toggle';
 
 export type ThemedSettingsItemProp = {
   label: string;
   icomoonIcon: string;
-  type: "switch" | "link";
+  type: 'switch' | 'link';
   onPressAction?: string;
   isActive?: boolean;
   onValueChange?: () => void;
 };
 
 const ThemedSettingsItem = ({ ...props }: ThemedSettingsItemProp) => {
-  const neutral100Color = useThemeColor({}, "neutral-100");
-  const neutral900Color = useThemeColor({}, "neutral-900");
-  const primary300Color = useThemeColor({}, "primary-300");
+  const neutral100Color = useThemeColor({}, 'neutral-100');
+  const neutral900Color = useThemeColor({}, 'neutral-900');
+  const primary300Color = useThemeColor({}, 'primary-300');
 
   return (
     <View
       style={{
         backgroundColor: neutral100Color,
-        width: "100%",
+        width: '100%',
         height: 68,
-        justifyContent: "space-between",
+        justifyContent: 'space-between',
         paddingHorizontal: 20,
-        alignItems: "center",
-        flexDirection: "row",
+        alignItems: 'center',
+        flexDirection: 'row',
         borderRadius: 18,
       }}
     >
       <View
         style={{
           gap: 15,
-          flexDirection: "row",
-          alignItems: "center",
+          flexDirection: 'row',
+          alignItems: 'center',
         }}
       >
         <IcomoonIcon
@@ -49,7 +49,7 @@ const ThemedSettingsItem = ({ ...props }: ThemedSettingsItemProp) => {
           {props.label}
         </ThemedText>
       </View>
-      {props.type == "link" ? (
+      {props.type == 'link' ? (
         <View
           style={{
             paddingHorizontal: 8,

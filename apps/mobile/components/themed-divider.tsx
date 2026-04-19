@@ -1,6 +1,6 @@
-import { useThemeColor } from "@/hooks/use-theme-color";
-import React from "react";
-import { View, ViewStyle } from "react-native";
+import { useThemeColor } from '@/hooks/use-theme-color';
+import React from 'react';
+import { View, ViewStyle } from 'react-native';
 
 export type ThemedDividerProps = {
   props?: React.ComponentProps<typeof View>;
@@ -8,7 +8,7 @@ export type ThemedDividerProps = {
 };
 
 const ThemedDivider = (props: ThemedDividerProps) => {
-  const dividerColor = useThemeColor({}, "neutral-100");
+  const dividerColor = useThemeColor({}, 'neutral-100');
 
   return (
     <View

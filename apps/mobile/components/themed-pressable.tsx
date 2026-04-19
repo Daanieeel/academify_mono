@@ -1,8 +1,8 @@
 // adds a press animation to a child along with an onPress property
 
-import { FeedbackType, useHaptic } from "@/hooks/use-haptics";
-import React, { useRef } from "react";
-import { Animated, Pressable, PressableProps } from "react-native";
+import { FeedbackType, useHaptic } from '@/hooks/use-haptics';
+import React, { useRef } from 'react';
+import { Animated, Pressable, PressableProps } from 'react-native';
 
 export type ThemedPressableProps = PressableProps & {
   children?: React.ReactNode;
@@ -15,7 +15,7 @@ export type ThemedPressableProps = PressableProps & {
 
 const ThemedPressable = ({
   disabled = false,
-  feedBackType = "selection",
+  feedBackType = 'selection',
   scaleFactor = 0.96,
   animationEnabled = true,
   ...props

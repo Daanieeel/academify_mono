@@ -1,6 +1,6 @@
-import { useThemeColor } from "@/hooks/use-theme-color";
-import React, { useState } from "react";
-import { LayoutChangeEvent, Modal, StyleSheet, View } from "react-native";
+import { useThemeColor } from '@/hooks/use-theme-color';
+import React, { useState } from 'react';
+import { LayoutChangeEvent, Modal, StyleSheet, View } from 'react-native';
 
 type ThemedModalProps = {
   children?: React.ReactNode;
@@ -9,8 +9,8 @@ type ThemedModalProps = {
 };
 
 const ThemedModal = (props: ThemedModalProps) => {
-  const modalDismisserColor = useThemeColor({}, "neutral-300");
-  const backgroundColor = useThemeColor({}, "neutral-100");
+  const modalDismisserColor = useThemeColor({}, 'neutral-300');
+  const backgroundColor = useThemeColor({}, 'neutral-100');
   const [modalWidth, setModalWidth] = useState(0);
 
   const onLayout = (event: LayoutChangeEvent) => {
@@ -22,7 +22,7 @@ const ThemedModal = (props: ThemedModalProps) => {
     <Modal
       backdropColor={backgroundColor}
       style={[
-        styles["modal-style"],
+        styles['modal-style'],
         {
           backgroundColor,
         },
@@ -32,11 +32,11 @@ const ThemedModal = (props: ThemedModalProps) => {
       visible={props.visible}
       presentationStyle="pageSheet"
     >
-      <View onLayout={onLayout} style={styles["main-view"]}>
+      <View onLayout={onLayout} style={styles['main-view']}>
         {/* Small modal dismiss indicator, iOS inspired */}
         <View
           style={[
-            styles["dismisser"],
+            styles['dismisser'],
             {
               left: modalWidth / 2 - 25,
               backgroundColor: modalDismisserColor,
@@ -51,18 +51,18 @@ const ThemedModal = (props: ThemedModalProps) => {
 };
 
 const styles = StyleSheet.create({
-  "modal-style": {
+  'modal-style': {
     paddingHorizontal: 15,
     paddingTop: 30,
   },
   dismisser: {
-    position: "absolute",
+    position: 'absolute',
     borderRadius: 999,
     top: 10,
     width: 50,
     height: 5,
   },
-  "main-view": {
+  'main-view': {
     flex: 1,
     paddingTop: 25,
   },

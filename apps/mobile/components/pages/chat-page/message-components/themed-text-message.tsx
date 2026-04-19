@@ -1,6 +1,6 @@
-import { ThemedText } from "@/components/themed-text";
-import React from "react";
-import { View } from "react-native";
+import { ThemedText } from '@/components/themed-text';
+import React from 'react';
+import { View } from 'react-native';
 
 export type ThemedTextMessageProps = {
   message: string;

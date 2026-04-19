@@ -1,18 +1,18 @@
-import IcomoonIcon from "@/components/IcomoonIcon";
-import { ThemedText } from "@/components/themed-text";
-import { useThemeColor } from "@/hooks/use-theme-color";
-import { Tabs } from "expo-router";
-import React from "react";
-import { View } from "react-native";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
+import IcomoonIcon from '@/components/IcomoonIcon';
+import { ThemedText } from '@/components/themed-text';
+import { useThemeColor } from '@/hooks/use-theme-color';
+import { Tabs } from 'expo-router';
+import React from 'react';
+import { View } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 const TAB_BAR_HEIGHT = 75;
 
 export default function TabLayout() {
-  const primary100Color = useThemeColor({}, "primary-100");
-  const primary900Color = useThemeColor({}, "primary-900");
-  const neutral50Color = useThemeColor({}, "neutral-50");
-  const neutral900Color = useThemeColor({}, "neutral-900");
+  const primary100Color = useThemeColor({}, 'primary-100');
+  const primary900Color = useThemeColor({}, 'primary-900');
+  const neutral50Color = useThemeColor({}, 'neutral-50');
+  const neutral900Color = useThemeColor({}, 'neutral-900');
   const tabBarIconSize = 25;
 
   const safeAreBottomInsets = useSafeAreaInsets().bottom;
@@ -32,7 +32,7 @@ export default function TabLayout() {
         tabBarActiveTintColor: primary900Color,
         tabBarInactiveTintColor: neutral900Color,
         tabBarIconStyle: {
-          alignItems: "center",
+          alignItems: 'center',
           height: 40,
         },
         tabBarStyle: {
@@ -56,11 +56,11 @@ export default function TabLayout() {
           tabBarIcon: ({ focused, color }) => (
             <View
               style={{
-                backgroundColor: focused ? primary100Color : "transparent",
+                backgroundColor: focused ? primary100Color : 'transparent',
                 width: 60,
                 height: 30,
-                justifyContent: "center",
-                alignItems: "center",
+                justifyContent: 'center',
+                alignItems: 'center',
                 borderRadius: 10,
               }}
             >
@@ -84,11 +84,11 @@ export default function TabLayout() {
           tabBarIcon: ({ focused, color }) => (
             <View
               style={{
-                backgroundColor: focused ? primary100Color : "transparent",
+                backgroundColor: focused ? primary100Color : 'transparent',
                 width: 60,
                 height: 30,
-                justifyContent: "center",
-                alignItems: "center",
+                justifyContent: 'center',
+                alignItems: 'center',
                 borderRadius: 10,
               }}
             >
@@ -112,11 +112,11 @@ export default function TabLayout() {
           tabBarIcon: ({ focused, color }) => (
             <View
               style={{
-                backgroundColor: focused ? primary100Color : "transparent",
+                backgroundColor: focused ? primary100Color : 'transparent',
                 width: 60,
                 height: 30,
-                justifyContent: "center",
-                alignItems: "center",
+                justifyContent: 'center',
+                alignItems: 'center',
                 borderRadius: 10,
               }}
             >
@@ -140,11 +140,11 @@ export default function TabLayout() {
           tabBarIcon: ({ focused, color }) => (
             <View
               style={{
-                backgroundColor: focused ? primary100Color : "transparent",
+                backgroundColor: focused ? primary100Color : 'transparent',
                 width: 60,
                 height: 30,
-                justifyContent: "center",
-                alignItems: "center",
+                justifyContent: 'center',
+                alignItems: 'center',
                 borderRadius: 10,
               }}
             >

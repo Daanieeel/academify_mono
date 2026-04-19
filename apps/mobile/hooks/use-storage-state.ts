@@ -1,5 +1,5 @@
-import * as SecureStore from "expo-secure-store";
-import { useCallback, useEffect, useReducer } from "react";
+import * as SecureStore from 'expo-secure-store';
+import { useCallback, useEffect, useReducer } from 'react';
 
 type UseStateHook<T> = [[boolean, T | null], (value: T | null) => void];
 

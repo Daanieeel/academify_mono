@@ -1,20 +1,20 @@
-import SmallButton from "@/components/buttons/small-button";
-import ProfilePic from "@/components/profile-pic";
-import ThemedPressable from "@/components/themed-pressable";
-import { ThemedText } from "@/components/themed-text";
-import { useThemeColor } from "@/hooks/use-theme-color";
-import { router } from "expo-router";
-import React from "react";
-import { StyleSheet, View } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
+import SmallButton from '@/components/buttons/small-button';
+import ProfilePic from '@/components/profile-pic';
+import ThemedPressable from '@/components/themed-pressable';
+import { ThemedText } from '@/components/themed-text';
+import { useThemeColor } from '@/hooks/use-theme-color';
+import { router } from 'expo-router';
+import React from 'react';
+import { StyleSheet, View } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 export type ThemedChatPageHeaderProps = {
   onChatAboutPressed: () => void;
 };
 
 const ThemedChatPageHeader = (props: ThemedChatPageHeaderProps) => {
-  const neutral900Color = useThemeColor({}, "neutral-900");
-  const neutral50Color = useThemeColor({}, "neutral-50");
+  const neutral900Color = useThemeColor({}, 'neutral-900');
+  const neutral50Color = useThemeColor({}, 'neutral-50');
 
   const onBackButtonPressed = () => {
     router.back();
@@ -22,9 +22,9 @@ const ThemedChatPageHeader = (props: ThemedChatPageHeaderProps) => {
 
   return (
     <SafeAreaView
-      edges={["top"]}
+      edges={['top']}
       style={[
-        styles["main-container"],
+        styles['main-container'],
         {
           borderBottomColor: neutral900Color,
           backgroundColor: neutral50Color,
@@ -33,8 +33,8 @@ const ThemedChatPageHeader = (props: ThemedChatPageHeaderProps) => {
     >
       <View
         style={{
-          flexDirection: "row",
-          alignItems: "center",
+          flexDirection: 'row',
+          alignItems: 'center',
           gap: 20,
         }}
       >
@@ -47,11 +47,11 @@ const ThemedChatPageHeader = (props: ThemedChatPageHeaderProps) => {
           <View
             style={{
               gap: 10,
-              flexDirection: "row",
-              alignItems: "center",
+              flexDirection: 'row',
+              alignItems: 'center',
             }}
           >
-            <ProfilePic size={"small"}></ProfilePic>
+            <ProfilePic size={'small'}></ProfilePic>
             <ThemedText type="body">Bio K1A24</ThemedText>
           </View>
         </ThemedPressable>
@@ -66,15 +66,15 @@ const ThemedChatPageHeader = (props: ThemedChatPageHeaderProps) => {
 };
 
 const styles = StyleSheet.create({
-  "main-container": {
+  'main-container': {
     paddingHorizontal: 15,
     paddingBottom: 10,
     borderBottomWidth: 1.5,
     paddingTop: 20,
-    width: "100%",
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
+    width: '100%',
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
     zIndex: 9999,
   },
 });

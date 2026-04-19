@@ -1,16 +1,16 @@
 // Simple button component; see figma file for variants
 
-import { useHaptic } from "@/hooks/use-haptics";
-import { useThemeColor } from "@/hooks/use-theme-color";
-import React, { useRef } from "react";
-import { Animated, StyleSheet } from "react-native";
-import IcomoonIcon from "../IcomoonIcon";
-import { ThemedText } from "../themed-text";
+import { useHaptic } from '@/hooks/use-haptics';
+import { useThemeColor } from '@/hooks/use-theme-color';
+import React, { useRef } from 'react';
+import { Animated, StyleSheet } from 'react-native';
+import IcomoonIcon from '../IcomoonIcon';
+import { ThemedText } from '../themed-text';
 
 type SimpleButtonProps = {
   label: string;
   onPress: () => void;
-  type: "primary" | "secondary";
+  type: 'primary' | 'secondary';
   icomoonIcon?: string;
   icomoonIconColor?: string;
   icomoonIconSize?: number;
@@ -32,13 +32,13 @@ const SimpleButton = ({
   dynamicIconLeft,
   customTextColor,
 }: SimpleButtonProps) => {
-  const selectionHaptic = useHaptic("selection");
+  const selectionHaptic = useHaptic('selection');
   const scaleAnim = useRef(new Animated.Value(1)).current;
-  const neutral900Color = useThemeColor({}, "neutral-900");
-  const neutral700Color = useThemeColor({}, "neutral-700");
-  const neutral100Color = useThemeColor({}, "neutral-100");
-  const neutral200Color = useThemeColor({}, "neutral-200");
-  const neutral50Color = useThemeColor({}, "neutral-50");
+  const neutral900Color = useThemeColor({}, 'neutral-900');
+  const neutral700Color = useThemeColor({}, 'neutral-700');
+  const neutral100Color = useThemeColor({}, 'neutral-100');
+  const neutral200Color = useThemeColor({}, 'neutral-200');
+  const neutral50Color = useThemeColor({}, 'neutral-50');
 
   const handlePressIn = () => {
     selectionHaptic && selectionHaptic();
@@ -65,10 +65,10 @@ const SimpleButton = ({
       onTouchStart={handlePressIn}
       onTouchEndCapture={handlePressOut}
       style={[
-        type === "primary"
+        type === 'primary'
           ? { backgroundColor: neutral900Color, borderColor: neutral700Color }
-          : { backgroundColor: "transparent", borderColor: neutral200Color },
-        styles["main-container"],
+          : { backgroundColor: 'transparent', borderColor: neutral200Color },
+        styles['main-container'],
         { transform: [{ scale: scaleAnim }] },
       ]}
     >
@@ -77,7 +77,7 @@ const SimpleButton = ({
         type="body"
         color={
           customTextColor ||
-          (type === "primary" ? neutral50Color : neutral900Color)
+          (type === 'primary' ? neutral50Color : neutral900Color)
         }
         style={[styles.label]}
       >
@@ -89,7 +89,7 @@ const SimpleButton = ({
           size={icomoonIconSize}
           color={
             icomoonIconColor ||
-            (type === "primary" ? neutral50Color : neutral900Color)
+            (type === 'primary' ? neutral50Color : neutral900Color)
           }
         />
       )}
@@ -100,16 +100,16 @@ const SimpleButton = ({
 
 const styles = StyleSheet.create({
   label: {
-    color: "#fff",
+    color: '#fff',
   },
-  "main-container": {
+  'main-container': {
     borderRadius: 18,
     paddingHorizontal: 25,
     height: 60,
     borderWidth: 1.5,
-    justifyContent: "center",
-    alignItems: "center",
-    flexDirection: "row",
+    justifyContent: 'center',
+    alignItems: 'center',
+    flexDirection: 'row',
     gap: 8,
   },
 });

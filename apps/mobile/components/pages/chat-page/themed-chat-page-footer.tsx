@@ -1,36 +1,36 @@
 // The footer for the chat page including a textfield and buttons for attachments as well as the send button
 
-import { useThemeColor } from "@/hooks/use-theme-color";
-import React, { useEffect, useRef, useState } from "react";
-import { Keyboard, StyleSheet, View } from "react-native";
+import { useThemeColor } from '@/hooks/use-theme-color';
+import React, { useEffect, useRef, useState } from 'react';
+import { Keyboard, StyleSheet, View } from 'react-native';
 import Animated, {
   Easing,
   useAnimatedStyle,
   useSharedValue,
   withSpring,
   withTiming,
-} from "react-native-reanimated";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
+} from 'react-native-reanimated';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import SmallButton from "@/components/buttons/small-button";
-import ThemedRoundButton from "@/components/buttons/themed-round-button";
-import IcomoonIcon from "@/components/IcomoonIcon";
-import ThemedPressable from "@/components/themed-pressable";
-import ThemedTextField from "@/components/themed-text-field";
+import SmallButton from '@/components/buttons/small-button';
+import ThemedRoundButton from '@/components/buttons/themed-round-button';
+import IcomoonIcon from '@/components/IcomoonIcon';
+import ThemedPressable from '@/components/themed-pressable';
+import ThemedTextField from '@/components/themed-text-field';
 
 const ATTACHMENT_BUTTON_HEIGHT = 280;
 
 export type ThemedChatPageFooterProps = {
-  currentDisplay: "keyboard" | "attachments" | "none";
-  setCurrentDisplay: (display: "keyboard" | "attachments" | "none") => void;
+  currentDisplay: 'keyboard' | 'attachments' | 'none';
+  setCurrentDisplay: (display: 'keyboard' | 'attachments' | 'none') => void;
 };
 
 const ThemedChatPageFooter = ({
   currentDisplay,
   setCurrentDisplay,
 }: ThemedChatPageFooterProps) => {
-  const neutral50Color = useThemeColor({}, "neutral-50");
-  const neutral900Color = useThemeColor({}, "neutral-900");
+  const neutral50Color = useThemeColor({}, 'neutral-50');
+  const neutral900Color = useThemeColor({}, 'neutral-900');
   const safeAreaBottom = useSafeAreaInsets().bottom;
 
   const inputRef = useRef(null);
@@ -44,22 +44,22 @@ const ThemedChatPageFooter = ({
   // Gets updated based on whether the keyboard is shown
   // When the safe area is 0, a small padding is added
 
-  const [input, setInput] = useState("");
+  const [input, setInput] = useState('');
 
   useEffect(() => {
-    showSend.value = withSpring(input != "" ? 1 : 0, { duration: 200 });
+    showSend.value = withSpring(input != '' ? 1 : 0, { duration: 200 });
   }, [input]);
 
   useEffect(() => {
-    console.log("current display changed to", currentDisplay);
+    console.log('current display changed to', currentDisplay);
     switch (currentDisplay) {
-      case "keyboard":
+      case 'keyboard':
         changeBottomPadding(keyboardHeight + 10);
         break;
-      case "attachments":
+      case 'attachments':
         changeBottomPadding(ATTACHMENT_BUTTON_HEIGHT);
         break;
-      case "none":
+      case 'none':
         inputRef.current?.blur();
         changeBottomPadding(additionalPadding + safeAreaBottom);
         break;
@@ -67,10 +67,10 @@ const ThemedChatPageFooter = ({
   }, [currentDisplay]);
 
   useEffect(() => {
-    const showSub = Keyboard.addListener("keyboardWillShow", (e) => {
+    const showSub = Keyboard.addListener('keyboardWillShow', (e) => {
       setKeyboardHeight(e.endCoordinates.height);
     });
-    const hideSub = Keyboard.addListener("keyboardWillHide", () => {});
+    const hideSub = Keyboard.addListener('keyboardWillHide', () => {});
     return () => {
       hideSub.remove();
       showSub.remove();
@@ -78,18 +78,18 @@ const ThemedChatPageFooter = ({
   }, []);
 
   const onTextFieldPress = () => {
-    setCurrentDisplay("keyboard");
+    setCurrentDisplay('keyboard');
   };
 
   const onShowAttachmentButtonsPressed = () => {
-    if (currentDisplay == "keyboard") {
-      setCurrentDisplay("attachments");
+    if (currentDisplay == 'keyboard') {
+      setCurrentDisplay('attachments');
       inputRef.current.blur();
-    } else if (currentDisplay == "attachments") {
-      setCurrentDisplay("keyboard");
+    } else if (currentDisplay == 'attachments') {
+      setCurrentDisplay('keyboard');
       inputRef.current.focus();
-    } else if (currentDisplay == "none") {
-      setCurrentDisplay("attachments");
+    } else if (currentDisplay == 'none') {
+      setCurrentDisplay('attachments');
     }
   };
 
@@ -116,7 +116,7 @@ const ThemedChatPageFooter = ({
   return (
     <Animated.View
       style={[
-        styles["main-container"],
+        styles['main-container'],
         animatedPaddingStyle,
         {
           backgroundColor: neutral50Color,
@@ -128,8 +128,8 @@ const ThemedChatPageFooter = ({
 
       <View
         style={{
-          flexDirection: "row",
-          alignItems: "center",
+          flexDirection: 'row',
+          alignItems: 'center',
         }}
       >
         {/* Plus Button to show attachments */}
@@ -142,7 +142,7 @@ const ThemedChatPageFooter = ({
           onPress={onShowAttachmentButtonsPressed}
         >
           <IcomoonIcon
-            name={currentDisplay == "attachments" ? "keyboard" : "plus"}
+            name={currentDisplay == 'attachments' ? 'keyboard' : 'plus'}
             size={25}
           ></IcomoonIcon>
         </ThemedPressable>
@@ -167,7 +167,7 @@ const ThemedChatPageFooter = ({
 
         {/* Send button when text field is not empty*/}
 
-        {input != "" ? (
+        {input != '' ? (
           <Animated.View
             style={[
               sendButtonStyle,
@@ -188,56 +188,56 @@ const ThemedChatPageFooter = ({
 
       {/* Attachment buttons */}
 
-      {currentDisplay === "attachments" ? (
+      {currentDisplay === 'attachments' ? (
         <View
           style={{
-            position: "absolute",
+            position: 'absolute',
             right: 0,
             left: 0,
             bottom: 0,
             height: ATTACHMENT_BUTTON_HEIGHT,
-            alignItems: "center",
-            justifyContent: "center",
+            alignItems: 'center',
+            justifyContent: 'center',
           }}
         >
           <View
             style={{
-              width: "80%",
-              justifyContent: "space-between",
-              flexDirection: "row",
+              width: '80%',
+              justifyContent: 'space-between',
+              flexDirection: 'row',
               gap: 30,
-              alignItems: "center",
-              flexWrap: "wrap",
+              alignItems: 'center',
+              flexWrap: 'wrap',
             }}
           >
             <ThemedRoundButton
-              label={"Bild"}
-              icomoonIcon={"image"}
+              label={'Bild'}
+              icomoonIcon={'image'}
               onPress={() => {}}
             />
             <ThemedRoundButton
-              label={"Bild"}
-              icomoonIcon={"image"}
+              label={'Bild'}
+              icomoonIcon={'image'}
               onPress={() => {}}
             />
             <ThemedRoundButton
-              label={"Kamera"}
-              icomoonIcon={"camera"}
+              label={'Kamera'}
+              icomoonIcon={'camera'}
               onPress={() => {}}
             />
             <ThemedRoundButton
-              label={"Kamera"}
-              icomoonIcon={"camera"}
+              label={'Kamera'}
+              icomoonIcon={'camera'}
               onPress={() => {}}
             />
             <ThemedRoundButton
-              label={"Umfrage"}
-              icomoonIcon={"poll"}
+              label={'Umfrage'}
+              icomoonIcon={'poll'}
               onPress={() => {}}
             />
             <ThemedRoundButton
-              label={"Bild"}
-              icomoonIcon={"image"}
+              label={'Bild'}
+              icomoonIcon={'image'}
               onPress={() => {}}
             />
           </View>
@@ -248,12 +248,12 @@ const ThemedChatPageFooter = ({
 };
 
 const styles = StyleSheet.create({
-  "main-container": {
+  'main-container': {
     paddingHorizontal: 15,
     zIndex: 9999,
     borderTopWidth: 1.5,
     paddingTop: 10,
-    flexDirection: "column",
+    flexDirection: 'column',
     gap: 10,
   },
 });

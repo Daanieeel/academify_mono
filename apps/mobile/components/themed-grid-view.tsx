@@ -1,11 +1,11 @@
-import React, { useState } from "react";
+import React, { useState } from 'react';
 import {
   LayoutChangeEvent,
   StyleProp,
   StyleSheet,
   View,
   ViewStyle,
-} from "react-native";
+} from 'react-native';
 
 export type ThemedGridViewProps = {
   items: React.ReactNode[];
@@ -41,7 +41,7 @@ const ThemedGridView = ({ gap = 10, ...props }: ThemedGridViewProps) => {
           <View
             style={[
               styles.inner,
-              { justifyContent: isSparseRow ? "flex-start" : "space-between" },
+              { justifyContent: isSparseRow ? 'flex-start' : 'space-between' },
             ]}
             key={rowIndex}
           >
@@ -57,7 +57,7 @@ const ThemedGridView = ({ gap = 10, ...props }: ThemedGridViewProps) => {
 
 const styles = StyleSheet.create({
   inner: {
-    flexDirection: "row",
+    flexDirection: 'row',
   },
 });
 
