@@ -31,6 +31,16 @@ A secure communication platform (web + mobile) for schools/universities:
 - DB ORM: **Prisma**
 - Redis: queue + pub/sub + ephemeral presence/sync signals
 
+## Local development onboarding
+
+See `docs/local-development.md` for complete setup instructions:
+
+- prerequisites
+- environment variables by app/package
+- running migrations
+- starting gateway/worker/web/mobile
+- tests, linting, and troubleshooting
+
 ---
 
 ## 2) Target architecture (finalized)
