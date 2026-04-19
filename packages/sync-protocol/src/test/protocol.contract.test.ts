@@ -3,9 +3,13 @@ import { describe, expect, it } from 'bun:test';
 import {
   PROTOCOL_VERSION,
   ackRequestDtoSchema,
+  createClientHello,
+  createUserEventEnvelope,
   clientHelloMessageSchema,
   eventTypeSchema,
+  isWsMessage,
   liveEventNotifyMessageSchema,
+  parseWsMessage,
   serverSyncRequiredMessageSchema,
   syncRequestDtoSchema,
   userEventEnvelopeSchema,
@@ -188,5 +192,43 @@ describe('REST DTO schemas', () => {
     };
 
     expect(ackRequestDtoSchema.safeParse(payload).success).toBe(false);
+  });
+});
+
+describe('runtime API', () => {
+  it('builds client hello with protocol default', () => {
+    const message = createClientHello({ last_ack_cursor: '5' });
+
+    expect(message.version).toBe(PROTOCOL_VERSION);
+    expect(message.type).toBe('client.hello');
+  });
+
+  it('builds and validates event envelope via helper', () => {
+    const envelope = createUserEventEnvelope({
+      event_id: '550e8400-e29b-41d4-a716-446655440000',
+      user_id: 'user_123',
+      cursor: '42',
+      event_type: 'message.created',
+      entity_id: 'chat_abc',
+      created_at: '2026-04-19T10:15:30.000Z',
+      payload_metadata: {
+        encryption: 'mls',
+        content_type: 'application/json',
+      },
+    });
+
+    expect(userEventEnvelopeSchema.safeParse(envelope).success).toBe(true);
+  });
+
+  it('parses ws message and narrows by guard', () => {
+    const parsed = parseWsMessage({
+      version: PROTOCOL_VERSION,
+      type: 'client.hello',
+      last_ack_cursor: '0',
+    });
+
+    expect(parsed.type).toBe('client.hello');
+    expect(isWsMessage(parsed)).toBe(true);
+    expect(isWsMessage({ type: 'unknown' })).toBe(false);
   });
 });

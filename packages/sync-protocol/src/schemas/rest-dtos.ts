@@ -1,7 +1,6 @@
 import { z } from 'zod';
 
-import { cursorSchema } from './cursor';
-import { protocolVersionSchema } from './protocol-version';
+import { cursorSchema, protocolVersionSchema } from './core';
 import { userEventEnvelopeSchema } from './event-envelope';
 
 export const syncRequestDtoSchema = z

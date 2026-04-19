@@ -1,14 +1,16 @@
 import { z } from 'zod';
 
-import { cursorSchema } from './cursor';
-import { eventTypeSchema } from './event-types';
-import { payloadMetadataSchema } from './payload-metadata';
-import { protocolVersionSchema } from './protocol-version';
+import {
+  cursorSchema,
+  eventTypeSchema,
+  payloadMetadataSchema,
+  protocolVersionSchema,
+} from './core';
 
 export const userEventEnvelopeSchema = z
   .object({
     version: protocolVersionSchema,
-    event_id: z.string().uuid(),
+    event_id: z.uuid(),
     user_id: z.string().min(1),
     cursor: cursorSchema,
     event_type: eventTypeSchema,
