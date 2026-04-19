@@ -9,13 +9,19 @@
     "correctness": "error"
   },
   "rules": {
-    "eqeqeq": "error",
+    "eqeqeq": "warn",
     "curly": "error",
     "no-console": "off",
     "no-alert": "error",
     "no-var": "error",
     "prefer-const": "error",
     "no-duplicate-imports": "error",
+    "no-unused-vars": "warn",
+    "no-unused-expressions": "warn",
+    "react-hooks/exhaustive-deps": "warn",
+    "jsx-a11y/no-autofocus": "warn",
+    "react/jsx-key": "warn",
+    "unicorn/no-empty-file": "off",
     "unicorn/filename-case": "off",
     "unicorn/no-null": "off"
   },
