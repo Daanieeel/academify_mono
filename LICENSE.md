@@ -1,6 +1,6 @@
 # COPYRIGHT AND LICENSE NOTICE
 
-Copyright (c) 2026 Daniel Dopatka & Linus Bung \
+Copyright (c) 2026 Daniel Dopatka \
 All Rights Reserved.
 
 ## 1. Public Viewing & Auditing
