@@ -7,7 +7,7 @@
     "build": "next build",
     "start": "next start",
     "test": "echo \"No tests yet for web\"",
-    "lint": "echo \"No lint target configured for web\"",
+    "lint": "bunx oxlint -c ../../packages/config/oxlint/base.json --react-plugin --jsx-a11y-plugin --nextjs-plugin --react-perf-plugin --deny-warnings .",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {

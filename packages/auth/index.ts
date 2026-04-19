@@ -1,5 +1,5 @@
-import { createBlindIndex } from "@repo/crypto";
-import { z } from "zod";
+import { createBlindIndex } from '@repo/crypto';
+import { z } from 'zod';
 
 const sessionSchema = z.object({
   userId: z.string().min(1),

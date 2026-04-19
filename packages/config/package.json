@@ -4,15 +4,15 @@
   "private": true,
   "files": [
     "tsconfig",
-    "eslint",
-    "prettier"
+    "oxlint",
+    "oxfmt"
   ],
   "exports": {
     "./tsconfig/base": "./tsconfig/base.json",
     "./tsconfig/library": "./tsconfig/library.json",
     "./tsconfig/app": "./tsconfig/app.json",
-    "./eslint/base": "./eslint/base.cjs",
-    "./prettier/base": "./prettier/base.cjs"
+    "./oxlint/base": "./oxlint/base.json",
+    "./oxfmt/base": "./oxfmt/base.json"
   },
   "scripts": {
     "dev": "echo \"Config package has no dev server\"",
