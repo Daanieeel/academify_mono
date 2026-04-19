@@ -1,0 +1,24 @@
+{
+  "name": "@repo/config",
+  "version": "0.0.0",
+  "private": true,
+  "files": [
+    "tsconfig",
+    "eslint",
+    "prettier"
+  ],
+  "exports": {
+    "./tsconfig/base": "./tsconfig/base.json",
+    "./tsconfig/library": "./tsconfig/library.json",
+    "./tsconfig/app": "./tsconfig/app.json",
+    "./eslint/base": "./eslint/base.cjs",
+    "./prettier/base": "./prettier/base.cjs"
+  },
+  "scripts": {
+    "dev": "echo \"Config package has no dev server\"",
+    "build": "echo \"Config package has no build output\"",
+    "test": "echo \"No tests for config package\"",
+    "lint": "echo \"No lint target configured for config package\"",
+    "typecheck": "echo \"No typecheck target configured for config package\""
+  }
+}

@@ -1,0 +1,31 @@
+{
+  "name": "edu-chat-platform",
+  "private": true,
+  "packageManager": "bun@1.3.5",
+  "workspaces": [
+    "apps/web",
+    "apps/mobile",
+    "apps/api-gateway",
+    "apps/worker",
+    "packages/database",
+    "packages/mls",
+    "packages/crypto",
+    "packages/redis",
+    "packages/sync-protocol",
+    "packages/auth",
+    "packages/config"
+  ],
+  "scripts": {
+    "build": "turbo run build",
+    "dev": "turbo run dev --filter=@app/api-gateway --filter=@app/worker",
+    "dev:all": "turbo run dev --filter=@app/api-gateway --filter=@app/worker --filter=@app/web",
+    "test": "turbo run test",
+    "lint": "turbo run lint",
+    "typecheck": "turbo run typecheck"
+  },
+  "devDependencies": {
+    "@types/node": "^24.8.1",
+    "turbo": "latest",
+    "typescript": "^6.0.3"
+  }
+}

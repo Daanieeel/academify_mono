@@ -1,0 +1,29 @@
+{
+  "name": "@app/worker",
+  "module": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "dev": "bun --watch index.ts",
+    "build": "tsc -b",
+    "test": "echo \"No tests yet for worker\"",
+    "lint": "echo \"No lint target configured for worker\"",
+    "typecheck": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "@types/bun": "latest",
+    "typescript": "^6.0.3"
+  },
+  "peerDependencies": {
+    "typescript": "^6"
+  },
+  "dependencies": {
+    "bullmq": "^5.74.1",
+    "ioredis": "^5.10.1",
+    "@repo/auth": "workspace:*",
+    "@repo/database": "workspace:*",
+    "@repo/redis": "workspace:*",
+    "@repo/sync-protocol": "workspace:*"
+  }
+}

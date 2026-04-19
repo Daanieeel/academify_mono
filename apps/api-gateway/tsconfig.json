@@ -1,0 +1,14 @@
+{
+  "extends": "../../packages/config/tsconfig/library.json",
+  "compilerOptions": {
+    "rootDir": "src",
+    "outDir": "dist"
+  },
+  "include": ["src/**/*.ts"],
+  "references": [
+    { "path": "../../packages/database" },
+    { "path": "../../packages/redis" },
+    { "path": "../../packages/sync-protocol" },
+    { "path": "../../packages/auth" }
+  ]
+}

@@ -1,0 +1,13 @@
+{
+  "files": [],
+  "references": [
+    { "path": "./apps/api-gateway" },
+    { "path": "./apps/worker" },
+    { "path": "./packages/database" },
+    { "path": "./packages/mls" },
+    { "path": "./packages/crypto" },
+    { "path": "./packages/redis" },
+    { "path": "./packages/sync-protocol" },
+    { "path": "./packages/auth" }
+  ]
+}

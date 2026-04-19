@@ -1,0 +1,31 @@
+{
+  "name": "@repo/database",
+  "module": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "dev": "echo \"Database package has no dev server\"",
+    "build": "tsc -b",
+    "test": "echo \"No tests yet for database\"",
+    "lint": "echo \"No lint target configured for database\"",
+    "typecheck": "tsc --noEmit"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "devDependencies": {
+    "@types/bun": "latest",
+    "prisma": "^7.7.0",
+    "typescript": "^6.0.3"
+  },
+  "peerDependencies": {
+    "typescript": "^6"
+  },
+  "dependencies": {
+    "@prisma/client": "^7.7.0"
+  }
+}

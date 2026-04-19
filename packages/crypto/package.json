@@ -1,0 +1,24 @@
+{
+  "name": "@repo/crypto",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "module": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "scripts": {
+    "dev": "echo \"Crypto package has no dev server\"",
+    "build": "tsc -b",
+    "test": "echo \"No tests yet for crypto\"",
+    "lint": "echo \"No lint target configured for crypto\"",
+    "typecheck": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "typescript": "^6.0.3"
+  }
+}

@@ -1,0 +1,599 @@
+Ticket 0.2 — Shared coding conventions + architecture decision records (ADRs)
+Prompt
+Add repo-wide contribution standards and ADR template. Create initial ADRs for:
+
+notify-over-WS, fetch-over-REST sync model,
+worker-owned distribution/sequence logic,
+Prisma-only ORM decision,
+institutional auditing mode naming/policy.
+Acceptance criteria
+
+Also: set up oxfmt and oxlint for repo-wide linting and formatting. a central config for these tools must be added in @repo/config package. Remove all other formatters/linters and their config files from this whole repository.
+Make sure to set up widely used rules, also on a per-framework/technology basis.
+
+docs/adr/ contains template and 4 ADRs.
+CONTRIBUTING.md includes commit style, testing minimums, and definition of done.
+oxlint and oxfmt are set up with .vscode/settings.json set up correctly to format/lint on save
+pre-commit hook using husky is set up that formats and lints 
+
+
+Example of a pre-commit hook from another project (modify it to fit our needs):
+#!/bin/sh
+
+echo "🔍 Running oxfmt/oxlint via lint-staged on staged files..."
+
+bunx lint-staged --allow-empty 2>&1 || {
+  EXIT_CODE=$?
+  echo ""
+  echo "❌ Pre-commit hook failed (code $EXIT_CODE)"
+  echo "💡 Common fixes:"
+  echo "   • Make sure all staged files are properly formatted"
+  echo "   • Run: bun format"
+  echo "   • Also be aware that git commits cannot be empty. Make sure to stage your changes with 'git add <file>' before committing."
+  exit $EXIT_CODE
+}
+
+echo "✅ Ox formatting/lint fixes complete - ready to commit"
+
+
+----
+
+Ticket 0.3 — Developer onboarding + local environment docs
+Prompt
+Write setup docs for local dev:
+
+prerequisites
+env vars by app/package
+running migrations
+starting gateway/worker/web/mobile
+running tests and lint
+Acceptance criteria
+
+New developer can run core stack in under 30 minutes following docs.
+Troubleshooting section included.
+
+-----
+
+Ticket 1.1 — Define canonical sync protocol package (packages/sync-protocol)
+Prompt
+Implement shared protocol definitions using Zod + TS types:
+
+Event types:
+
+message.created|edited|deleted
+chat.updated
+membership.added|removed
+profile.updated
+blackboard.created|updated
+event.created|updated|cancelled
+club.updated|join_request.updated
+Define envelope fields: event_id, user_id, cursor, event_type, entity_id, created_at, and payload metadata.
+
+Define WS messages:
+
+client hello with last_ack_cursor
+server sync.required
+live event.notify
+Define REST DTOs for /sync and /ack.
+
+Acceptance criteria
+
+Exported Zod schemas + inferred types.
+Version field included in protocol.
+Contract tests validate valid/invalid payloads.
+
+--- 
+Ticket 1.2 — Cursor semantics and idempotency rules (shared library)
+
+
+Prompt
+Implement a cursor utility module defining strict monotonic per-user cursor behavior, replay handling, dedup contract, and ack advancement rules. Include helper APIs:
+
+validate cursor progression
+compute next sync window
+detect out-of-order/duplicate event apply
+Acceptance criteria
+
+Unit tests for duplicates, gaps, out-of-order, stale ack.
+Documented invariants in code comments + docs.
+
+----
+Ticket 1.3 — API gateway WS handshake + lightweight notify path
+
+
+Prompt
+Implement WS auth + handshake in apps/api-gateway:
+
+client connects with auth and last_ack_cursor
+server checks gap existence (cheap lookup)
+emits sync.required when needed
+pushes only lightweight event notifications for live updates
+Do not implement heavy fan-out in gateway. Gateway should consume Redis pub/sub wake signals and notify connected clients.
+
+Acceptance criteria
+
+Authenticated WS only.
+Gap path triggers sync.required.
+Live notify sent within SLO target on published wake signal.
+No recipient resolution logic in gateway.
+
+--- 
+
+Ticket 1.4 — REST sync endpoint /sync?after_cursor&limit
+Prompt
+Implement paginated sync fetch endpoint returning per-user event stream after after_cursor, ordered asc by cursor, with stable pagination and idempotent behavior. Return enough metadata for client-side decryption resolution.
+
+Acceptance criteria
+
+Deterministic ordering.
+Honors max limit and returns has_more.
+Works when events are concurrently appended.
+
+--- 
+
+Ticket 1.5 — REST ack endpoint /ack
+Prompt
+Implement cursor acknowledgment endpoint that advances stored user ack cursor only if new value is greater than current. Reject stale/lower acks safely.
+
+Acceptance criteria
+
+Monotonic advance guaranteed.
+Idempotent repeated ack accepted.
+Audit log/trace entry for ack changes.
+
+--- 
+
+Ticket 1.6 — Worker event distribution contract (no gateway fan-out)
+Prompt
+In apps/worker, implement queue processors for:
+
+SEND_MESSAGE
+MEMBERSHIP_CHANGED
+PROFILE_UPDATED
+BLACKBOARD_POSTED
+EVENT_UPDATED
+CLUB_UPDATED
+Each processor must resolve recipients, create per-user inbox events with cursor sequencing, then publish Redis wake signal to notify online users.
+
+Acceptance criteria
+
+Recipient resolution is worker-owned.
+Per-user event rows created for all recipients.
+Redis publish occurs after durable event write.
+
+--- 
+
+Ticket 1.7 — Sync reliability test matrix (integration tests)
+Prompt
+Create integration tests covering:
+
+offline catch-up
+reconnect with gap
+duplicate delivery tolerance
+ack replay safety
+membership changes during offline window
+deleted/tombstone event visibility
+Acceptance criteria
+
+Automated CI test suite.
+Flake-resistant tests with deterministic fixtures.
+
+--- 
+
+Ticket 1.8 — Client sync state machine docs + reference implementation stubs
+Prompt
+Add reference state machine implementation (shared pseudocode or minimal TS module) for web/mobile: CONNECT -> HELLO -> (SYNC_REQUIRED?) -> FETCH_LOOP -> APPLY+DECRYPT -> ACK -> LIVE.
+
+Acceptance criteria
+
+Same logic consumable by web + mobile teams.
+Failure/retry/backoff behavior documented.
+
+--- 
+
+Ticket 2.1 — Core institution/user/role model (Prisma)
+Prompt
+Implement Prisma models for institution tenancy, users, roles, role bindings, and institution memberships. Separate auth identity from institutional profile references.
+
+Acceptance criteria
+
+Migration generated and applies cleanly.
+Unique constraints for institution-scoped memberships.
+No plaintext leakage in encrypted profile fields.
+
+---
+
+Ticket 2.2 — Chat topology schema (DM, class, club, ad-hoc groups)
+Prompt
+Implement Prisma models for chats and chat membership with support for:
+
+1:1 chats
+class/club-linked groups
+teacher-created ad-hoc groups
+membership lifecycle (active/removed)
+Acceptance criteria
+
+Enforces valid membership states.
+Supports recipient resolution queries efficiently.
+
+---
+
+Ticket 2.3 — User inbox/event stream tables + indexing
+Prompt
+Implement per-user event stream tables with monotonic cursor, event metadata, payload reference/encrypted payload pointer, and indexes for:
+
+(user_id, cursor)
+(user_id, created_at)
+event lookup by event_id
+Acceptance criteria
+
+/sync query is index-backed.
+Cursor uniqueness and ordering invariants enforced.
+
+--- 
+
+Ticket 2.4 — Message entities + edit/delete tombstone model
+Prompt
+Implement message storage models with support for message creation, optional edits, and delete tombstones (not hard delete by default). Include actor and timestamp metadata.
+
+Acceptance criteria
+
+Tombstone events can be emitted and synced.
+Edit history policy configurable (retain vs replace).
+
+--- 
+
+Ticket 2.5 — Encrypted profile tables + blind indexes
+Prompt
+Implement encrypted PII profile schema:
+
+ciphertext fields
+key version metadata
+blind index columns for exact-match lookup where required
+Do not encrypt operational authorization/join keys (institution_id, membership foreign keys, role relations).
+
+Acceptance criteria
+
+Prisma schema clearly separates encrypted vs operational fields.
+Blind index constraints/indexes in place.
+
+---
+
+Ticket 2.6 — Blackboard/news and events module schema
+Prompt
+Add models for institution blackboard posts and event entities (create/update/cancel lifecycle), including audience scoping (institution/class/club).
+
+Acceptance criteria
+
+Supports event-stream emission on lifecycle changes.
+Query filters by audience scope and institution tenancy.
+
+---
+
+Ticket 2.7 — Clubs directory + join request schema
+Prompt
+Implement club models, club membership states, and join request workflow entities (pending/approved/rejected/cancelled).
+
+Acceptance criteria
+
+Join request status changes produce syncable events.
+Club chat linkage represented in schema.
+
+---
+
+Ticket 2.8 — Compliance reporting entities
+Prompt
+Implement reporting models for user-generated reports, evidence references, status workflow, and encrypted report package references (institution compliance key envelope).
+
+Acceptance criteria
+
+End-to-end report record can be created without plaintext report body in DB.
+Workflow state transitions are auditable.
+
+--- 
+
+Ticket 3.1 — MLS lifecycle interface + storage contracts
+Prompt
+Implement packages/mls interfaces and persistence contracts for:
+
+group creation
+member add/remove
+key rotation/epoch updates
+device key package registration/consumption
+Keep implementation modular so MLS library backend can be swapped.
+
+Acceptance criteria
+
+Typed interface with test doubles.
+Storage contract documented and unit-tested.
+
+--- 
+
+Ticket 3.2 — Device management + key package APIs
+Prompt
+Add APIs for device registration, key package upload, key package fetch/consume, and device revocation. Tie device identity to authenticated user/session rules.
+
+Acceptance criteria
+
+Revoked devices blocked from new session bootstrap.
+Key package depletion/refresh behavior defined.
+
+---
+
+Ticket 3.3 — Message encryption envelope integration points
+Prompt
+Define and implement encryption envelope boundaries between app payloads and transport/storage layers. Ensure worker pipeline can distribute ciphertext metadata without needing plaintext.
+
+Acceptance criteria
+
+Clear interface from message creation to sync payload consumption.
+Integration tests verify ciphertext-only transport in backend paths.
+
+---
+
+Ticket 3.4 — Institutional auditing mode: policy + access workflow
+Prompt
+Implement policy-controlled auditing mode:
+
+dual authorization workflow (two approvers)
+time-bounded audit session tokens
+scope-limited retrieval constraints
+immutable audit trail entries for all actions
+Rename any “backdoor” wording to “Institutional Auditing Mode”.
+
+Acceptance criteria
+
+No audit access without dual approval.
+All audit operations logged immutably.
+Session expiry and scope boundaries enforced server-side.
+
+---
+
+Ticket 3.5 — Compliance report cryptographic flow
+Prompt
+Implement report submission cryptographic flow:
+
+reporter payload packaged client-side or service-side envelope
+encrypted to institution compliance key reference
+stored as encrypted package + metadata only
+Acceptance criteria
+
+Report plaintext not persisted in DB.
+Decryption path requires policy-approved auditing/compliance flow.
+
+---
+
+Ticket 3.6 — Threat model + key custody/rotation plan
+Prompt
+Create formal threat model documentation and key management plan covering:
+
+insider DB operator threat
+compromised user device
+stolen refresh token/session hijack
+malicious institution auditor abuse
+queue/pubsub tampering assumptions
+Include key rotation cadence, emergency rotation playbook, and blast radius analysis.
+
+Acceptance criteria
+
+docs/security/threat-model.md and docs/security/key-management.md created.
+Risks mapped to controls + residual risk notes.
+
+---
+
+Ticket 4.1 — BullMQ queue topology + retry policies
+Prompt
+Define queues, job names, retry/backoff, dead-letter behavior, and idempotency keys for all event-producing jobs.
+
+Acceptance criteria
+
+Queue config centralized in packages/redis.
+DLQ handling documented and observable.
+
+---
+
+Ticket 4.2 — Redis channel contract for wake/sync notifications
+Prompt
+Implement channel naming convention and message shape for per-user wake notifications and optional shard broadcasts.
+
+Acceptance criteria
+
+Gateway subscriber handles channel messages safely.
+Backpressure and burst behavior tested.
+
+---
+
+Ticket 4.3 — Presence heartbeat and TTL model
+Prompt
+Implement ephemeral presence tracking using Redis TTL-based heartbeats. Presence should not be used as source of truth for delivery (sync engine remains source of truth).
+
+Acceptance criteria
+
+Presence expires automatically.
+Presence outage does not lose messages/events.
+
+---
+
+Ticket 5.1 — Session/auth middleware across REST + WS
+Prompt
+Implement shared auth middleware package used by gateway REST and WS. Include token validation, session extraction, and institution context derivation.
+
+Acceptance criteria
+
+Same auth rules across transports.
+Unauthorized socket and API requests rejected consistently.
+
+---
+
+Ticket 5.2 — Authorization policy engine for institution scopes
+Prompt
+Implement policy checks for:
+
+institution boundaries
+role-based permissions (student/teacher/admin/compliance)
+chat and group membership access
+auditing mode gate checks
+Acceptance criteria
+
+Policy tests for allow/deny matrix.
+Cross-institution access blocked.
+
+---
+
+Ticket 6.1 — Structured logging + correlation IDs
+Prompt
+Add structured logs across gateway/worker with correlation IDs spanning command ingest → worker processing → sync notification.
+
+Acceptance criteria
+
+Can trace one message flow end-to-end in logs.
+PII-safe logging policy enforced.
+
+---
+
+Ticket 6.2 — Metrics and SLO dashboards
+Prompt
+Emit metrics for:
+
+message ingest latency
+worker processing latency
+notify latency
+reconnect catch-up duration
+sync API p95
+queue depth/retries/DLQ rate
+Define initial SLOs and alert thresholds.
+
+Acceptance criteria
+
+Metrics exported and documented.
+Alert rules added for critical paths.
+
+---
+
+
+Ticket 6.3 — Operational runbooks
+Prompt
+Create runbooks for:
+
+queue backlog incident
+Redis outage/degradation
+cursor corruption/remediation
+emergency key rotation
+auditing abuse investigation
+Acceptance criteria
+
+docs/runbooks/*.md present and linked from ops index.
+
+---
+
+Ticket 7.1 — End-to-end messaging/sync test harness
+Prompt
+Implement E2E tests simulating web/mobile behavior for send, offline period, reconnect, sync fetch, decrypt stub, ack, and live notifications.
+
+Acceptance criteria
+
+CI runs E2E on PRs touching gateway/worker/sync packages.
+Tests include multi-device same-user scenario.
+
+---
+
+Ticket 7.2 — Load test for WS + sync API
+Prompt
+Build load test scenarios:
+
+high concurrent WS sessions
+burst messaging fan-out
+reconnect storm after outage
+Measure p95/p99 and identify bottlenecks.
+
+Acceptance criteria
+
+Report with bottlenecks and remediation actions committed to docs.
+Baseline capacity numbers captured.
+
+---
+
+
+Ticket 7.3 — Chaos/failure injection for delivery guarantees
+Prompt
+Add controlled failure tests (worker restart, Redis reconnect, partial DB latency) to verify at-least-once delivery + idempotent apply/ack behavior.
+
+Acceptance criteria
+
+No data loss in tested failure modes.
+Duplicate tolerance validated.
+
+---
+
+Ticket 8.1 — System architecture documentation set
+Prompt
+Create architecture docs with diagrams and text for:
+
+component topology (gateway/worker/redis/db)
+message flow
+sync flow
+compliance/auditing flow
+trust boundaries
+Acceptance criteria
+
+docs/architecture/ contains overview + per-flow pages.
+Diagram source files included (Mermaid or equivalent).
+
+---
+
+Ticket 8.2 — Protocol and API reference docs
+Prompt
+Generate docs from packages/sync-protocol and gateway routes:
+
+WS message reference
+/sync and /ack API docs
+event type catalog and examples
+Acceptance criteria
+
+Versioned protocol docs.
+Example payloads for each event type.
+
+---
+
+Ticket 8.3 — Security and compliance documentation
+Prompt
+Document:
+
+institutional auditing mode policy
+approval workflow
+data retention and audit logging
+privacy posture and encryption boundaries
+Acceptance criteria
+
+Security docs reference implemented controls and code locations.
+Reviewer checklist for compliance audits included.
+
+---
+
+Ticket 8.4 — Developer onboarding + local environment docs
+Prompt
+Write setup docs for local dev:
+
+prerequisites
+env vars by app/package
+running migrations
+starting gateway/worker/web/mobile
+running tests and lint
+Acceptance criteria
+
+New developer can run core stack in under 30 minutes following docs.
+Troubleshooting section included.
+
+
+---
+
+Ticket 8.5 — Release checklist and production readiness checklist
+Prompt
+Create release and go-live checklists covering migrations, key rotation readiness, queue health, alert health, rollback plan, and post-deploy verification.
+
+Acceptance criteria
+
+docs/release/checklist.md and docs/release/prod-readiness.md exist.
+Checklist items map to monitoring and runbooks.
+
+---

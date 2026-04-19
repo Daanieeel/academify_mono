@@ -1,0 +1,56 @@
+**/node_modules/
+
+# package manager
+.pnpm-store/
+
+# turborepo
+.turbo/
+
+# build outputs
+**/dist/
+**/out/
+**/build/
+**/.next/
+**/web-build/
+*.tgz
+
+# expo / react native
+**/.expo/
+**/.expo-shared/
+**/.kotlin/
+**/.metro-health-check*
+**/ios/
+**/android/
+
+# coverage
+**/coverage/
+*.lcov
+
+# logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# caches
+.eslintcache
+.cache/
+**/*.tsbuildinfo
+
+# environment files
+.env
+.env.*
+!.env.example
+!.env.*.example
+
+# editors / OS
+.idea/
+.vscode/
+.DS_Store
+
+# deploy providers
+.vercel/
+
+# generated artifacts
+packages/database/generated/prisma/
