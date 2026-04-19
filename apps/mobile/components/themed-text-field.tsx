@@ -30,7 +30,10 @@ const ThemedTextField = ({
         styles['container'],
         {
           backgroundColor: neutral200Color,
-          paddingVertical: props.heightBased != null ? 0 : 15,
+          paddingVertical:
+            props.heightBased !== null && props.heightBased !== undefined
+              ? 0
+              : 15,
           height: props.heightBased,
           gap: 10,
         },
@@ -48,7 +51,7 @@ const ThemedTextField = ({
         autoCapitalize="none"
         placeholderTextColor={neutral500Color}
         style={[
-          type == 'normal'
+          type === 'normal'
             ? styles['normal-text-style']
             : styles['big-text-style'],
           {

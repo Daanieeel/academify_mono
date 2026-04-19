@@ -4,12 +4,11 @@ import ThemedChatPageHeader from '@/components/pages/chat-page/themed-chat-page-
 import ThemedAcademiBackground from '@/components/themed-academi-background';
 import { MOCK_MESSAGE_DATA } from '@/constants/mock-data/MockChatMessageData';
 import { useThemeColor } from '@/hooks/use-theme-color';
-import { router, useGlobalSearchParams } from 'expo-router';
+import { router } from 'expo-router';
 import React, { useRef, useState } from 'react';
 import { FlatList, StyleSheet, View } from 'react-native';
 
 const ChatPage = () => {
-  const chatName = useGlobalSearchParams().id;
   const neutral50Color = useThemeColor({}, 'neutral-50');
 
   const isScrollingRef = useRef(false);

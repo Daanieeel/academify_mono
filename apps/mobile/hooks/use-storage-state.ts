@@ -16,7 +16,7 @@ function useAsyncState<T>(
 }
 
 export async function setStorageItemAsync(key: string, value: string | null) {
-  if (value == null) {
+  if (value === null) {
     await SecureStore.deleteItemAsync(key);
   } else {
     await SecureStore.setItemAsync(key, value);
@@ -30,14 +30,14 @@ export function useStorageState(key: string): UseStateHook<string> {
     SecureStore.getItemAsync(key).then((value: string | null) => {
       setState(value);
     });
-  }, [key]);
+  }, [key, setState]);
 
   const setValue = useCallback(
     (value: string | null) => {
       setState(value);
       setStorageItemAsync(key, value);
     },
-    [key],
+    [key, setState],
   );
 
   return [state, setValue];

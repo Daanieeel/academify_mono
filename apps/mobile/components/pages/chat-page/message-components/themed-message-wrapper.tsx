@@ -76,7 +76,7 @@ const ThemedMessageWrapper = ({ ...props }: ThemedMessageWrapperProps) => {
         <ThemedText type="caption">
           {props.senderName + ' • ' + props.sendDate}
         </ThemedText>
-        {props.messageStatus == 'loading' ? (
+        {props.messageStatus === 'loading' ? (
           <IcomoonIcon size={15} name="spinner"></IcomoonIcon>
         ) : undefined}
       </View>

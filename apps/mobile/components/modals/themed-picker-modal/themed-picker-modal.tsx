@@ -75,9 +75,7 @@ const ThemedPickerModal = (props: ThemedPickerModalProps) => {
           <ThemedSearchBar
             placeholder={'Nach Benutzern suchen'}
             value={''}
-            onInputChanged={function (input: string): void {
-              throw new Error('Function not implemented.');
-            }}
+            onInputChanged={() => {}}
           ></ThemedSearchBar>
         </View>
 

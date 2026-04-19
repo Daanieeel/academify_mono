@@ -128,7 +128,7 @@ const ThemedCreateChatModal = (props: ThemedCreateChatModalProps) => {
       ></ThemedPickerModal>
 
       {/* Button for creating the group */}
-      {currentTab == 0 ? (
+      {currentTab === 0 ? (
         <View style={styles['finish-button']}>
           <SimpleButton
             icomoonIcon="check"
@@ -152,7 +152,7 @@ const ThemedCreateChatModal = (props: ThemedCreateChatModalProps) => {
       </View>
 
       {/* Following is based on the slider position */}
-      {currentTab == 0 ? (
+      {currentTab === 0 ? (
         <ScrollView
           contentContainerStyle={{
             gap: 40,
@@ -267,7 +267,11 @@ const ThemedCreateChatModal = (props: ThemedCreateChatModalProps) => {
         >
           {MOCK_USERS.map((props, key) => {
             return (
-              <ThemedPressable disabled onPress={() => {}}>
+              <ThemedPressable
+                key={props.userId ?? key}
+                disabled
+                onPress={() => {}}
+              >
                 <ThemedListPreviewItem
                   borderRadius={18}
                   key={key}

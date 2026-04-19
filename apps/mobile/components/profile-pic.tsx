@@ -1,6 +1,6 @@
 import { useThemeColor } from '@/hooks/use-theme-color';
-import React, { useState } from 'react';
-import { Image, StyleSheet, View } from 'react-native';
+import React from 'react';
+import { Image, View } from 'react-native';
 import IcomoonIcon from './IcomoonIcon';
 import ThemedPressable from './themed-pressable';
 
@@ -26,7 +26,6 @@ const ProfilePic = ({
 
   const avatarIconColor = useThemeColor({}, 'neutral-700');
   const avatarBackgroundColor = useThemeColor({}, 'neutral-200');
-  const [modalShown, setModalShown] = useState(false);
 
   const borderColor = showBorder
     ? (props.customBorderColor ?? useThemeColor({}, 'neutral-100'))
@@ -34,7 +33,9 @@ const ProfilePic = ({
   const borderRadius = avatarType === 'person' ? 9999 : 40;
 
   const onPress = () => {
-    props.onPress && props.onPress();
+    if (props.onPress) {
+      props.onPress();
+    }
   };
 
   switch (avatarType) {
@@ -48,7 +49,7 @@ const ProfilePic = ({
       icomoonIcon = 'question-mark';
   }
 
-  if (props.icomoonIcon != null) {
+  if (props.icomoonIcon !== null && props.icomoonIcon !== undefined) {
     icomoonIcon = props.icomoonIcon;
   }
 
@@ -67,7 +68,10 @@ const ProfilePic = ({
   }
 
   return (
-    <ThemedPressable animationEnabled={props.onPress != null} onPress={onPress}>
+    <ThemedPressable
+      animationEnabled={props.onPress !== null && props.onPress !== undefined}
+      onPress={onPress}
+    >
       <View
         style={{
           overflow: 'hidden',
@@ -88,7 +92,7 @@ const ProfilePic = ({
             source={{ uri: source }}
           ></Image>
         )}
-        {source == null ? (
+        {source === null || source === undefined ? (
           <IcomoonIcon
             color={avatarIconColor}
             size={avatarSize / 2}
@@ -99,13 +103,5 @@ const ProfilePic = ({
     </ThemedPressable>
   );
 };
-
-const styles = StyleSheet.create({
-  image: {
-    borderRadius: 9999,
-    aspectRatio: 1,
-    borderWidth: 4,
-  },
-});
 
 export default ProfilePic;

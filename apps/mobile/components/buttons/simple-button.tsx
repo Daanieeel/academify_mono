@@ -36,12 +36,13 @@ const SimpleButton = ({
   const scaleAnim = useRef(new Animated.Value(1)).current;
   const neutral900Color = useThemeColor({}, 'neutral-900');
   const neutral700Color = useThemeColor({}, 'neutral-700');
-  const neutral100Color = useThemeColor({}, 'neutral-100');
   const neutral200Color = useThemeColor({}, 'neutral-200');
   const neutral50Color = useThemeColor({}, 'neutral-50');
 
   const handlePressIn = () => {
-    selectionHaptic && selectionHaptic();
+    if (selectionHaptic) {
+      selectionHaptic();
+    }
     Animated.spring(scaleAnim, {
       toValue: 0.96,
       useNativeDriver: true,

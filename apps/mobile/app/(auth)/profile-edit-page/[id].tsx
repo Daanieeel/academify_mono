@@ -7,7 +7,7 @@ import ThemedTextField from '@/components/themed-text-field';
 import APPLICATION_CONSTANTS from '@/constants/strings';
 import { useSession } from '@/context/auth-context';
 import { useThemeColor } from '@/hooks/use-theme-color';
-import { router, Stack, useLocalSearchParams } from 'expo-router';
+import { router, Stack } from 'expo-router';
 import React, { useState } from 'react';
 import { ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -49,7 +49,6 @@ const ProfileEditPage = () => {
     },
   ];
 
-  const userName = useLocalSearchParams().id;
   const neutral400Color = useThemeColor({}, 'neutral-400');
   const neutral900Color = useThemeColor({}, 'neutral-900');
 

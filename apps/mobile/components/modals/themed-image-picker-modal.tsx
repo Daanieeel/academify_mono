@@ -5,9 +5,6 @@ import ProfilePic from '../profile-pic';
 import ThemedGridView from '../themed-grid-view';
 import ThemedModal from './themed-modal';
 
-const ITEM_WIDTH = 110;
-const GAP = 10;
-
 export const IMAGE_URIS = [
   'https://i.ibb.co/7JspsbLL/Bio.png',
   'https://i.ibb.co/m5K8cScv/Chemie.png',
@@ -29,6 +26,7 @@ const ThemedImagePickerModal = (props: ThemedImagePickerModalProps) => {
   const profilePicArray: React.ReactNode[] = [
     ...IMAGE_URIS.map((uri) => (
       <ProfilePic
+        key={uri}
         onPress={() => onAvatarPressed(uri)}
         avatarType="group"
         size="large"
@@ -36,6 +34,7 @@ const ThemedImagePickerModal = (props: ThemedImagePickerModalProps) => {
       ></ProfilePic>
     )),
     <ProfilePic
+      key="no-image"
       onPress={() => onAvatarPressed(undefined)}
       avatarType="group"
       size="large"

@@ -18,7 +18,6 @@ const UsernamePage = () => {
   const router = useRouter();
   const errorColor = useThemeColor({}, 'red-500');
   const neutral900Color = useThemeColor({}, 'neutral-900');
-  const neutral100Color = useThemeColor({}, 'neutral-100');
   const userId = useLocalSearchParams().id;
 
   const handleBackButtonPress = () => {
@@ -90,7 +89,6 @@ const UsernamePage = () => {
             onChangeText={handleInputChange}
             obscureText={true}
             heightBased={60}
-            autoFocus
           ></ThemedTextField>
           {!isValid && (
             <View

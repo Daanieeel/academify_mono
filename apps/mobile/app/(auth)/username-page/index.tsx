@@ -17,7 +17,6 @@ const UsernamePage = () => {
   const router = useRouter();
   const errorColor = useThemeColor({}, 'red-500');
   const neutral900Color = useThemeColor({}, 'neutral-900');
-  const neutral100Color = useThemeColor({}, 'neutral-100');
 
   const handleBackButtonPress = () => {
     router.back();
@@ -87,7 +86,6 @@ const UsernamePage = () => {
           value={text}
           onChangeText={handleInputChange}
           heightBased={60}
-          autoFocus
         ></ThemedTextField>
         {!isValid && (
           <View

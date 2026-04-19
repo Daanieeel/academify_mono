@@ -1,7 +1,7 @@
 // The footer for the chat page including a textfield and buttons for attachments as well as the send button
 
 import { useThemeColor } from '@/hooks/use-theme-color';
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { Keyboard, StyleSheet, View } from 'react-native';
 import Animated, {
   Easing,
@@ -36,7 +36,7 @@ const ThemedChatPageFooter = ({
   const inputRef = useRef(null);
 
   const [keyboardHeight, setKeyboardHeight] = useState(0);
-  const additionalPadding = safeAreaBottom == 0 ? 10 : 0;
+  const additionalPadding = safeAreaBottom === 0 ? 10 : 0;
 
   const showSend = useSharedValue(0);
   const bottomPadding = useSharedValue(additionalPadding + safeAreaBottom);
@@ -46,9 +46,19 @@ const ThemedChatPageFooter = ({
 
   const [input, setInput] = useState('');
 
+  const changeBottomPadding = useCallback(
+    (padding: number, duration?: number) => {
+      bottomPadding.value = withTiming(padding, {
+        duration: duration ?? 150,
+        easing: Easing.linear,
+      });
+    },
+    [bottomPadding],
+  );
+
   useEffect(() => {
-    showSend.value = withSpring(input != '' ? 1 : 0, { duration: 200 });
-  }, [input]);
+    showSend.value = withSpring(input !== '' ? 1 : 0, { duration: 200 });
+  }, [input, showSend]);
 
   useEffect(() => {
     console.log('current display changed to', currentDisplay);
@@ -64,7 +74,13 @@ const ThemedChatPageFooter = ({
         changeBottomPadding(additionalPadding + safeAreaBottom);
         break;
     }
-  }, [currentDisplay]);
+  }, [
+    additionalPadding,
+    changeBottomPadding,
+    currentDisplay,
+    keyboardHeight,
+    safeAreaBottom,
+  ]);
 
   useEffect(() => {
     const showSub = Keyboard.addListener('keyboardWillShow', (e) => {
@@ -82,13 +98,13 @@ const ThemedChatPageFooter = ({
   };
 
   const onShowAttachmentButtonsPressed = () => {
-    if (currentDisplay == 'keyboard') {
+    if (currentDisplay === 'keyboard') {
       setCurrentDisplay('attachments');
       inputRef.current.blur();
-    } else if (currentDisplay == 'attachments') {
+    } else if (currentDisplay === 'attachments') {
       setCurrentDisplay('keyboard');
       inputRef.current.focus();
-    } else if (currentDisplay == 'none') {
+    } else if (currentDisplay === 'none') {
       setCurrentDisplay('attachments');
     }
   };
@@ -105,13 +121,6 @@ const ThemedChatPageFooter = ({
       opacity: showSend.value,
     };
   });
-
-  const changeBottomPadding = (padding: number, duration?: number) => {
-    bottomPadding.value = withTiming(padding, {
-      duration: duration ?? 150,
-      easing: Easing.linear,
-    });
-  };
 
   return (
     <Animated.View
@@ -142,7 +151,7 @@ const ThemedChatPageFooter = ({
           onPress={onShowAttachmentButtonsPressed}
         >
           <IcomoonIcon
-            name={currentDisplay == 'attachments' ? 'keyboard' : 'plus'}
+            name={currentDisplay === 'attachments' ? 'keyboard' : 'plus'}
             size={25}
           ></IcomoonIcon>
         </ThemedPressable>
@@ -167,7 +176,7 @@ const ThemedChatPageFooter = ({
 
         {/* Send button when text field is not empty*/}
 
-        {input != '' ? (
+        {input !== '' ? (
           <Animated.View
             style={[
               sendButtonStyle,

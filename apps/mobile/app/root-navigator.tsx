@@ -33,7 +33,7 @@ const RootNavigator = () => {
   console.log('from root-navigator: session is ' + session);
   let isAuthenticated;
 
-  if (session == null) {
+  if (session === null) {
     isAuthenticated = true;
   } else {
     isAuthenticated = true;

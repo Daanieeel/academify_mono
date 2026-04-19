@@ -49,7 +49,7 @@ const ThemedSettingsItem = ({ ...props }: ThemedSettingsItemProp) => {
           {props.label}
         </ThemedText>
       </View>
-      {props.type == 'link' ? (
+      {props.type === 'link' ? (
         <View
           style={{
             paddingHorizontal: 8,
@@ -68,7 +68,10 @@ const ThemedSettingsItem = ({ ...props }: ThemedSettingsItemProp) => {
         <ThemedToggle
           isActive={props.isActive}
           onValueChange={() => {
-            if (props.onValueChange != null) {
+            if (
+              props.onValueChange !== null &&
+              props.onValueChange !== undefined
+            ) {
               props.onValueChange();
             }
           }}

@@ -16,8 +16,6 @@ const ThemedSelectable = ({
   ...props
 }: ThemedSelectableProps) => {
   const borderColor = useThemeColor({}, 'neutral-900');
-  const checkmarkBackgroundColor = useThemeColor({}, 'neutral-900');
-  const checkmarkColor = useThemeColor({}, 'neutral-900');
 
   const scale = useRef(new Animated.Value(1)).current;
   const haptic = useHaptic('medium');
@@ -43,8 +41,12 @@ const ThemedSelectable = ({
       onPressOut={handlePressOut}
       onPressIn={handlePressIn}
       onPress={() => {
-        props.onPress && props.onPress();
-        haptic && haptic();
+        if (props.onPress) {
+          props.onPress();
+        }
+        if (haptic) {
+          haptic();
+        }
       }}
     >
       <Animated.View

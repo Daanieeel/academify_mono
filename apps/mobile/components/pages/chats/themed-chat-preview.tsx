@@ -66,7 +66,7 @@ const ThemedChatPreview = ({
             <ThemedText numberOfLines={1} type="caption" color={secondaryColor}>
               {props.lastMessageTime ?? ''}
             </ThemedText>
-            {read == true ? null : (
+            {read === true ? null : (
               <View
                 style={[
                   styles['unread-badge'],

@@ -28,7 +28,6 @@ const HEADER_MIN_HEIGHT = 75;
 
 const Chats = () => {
   const neutral50Color = useThemeColor({}, 'neutral-50');
-  const neutral200Color = useThemeColor({}, 'neutral-200');
 
   const scrollY = useSharedValue(0);
 
@@ -51,7 +50,9 @@ const Chats = () => {
     return { height };
   });
 
-  const onSearchBarInputChanged = (input: string) => {};
+  const onSearchBarInputChanged = (input: string) => {
+    setSearchText(input);
+  };
 
   const onNewChatPressed = () => {
     setModalShown(true);
@@ -96,7 +97,7 @@ const Chats = () => {
       </SafeAreaView>
 
       {/* If no chats are available: INFO */}
-      {mockChats.length == 0 ? (
+      {mockChats.length === 0 ? (
         <View
           style={{
             width: '100%',

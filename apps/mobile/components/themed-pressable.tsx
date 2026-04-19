@@ -47,7 +47,9 @@ const ThemedPressable = ({
 
   const handleOnPress = () => {
     if (animationEnabled) {
-      selectionHaptic && selectionHaptic();
+      if (selectionHaptic) {
+        selectionHaptic();
+      }
     }
     props.onPress();
   };

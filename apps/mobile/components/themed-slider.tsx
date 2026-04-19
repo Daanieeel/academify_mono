@@ -43,7 +43,9 @@ const ThemedSlider = ({ currentOption = 0, ...props }: ThemedSliderProps) => {
   ).current;
 
   const onOptionPressed = (index: number) => {
-    haptic && haptic();
+    if (haptic) {
+      haptic();
+    }
     props.onPressCallBack(index);
   };
 
@@ -56,7 +58,7 @@ const ThemedSlider = ({ currentOption = 0, ...props }: ThemedSliderProps) => {
       duration: ANIMATION_DURATION,
       easing: Easing.linear,
     }).start();
-  }, [currentOption]);
+  }, [currentOption, selectedContainerWidth, translateX]);
 
   return (
     <View
@@ -98,7 +100,9 @@ const ThemedSlider = ({ currentOption = 0, ...props }: ThemedSliderProps) => {
             <ThemedText
               numberOfLines={1}
               color={
-                index == currentOption ? selectedTextColor : deselectedTextColor
+                index === currentOption
+                  ? selectedTextColor
+                  : deselectedTextColor
               }
               type="body"
             >

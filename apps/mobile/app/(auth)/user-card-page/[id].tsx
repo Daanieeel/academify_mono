@@ -30,12 +30,10 @@ const UserCardPage = () => {
       tension: 50,
       friction: 7,
     }).start();
-  }, []);
+  }, [scaleAnim]);
 
   const neutral900Color = useThemeColor({}, 'neutral-900');
   const neutral50Color = useThemeColor({}, 'neutral-50');
-  const neutral100Color = useThemeColor({}, 'neutral-100');
-  const neutral200Color = useThemeColor({}, 'neutral-200');
   const green500Color = useThemeColor({}, 'green-500');
   const neutral400Color = useThemeColor({}, 'neutral-400');
 

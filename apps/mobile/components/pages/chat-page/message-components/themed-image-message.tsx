@@ -23,7 +23,7 @@ const ThemedImageMessage = ({
   const numberOfPictures = props.sources.length;
 
   switch (true) {
-    case numberOfPictures == 1:
+    case numberOfPictures === 1:
       return (
         <View style={styles['image-1-container']}>
           <Image
@@ -34,7 +34,7 @@ const ThemedImageMessage = ({
           ></Image>
         </View>
       );
-    case numberOfPictures == 2: {
+    case numberOfPictures === 2: {
       const scaleFactor = 2.02;
       return (
         <View onLayout={onLayout} style={styles['image-2-3-4-inner-container']}>
@@ -55,7 +55,7 @@ const ThemedImageMessage = ({
         </View>
       );
     }
-    case numberOfPictures == 3: {
+    case numberOfPictures === 3: {
       const scaleFactor = 2.02;
       return (
         <View style={styles['image-3-4-outer-container']}>
