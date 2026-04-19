@@ -1,30 +1,10 @@
 {
-  "editor.formatOnSave": true,
   "editor.defaultFormatter": "oxc.oxc-vscode",
+  "editor.formatOnSave": false, // disable default behavior
   "editor.codeActionsOnSave": {
-    "source.fixAll": "always"
+    "source.format.oxc": "always", // run formatter first
+    "source.fixAll.oxc": "always" // run lint fixes after
   },
-  "oxc.enable": true,
-  "oxc.format.enable": true,
-  "oxc.lint.enable": true,
-  "oxc.format.configPath": "packages/config/oxfmt/base.json",
-  "oxc.lint.configPath": "packages/config/oxlint/base.json",
-  "[javascript]": {
-    "editor.defaultFormatter": "oxc.oxc-vscode"
-  },
-  "[javascriptreact]": {
-    "editor.defaultFormatter": "oxc.oxc-vscode"
-  },
-  "[typescript]": {
-    "editor.defaultFormatter": "oxc.oxc-vscode"
-  },
-  "[typescriptreact]": {
-    "editor.defaultFormatter": "oxc.oxc-vscode"
-  },
-  "[json]": {
-    "editor.defaultFormatter": "oxc.oxc-vscode"
-  },
-  "[jsonc]": {
-    "editor.defaultFormatter": "oxc.oxc-vscode"
-  }
+  "oxc.enable.oxfmt": true,
+  "oxc.enable.oxlint": true
 }

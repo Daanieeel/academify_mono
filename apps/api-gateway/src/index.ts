@@ -30,6 +30,4 @@ const app = new Elysia()
   })
   .listen(Number(process.env.API_GATEWAY_PORT ?? 3001));
 
-console.log(
-  `API Gateway listening on ${app.server?.hostname}:${app.server?.port}`,
-);
+console.log(`API Gateway listening on ${app.server?.hostname}:${app.server?.port}`);
