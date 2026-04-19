@@ -20,7 +20,7 @@
     "dev": "turbo run dev --filter=@app/api-gateway --filter=@app/worker",
     "dev:all": "turbo run dev --filter=@app/api-gateway --filter=@app/worker --filter=@app/web",
     "prepare": "husky",
-    "format": "bunx oxfmt --config packages/config/oxfmt/base.json --write .",
+    "format": "bunx oxfmt --config packages/config/oxfmt/base.json .",
     "format:check": "bunx oxfmt --config packages/config/oxfmt/base.json --check .",
     "test": "turbo run test",
     "lint": "turbo run lint",

@@ -1,4 +1,9 @@
-import { createCipheriv, createDecipheriv, createHash, randomBytes } from "node:crypto";
+import {
+  createCipheriv,
+  createDecipheriv,
+  createHash,
+  randomBytes,
+} from "node:crypto";
 
 const CIPHER_ALGO = "aes-256-gcm";
 const IV_SIZE = 12;
@@ -10,7 +15,10 @@ export const createBlindIndex = (value: string): string => {
 export const encryptText = (plaintext: string, key: Buffer): string => {
   const iv = randomBytes(IV_SIZE);
   const cipher = createCipheriv(CIPHER_ALGO, key, iv);
-  const encrypted = Buffer.concat([cipher.update(plaintext, "utf8"), cipher.final()]);
+  const encrypted = Buffer.concat([
+    cipher.update(plaintext, "utf8"),
+    cipher.final(),
+  ]);
   const tag = cipher.getAuthTag();
   return Buffer.concat([iv, tag, encrypted]).toString("base64url");
 };
