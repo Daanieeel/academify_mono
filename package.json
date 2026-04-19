@@ -19,11 +19,26 @@
     "build": "turbo run build",
     "dev": "turbo run dev --filter=@app/api-gateway --filter=@app/worker",
     "dev:all": "turbo run dev --filter=@app/api-gateway --filter=@app/worker --filter=@app/web",
+    "prepare": "husky",
+    "format": "bunx oxfmt --config packages/config/oxfmt/base.json --write .",
+    "format:check": "bunx oxfmt --config packages/config/oxfmt/base.json --check .",
     "test": "turbo run test",
     "lint": "turbo run lint",
+    "lint:ox": "bunx oxlint -c packages/config/oxlint/base.json --import-plugin --promise-plugin --node-plugin --react-plugin --jsx-a11y-plugin --nextjs-plugin --react-perf-plugin --deny-warnings .",
+    "lint:fix": "bunx oxlint -c packages/config/oxlint/base.json --import-plugin --promise-plugin --node-plugin --react-plugin --jsx-a11y-plugin --nextjs-plugin --react-perf-plugin --fix .",
     "typecheck": "turbo run typecheck"
   },
+  "lint-staged": {
+    "*.{js,mjs,cjs,jsx,ts,tsx}": [
+      "bunx oxfmt --config packages/config/oxfmt/base.json",
+      "bunx oxlint -c packages/config/oxlint/base.json --import-plugin --promise-plugin --node-plugin --react-plugin --jsx-a11y-plugin --nextjs-plugin --react-perf-plugin --fix --no-error-on-unmatched-pattern"
+    ]
+  },
   "devDependencies": {
+    "husky": "^9.1.7",
+    "lint-staged": "^16.2.6",
+    "oxfmt": "^0.8.0",
+    "oxlint": "^1.26.0",
     "@types/node": "^24.8.1",
     "turbo": "latest",
     "typescript": "^6.0.3"

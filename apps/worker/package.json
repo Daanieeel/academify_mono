@@ -8,7 +8,7 @@
     "dev": "bun --watch index.ts",
     "build": "tsc -b",
     "test": "echo \"No tests yet for worker\"",
-    "lint": "echo \"No lint target configured for worker\"",
+    "lint": "bunx oxlint -c ../../packages/config/oxlint/base.json --node-plugin --import-plugin --promise-plugin --deny-warnings .",
     "typecheck": "tsc --noEmit"
   },
   "devDependencies": {

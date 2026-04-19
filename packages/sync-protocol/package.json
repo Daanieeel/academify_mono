@@ -8,7 +8,7 @@
     "dev": "echo \"Sync protocol package has no dev server\"",
     "build": "tsc -b",
     "test": "echo \"No tests yet for sync-protocol\"",
-    "lint": "echo \"No lint target configured for sync-protocol\"",
+    "lint": "bunx oxlint -c ../config/oxlint/base.json --import-plugin --promise-plugin --deny-warnings .",
     "typecheck": "tsc --noEmit"
   },
   "exports": {

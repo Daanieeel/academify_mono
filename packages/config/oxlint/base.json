@@ -1,0 +1,36 @@
+{
+  "$schema": "../../../node_modules/oxlint/configuration_schema.json",
+  "plugins": [
+    "typescript",
+    "unicorn",
+    "oxc"
+  ],
+  "categories": {
+    "correctness": "error"
+  },
+  "rules": {
+    "eqeqeq": "error",
+    "curly": "error",
+    "no-console": "off",
+    "no-alert": "error",
+    "no-var": "error",
+    "prefer-const": "error",
+    "no-duplicate-imports": "error",
+    "unicorn/filename-case": "off",
+    "unicorn/no-null": "off"
+  },
+  "settings": {},
+  "ignorePatterns": [
+    "**/node_modules/**",
+    "**/dist/**",
+    "**/build/**",
+    "**/out/**",
+    "**/.next/**",
+    "**/.expo/**",
+    "**/coverage/**",
+    "**/.turbo/**"
+  ],
+  "env": {
+    "builtin": true
+  }
+}

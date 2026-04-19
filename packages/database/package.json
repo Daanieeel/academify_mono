@@ -8,7 +8,7 @@
     "dev": "echo \"Database package has no dev server\"",
     "build": "tsc -b",
     "test": "echo \"No tests yet for database\"",
-    "lint": "echo \"No lint target configured for database\"",
+    "lint": "bunx oxlint -c ../config/oxlint/base.json --node-plugin --import-plugin --promise-plugin --deny-warnings .",
     "typecheck": "tsc --noEmit"
   },
   "exports": {

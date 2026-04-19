@@ -142,5 +142,5 @@ packages/
   redis/             # shared Redis clients, channels, queue config
   sync-protocol/     # shared event contracts, zod schemas, cursor logic
   auth/              # shared auth/session helpers
-  config/            # tsconfig/eslint/prettier/etc
+  config/            # tsconfig/oxlint/oxfmt/etc
 ```
