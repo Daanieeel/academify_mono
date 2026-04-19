@@ -13,7 +13,7 @@
   "scripts": {
     "dev": "echo \"Sync protocol package has no dev server\"",
     "build": "tsc -b",
-    "test": "echo \"No tests yet for sync-protocol\"",
+    "test": "bun test",
     "lint": "bunx oxlint -c ../config/oxlint/base.json --import-plugin --promise-plugin --deny-warnings .",
     "typecheck": "tsc --noEmit"
   },
