@@ -70,9 +70,9 @@ const Chats = () => {
 
   useEffect(() => {
     newChatMenuProgress.value = withSpring(newChatMenuOpen ? 1 : 0, {
-      damping: 26,
-      stiffness: 320,
-      mass: 0.5,
+      damping: 19,
+      stiffness: 420,
+      mass: 0.45,
     });
   }, [newChatMenuOpen, newChatMenuProgress]);
 
