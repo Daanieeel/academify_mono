@@ -123,7 +123,14 @@ export default function TabLayout() {
           justifyContent: 'center',
         }}
       >
-        <Text style={{ fontSize: TAB_ICON_PT * 0.6 }}>{avatarEmoji}</Text>
+        <Text
+          style={{
+            fontSize: TAB_ICON_PT * 0.6,
+            transform: [{ translateY: -0.12 }, { translateX: 0.3 }],
+          }}
+        >
+          {avatarEmoji}
+        </Text>
       </LinearGradient>
     ) : null;
 
