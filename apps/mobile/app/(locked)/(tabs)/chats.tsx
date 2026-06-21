@@ -1,5 +1,4 @@
 import ThemedCreateChatModal from '@/components/modals/themed-create-chat-modal';
-import { Avatar } from '@/components/ui/avatar';
 import { Separator } from '@/components/ui/separator';
 
 import ThemedChatPreview, {
