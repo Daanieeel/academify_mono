@@ -1,4 +1,4 @@
-import SimpleButton from '@/components/buttons/simple-button';
+import SmallButton from '@/components/buttons/small-button';
 import ThemedCreateChatModal from '@/components/modals/themed-create-chat-modal';
 import ThemedChatPreview, {
   type ThemedChatPreviewProps,
@@ -52,7 +52,7 @@ function toPreviewProps(chat: ChatListEntry): ThemedChatPreviewProps {
 const Chats = () => {
   const neutral50Color = useThemeColor({}, 'neutral-50');
   const safeArea = useSafeAreaInsets();
-  const bottomInset = safeArea.bottom > 0 ? 105 : 75;
+  const bottomInset = safeArea.bottom > 0 ? 83 : 56;
 
   const scrollY = useSharedValue(0);
   const { chats } = useChats();
@@ -165,15 +165,19 @@ const Chats = () => {
       <View
         style={[
           styles['new-chat-button-wrapper'],
-          { bottom: bottomInset + 30 },
+          { bottom: bottomInset + 15 },
         ]}
       >
-        <SimpleButton
-          icomoonIcon="magic-wand"
+        <SmallButton
+          iconName="magic-wand"
           label={APPLICATION_CONSTANTS.CHATS_PAGE_NEW_CHAT_BUTTON_LABEL}
           onPress={onNewChatPressed}
-          type={'primary'}
-        ></SimpleButton>
+          type={'inverted'}
+          customPaddingVertical={14}
+          customPaddingHorizontal={24}
+          customBorderRadius={22}
+          iconSize={22}
+        />
       </View>
     </View>
   );

@@ -11,6 +11,7 @@ type SmallButtonProps = {
   iconSize?: number;
   customPaddingHorizontal?: number;
   customPaddingVertical?: number;
+  customBorderRadius?: number;
   type?: 'normal' | 'inverted' | 'dotted' | 'red';
   disabled?: boolean;
 };
@@ -58,6 +59,7 @@ const SmallButton = ({
         {
           paddingHorizontal: props.customPaddingHorizontal ?? 20,
           paddingVertical: props.customPaddingVertical ?? 10,
+          borderRadius: props.customBorderRadius ?? 18,
           borderColor,
           borderWidth,
           backgroundColor: backgroundColor,
