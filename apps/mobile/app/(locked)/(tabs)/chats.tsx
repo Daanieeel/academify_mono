@@ -12,9 +12,9 @@ import ThemedSearchBar from '@/components/themed-search-bar';
 import APPLICATION_CONSTANTS from '@/constants/strings';
 import { useChats } from '@/hooks/use-chats';
 import { formatChatTimestamp } from '@/lib/format';
-import type { ChatListEntry } from '@/lib/api-client';
+import { api, type ChatListEntry } from '@/lib/api-client';
 import { router, Stack } from 'expo-router';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import { Pressable, View } from 'react-native';
 import Animated, {
   Extrapolation,
@@ -60,6 +60,7 @@ const Chats = () => {
   const { chats, loading } = useChats();
 
   const [searchText, setSearchText] = useState('');
+  const [dismissedChatIds, setDismissedChatIds] = useState<string[]>([]);
   const [modalShown, setModalShown] = useState(false); // Modal for create a new chat
   const [chatModalMode, setChatModalMode] = useState<'single' | 'group'>(
     'group',
@@ -123,6 +124,22 @@ const Chats = () => {
     setModalShown(false);
     router.push(`/(locked)/chat/${chatId}`);
   };
+
+  const visibleChats = useMemo(() => {
+    const filtered = chats.filter(
+      (chat) => !dismissedChatIds.includes(chat.chat_id),
+    );
+    return filtered.sort((a, b) => {
+      const aTemp = !a.last_message_at;
+      const bTemp = !b.last_message_at;
+      if (aTemp && !bTemp) {return -1;}
+      if (!aTemp && bTemp) {return 1;}
+      return 0;
+    });
+  }, [chats, dismissedChatIds]);
+
+  const temporaryChats = visibleChats.filter((chat) => !chat.last_message_at);
+  const normalChats = visibleChats.filter((chat) => !!chat.last_message_at);
 
   return (
     <View className="flex-1 bg-neutral-50">
@@ -197,15 +214,42 @@ const Chats = () => {
             contentContainerStyle={{ paddingBottom: 100 }}
             ItemSeparatorComponent={() => <Separator></Separator>}
             className="pt-[10px] pb-[50px] px-[15px]"
-            data={chats}
+            data={normalChats}
             keyExtractor={(chat) => chat.chat_id}
-            renderItem={({ item }) => (
-              <ThemedPressable onPress={() => onChatPressed(item.chat_id)}>
-                <ThemedChatPreview
-                  {...toPreviewProps(item)}
-                ></ThemedChatPreview>
-              </ThemedPressable>
-            )}
+            ListHeaderComponent={
+              temporaryChats.length > 0 ? (
+                <View className="gap-[8px] pb-[10px]">
+                  {temporaryChats.map((item) => (
+                    <ThemedPressable
+                      key={item.chat_id}
+                      onPress={() => onChatPressed(item.chat_id)}
+                    >
+                      <ThemedChatPreview
+                        {...toPreviewProps(item)}
+                        isTemporary={true}
+                        onDismiss={() => {
+                          setDismissedChatIds((prev) => [
+                            ...prev,
+                            item.chat_id,
+                          ]);
+                          api.deleteChat(item.chat_id).catch(console.error);
+                        }}
+                      ></ThemedChatPreview>
+                    </ThemedPressable>
+                  ))}
+                </View>
+              ) : null
+            }
+            renderItem={({ item }) => {
+              return (
+                <ThemedPressable onPress={() => onChatPressed(item.chat_id)}>
+                  <ThemedChatPreview
+                    {...toPreviewProps(item)}
+                    isTemporary={false}
+                  ></ThemedChatPreview>
+                </ThemedPressable>
+              );
+            }}
           ></Animated.FlatList>
         </>
       )}

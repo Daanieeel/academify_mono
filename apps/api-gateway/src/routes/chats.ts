@@ -543,4 +543,40 @@ export const chatsRoutes = new Elysia()
         limit: t.Optional(t.Integer({ minimum: 1, maximum: 200 })),
       }),
     },
+  )
+  .delete(
+    '/chats/:id',
+    async ({ params, userId, status }) => {
+      const [membership] = await db
+        .select({ userId: chatMembers.userId })
+        .from(chatMembers)
+        .where(
+          and(
+            eq(chatMembers.chatId, params.id),
+            eq(chatMembers.userId, userId),
+            eq(chatMembers.state, 'active'),
+          ),
+        );
+      if (!membership) {
+        return status(403, { error: 'not a member of this chat' });
+      }
+
+      const [messageCount] = await db
+        .select({ count: count() })
+        .from(messages)
+        .where(eq(messages.chatId, params.id));
+
+      if (messageCount && messageCount.count > 0) {
+        return status(400, { error: 'cannot delete a chat that has messages' });
+      }
+
+      await db.transaction(async (tx) => {
+        await tx.delete(mlsGroups).where(eq(mlsGroups.chatId, params.id));
+        await tx.delete(chatMembers).where(eq(chatMembers.chatId, params.id));
+        await tx.delete(chats).where(eq(chats.id, params.id));
+      });
+
+      return { success: true };
+    },
+    { params: t.Object({ id: t.String({ minLength: 1 }) }) },
   );

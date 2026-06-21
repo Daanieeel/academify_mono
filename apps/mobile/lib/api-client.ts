@@ -123,6 +123,9 @@ export const api = {
   getChatDetail: async (chatId: string): Promise<ChatDetail> =>
     (await request(`/chats/${chatId}`)).json(),
 
+  deleteChat: async (chatId: string): Promise<{ success: boolean }> =>
+    (await request(`/chats/${chatId}`, { method: 'DELETE' })).json(),
+
   getChatMessages: async (
     chatId: string,
     options?: { beforeCursor?: string; limit?: number },

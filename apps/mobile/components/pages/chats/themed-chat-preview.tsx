@@ -2,6 +2,9 @@ import React from 'react';
 import { View } from 'react-native';
 import { Text } from '@/components/ui/text';
 import { Avatar } from '@/components/ui/avatar';
+import { cn } from '@/lib/utils';
+import { Button } from '@/components/ui/button';
+import { Icon } from '@/components/ui/icon';
 
 export type ThemedChatPreviewProps = {
   chatName: string;
@@ -10,6 +13,8 @@ export type ThemedChatPreviewProps = {
   lastMessage?: string;
   lastMessageType: 'text' | 'video' | 'audio' | 'file';
   read: boolean;
+  isTemporary?: boolean;
+  onDismiss?: () => void;
 };
 
 const ThemedChatPreview = ({
@@ -35,35 +40,62 @@ const ThemedChatPreview = ({
   }
 
   return (
-    <View className="h-[80px] items-center w-[100%] flex-row gap-[15px]">
+    <View
+      className={cn(
+        'h-[80px] items-center flex-row gap-[15px]',
+        props.isTemporary
+          ? 'border border-dashed border-neutral-300 rounded-[12px] p-[10px] -mx-[10px]'
+          : '',
+      )}
+    >
       <Avatar size={'medium'} source={props.chatIcon}></Avatar>
-      <View className="gap-[10px] flex-col flex-1 justify-start">
-        <View className="flex-row justify-between">
-          <Text numberOfLines={1} variant="body" className="text-neutral-900">
+      <View className="gap-[2px] flex-col flex-1 justify-start">
+        <View className="flex-row justify-between items-center">
+          <Text
+            numberOfLines={1}
+            variant="body"
+            className="text-neutral-900 font-bold"
+          >
             {props.chatName}
           </Text>
 
-          {/* Last message + unread badge */}
-          <View className="flex-row items-center gap-[5px]">
-            <Text
-              numberOfLines={1}
-              variant="caption"
-              className={read ? 'text-neutral-500' : 'text-neutral-900'}
+          {/* Last message time + unread badge or dismiss button */}
+          {props.isTemporary ? (
+            <Button
+              variant="normal"
+              className="p-0 h-[30px] w-[30px] rounded-full"
+              onPress={props.onDismiss}
             >
-              {props.lastMessageTime ?? ''}
-            </Text>
-            {read === true ? null : (
-              <View className="w-[5px] h-[5px] rounded-[9999px] bg-red-500"></View>
-            )}
-          </View>
-          {/* Last message + unread badge */}
+              <Icon name="x" size={16} className="text-neutral-500" />
+            </Button>
+          ) : (
+            <View className="flex-row items-center gap-[5px]">
+              <Text
+                numberOfLines={1}
+                variant="body"
+                className={cn(
+                  'text-[12px] leading-[16px]',
+                  read ? 'text-neutral-500' : 'text-neutral-900',
+                )}
+              >
+                {props.lastMessageTime ?? ''}
+              </Text>
+              {read === true ? null : (
+                <View className="w-[5px] h-[5px] rounded-[9999px] bg-red-500"></View>
+              )}
+            </View>
+          )}
         </View>
         <Text
           numberOfLines={2}
-          variant="caption"
-          className={read ? 'text-neutral-500' : 'text-neutral-900'}
+          variant="body"
+          className={cn('text-[13px] leading-[18px] text-neutral-500')}
         >
-          {lastMessageEmoji + ' ' + props.lastMessage}
+          {props.isTemporary
+            ? 'Noch keine Nachrichten'
+            : lastMessageEmoji +
+              (lastMessageEmoji ? ' ' : '') +
+              props.lastMessage}
         </Text>
       </View>
     </View>
