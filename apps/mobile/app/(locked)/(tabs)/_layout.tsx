@@ -4,15 +4,17 @@ import { api } from '@/lib/api-client';
 import { parseAvatarGradient } from '@/lib/avatar';
 import { LinearGradient } from 'expo-linear-gradient';
 import React, { useEffect, useRef, useState } from 'react';
-import { Platform, Text, View } from 'react-native';
+import { PixelRatio, Platform, Text, View } from 'react-native';
 import { captureRef } from 'react-native-view-shot';
 
-// Displayed nav-bar icon size tracks the captured PNG's outer pixel
-// dimensions — the native slot treats bitmap pixels as points, ignores a
-// `scale` field, and (tested) the inner circle/canvas ratio had no visible
-// effect, so internal padding isn't the lever. Single knob: the circle fills
-// the captured square and this IS the captured pixel size. Lower = smaller.
-const TAB_ICON_PX = 9;
+// Displayed size = the captured PNG's point size (the slot draws bitmap
+// pixels as points). TAB_ICON_PT is that on-screen size. For crispness we
+// render the circle at TAB_ICON_PT points but snapshot at the device's
+// native resolution (TAB_ICON_PT × DPR real pixels) and tag the source with
+// that same `scale`, so it still displays at TAB_ICON_PT but is drawn from a
+// full-resolution bitmap instead of a 9px one stretched 3x.
+const TAB_ICON_PT = 9;
+const PIXEL_RATIO = PixelRatio.get();
 
 export default function TabLayout() {
   const primary900Color = useThemeColor({}, 'primary-900');
@@ -57,8 +59,8 @@ export default function TabLayout() {
             format: 'png',
             quality: 1,
             result: 'data-uri',
-            width: TAB_ICON_PX,
-            height: TAB_ICON_PX,
+            width: TAB_ICON_PT * PIXEL_RATIO,
+            height: TAB_ICON_PT * PIXEL_RATIO,
           })
             .then(setTabIconUri)
             .catch(console.error)
@@ -114,14 +116,14 @@ export default function TabLayout() {
           position: 'absolute',
           top: 0,
           left: 0,
-          height: TAB_ICON_PX,
-          width: TAB_ICON_PX,
-          borderRadius: TAB_ICON_PX / 2,
+          height: TAB_ICON_PT,
+          width: TAB_ICON_PT,
+          borderRadius: TAB_ICON_PT / 2,
           alignItems: 'center',
           justifyContent: 'center',
         }}
       >
-        <Text style={{ fontSize: TAB_ICON_PX * 0.6 }}>{avatarEmoji}</Text>
+        <Text style={{ fontSize: TAB_ICON_PT * 0.6 }}>{avatarEmoji}</Text>
       </LinearGradient>
     ) : null;
 
@@ -181,7 +183,7 @@ export default function TabLayout() {
         <NativeTabs.Trigger.Label>Optionen</NativeTabs.Trigger.Label>
         {tabIconUri ? (
           <NativeTabs.Trigger.Icon
-            src={{ uri: tabIconUri }}
+            src={{ uri: tabIconUri, scale: PIXEL_RATIO }}
             renderingMode="original"
           />
         ) : (
