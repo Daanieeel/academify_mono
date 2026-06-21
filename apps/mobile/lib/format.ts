@@ -1,3 +1,17 @@
+const ROLE_LABELS = {
+  student: 'Schüler:in',
+  teacher: 'Lehrer:in',
+  admin: 'Admin',
+  compliance_officer: 'Compliance-Beauftragte:r',
+  headmaster: 'Schulleitung',
+} as const;
+
+export function formatRoleLabel(
+  role: keyof typeof ROLE_LABELS | null | undefined,
+): string | undefined {
+  return role ? ROLE_LABELS[role] : undefined;
+}
+
 export function formatChatTimestamp(iso: string): string {
   const date = new Date(iso);
   const now = new Date();

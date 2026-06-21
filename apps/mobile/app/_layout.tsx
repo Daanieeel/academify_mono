@@ -1,7 +1,6 @@
 import { SessionProvider } from '@/context/auth-context';
 import { MlsBridgeProvider } from '@/context/mls-context';
 import { SyncProvider } from '@/context/sync-context';
-import { PortalHost } from '@rn-primitives/portal';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import '../global.css';
 import '../nativewind-interop';
@@ -17,7 +16,6 @@ export default function RootLayout() {
           </SyncProvider>
         </SessionProvider>
       </MlsBridgeProvider>
-      <PortalHost />
     </SafeAreaProvider>
   );
 }

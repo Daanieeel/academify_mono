@@ -24,8 +24,6 @@
     "@repo/mls": "workspace:*",
     "@rn-primitives/avatar": "^1.4.0",
     "@rn-primitives/checkbox": "^1.4.0",
-    "@rn-primitives/dialog": "^1.4.0",
-    "@rn-primitives/portal": "^1.4.0",
     "@rn-primitives/progress": "^1.4.0",
     "@rn-primitives/radio-group": "^1.4.0",
     "@rn-primitives/separator": "^1.4.0",

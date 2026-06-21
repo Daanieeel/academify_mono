@@ -30,7 +30,7 @@ const ThemedChatPageHeader = (props: ThemedChatPageHeaderProps) => {
         <ThemedPressable onPress={props.onChatAboutPressed}>
           <View className="gap-[10px] flex-row items-center">
             <Avatar size={'small'}></Avatar>
-            <Text variant="body">{props.chatName ?? 'Bio K1A24'}</Text>
+            <Text variant="body">{props.chatName ?? 'Chat'}</Text>
           </View>
         </ThemedPressable>
       </View>

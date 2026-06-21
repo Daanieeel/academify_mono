@@ -5,6 +5,8 @@ import {
   account,
   chatMembers,
   chats,
+  classes,
+  classMemberships,
   db,
   devices,
   institutions,
@@ -38,23 +40,19 @@ async function seedUser(
     })
     .returning();
   const hashed = await ctx.password.hash(PASSWORD);
-  await db
-    .insert(account)
-    .values({
-      id: `${id}-account`,
-      accountId: id,
-      providerId: 'credential',
-      userId: created!.id,
-      password: hashed,
-    });
-  await db
-    .insert(profiles)
-    .values({
-      userId: created!.id,
-      institutionId,
-      displayNameCiphertext: displayName,
-      keyVersion: 1,
-    });
+  await db.insert(account).values({
+    id: `${id}-account`,
+    accountId: id,
+    providerId: 'credential',
+    userId: created!.id,
+    password: hashed,
+  });
+  await db.insert(profiles).values({
+    userId: created!.id,
+    institutionId,
+    displayNameCiphertext: displayName,
+    keyVersion: 1,
+  });
   return created!;
 }
 
@@ -81,6 +79,7 @@ describe('api-gateway chats routes', () => {
   let aliceCookie: string;
   let bobCookie: string;
   let chatId: string;
+  let classId: string;
 
   beforeAll(async () => {
     const [institution] = await db
@@ -91,6 +90,19 @@ describe('api-gateway chats routes', () => {
 
     await seedUser(aliceId, `alice_c_${suffix}`, 'Alice', institutionId);
     await seedUser(bobId, `bob_c_${suffix}`, 'Bob', institutionId);
+
+    const [cls] = await db
+      .insert(classes)
+      .values({
+        institutionId,
+        name: `10a-${suffix}`,
+        headTeacherUserId: aliceId,
+      })
+      .returning();
+    classId = cls!.id;
+    await db
+      .insert(classMemberships)
+      .values([{ classId, userId: bobId, role: 'student' }]);
 
     aliceCookie = await signIn(`alice_c_${suffix}`);
     bobCookie = await signIn(`bob_c_${suffix}`);
@@ -109,6 +121,10 @@ describe('api-gateway chats routes', () => {
       await db.delete(chatMembers).where(eq(chatMembers.chatId, chatId));
       await db.delete(chats).where(eq(chats.id, chatId));
     }
+    await db
+      .delete(classMemberships)
+      .where(eq(classMemberships.classId, classId));
+    await db.delete(classes).where(eq(classes.id, classId));
     await db.delete(devices).where(inArray(devices.userId, userIds));
     await db.delete(profiles).where(inArray(profiles.userId, userIds));
     await db.delete(account).where(inArray(account.userId, userIds));
@@ -144,6 +160,36 @@ describe('api-gateway chats routes', () => {
           contact.user_id === bobId && contact.display_name === 'Bob',
       ),
     ).toBe(true);
+  });
+
+  it('GET /contacts includes class_name for contacts with an active membership', async () => {
+    const response = await app.handle(
+      new Request('http://localhost/contacts', {
+        headers: { Cookie: aliceCookie },
+      }),
+    );
+    const body = (await response.json()) as {
+      user_id: string;
+      class_name: string | null;
+    }[];
+    const bob = body.find((contact) => contact.user_id === bobId);
+    expect(bob?.class_name).toBe(`10a-${suffix}`);
+  });
+
+  it('GET /classes lists the institution’s classes with member counts', async () => {
+    const response = await app.handle(
+      new Request('http://localhost/classes', {
+        headers: { Cookie: aliceCookie },
+      }),
+    );
+    const body = (await response.json()) as {
+      class_id: string;
+      class_name: string;
+      member_count: number;
+    }[];
+    const cls = body.find((entry) => entry.class_id === classId);
+    expect(cls?.class_name).toBe(`10a-${suffix}`);
+    expect(cls?.member_count).toBe(1);
   });
 
   it('POST /chats creates a DM, and is idempotent on retry', async () => {

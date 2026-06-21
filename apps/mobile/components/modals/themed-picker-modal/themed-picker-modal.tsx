@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { FlatList, View } from 'react-native';
 import ThemedSearchBar from '../../themed-search-bar';
 import ThemedModal from '../themed-modal';
@@ -10,34 +10,26 @@ import { Button } from '@/components/ui/button';
 import { Icon } from '@/components/ui/icon';
 import { Text } from '@/components/ui/text';
 
-const MOCK_USERS: ThemedListPreviewItemProps[] = [
-  { heading: 'Maxine Maxwell', userId: 0, caption: 'Klasse: 9d' },
-  { heading: 'Linus Bung', userId: 1, caption: 'Klasse: 9d' },
-  { heading: 'Daniel Dopatka', userId: 2, caption: 'Klasse: 9d' },
-  { heading: 'Sophie Keller', userId: 3, caption: 'Klasse: 9c' },
-  { heading: 'Leon Fischer', userId: 4, caption: 'Klasse: 9c' },
-  { heading: 'Emma Wagner', userId: 5, caption: 'Klasse: 9b' },
-  { heading: 'Noah Becker', userId: 6, caption: 'Klasse: 9b' },
-  { heading: 'Mia Hoffmann', userId: 7, caption: 'Klasse: 9a' },
-  { heading: 'Paul Schneider', userId: 8, caption: 'Klasse: 9a' },
-  { heading: 'Lena Schulz', userId: 9, caption: 'Klasse: 9d' },
-  { heading: 'Jonas Braun', userId: 10, caption: 'Klasse: 9c' },
-  { heading: 'Laura Krüger', userId: 11, caption: 'Klasse: 9b' },
-  { heading: 'Tim Richter', userId: 12, caption: 'Klasse: 9a' },
-  { heading: 'Hannah Wolf', userId: 13, caption: 'Klasse: 9d' },
-  { heading: 'Felix Neumann', userId: 14, caption: 'Klasse: 9c' },
-];
-
 type ThemedPickerModalProps = {
   title?: string;
-  items?: React.ReactNode[];
-  onFinished?: (selectedIndizes: number[]) => void;
+  items: ThemedListPreviewItemProps[];
+  initialSelectedIds?: (number | string)[];
+  onFinished?: (selectedIds: (number | string)[]) => void;
   visible: boolean;
   onRequestClose: () => void;
 };
 
 const ThemedPickerModal = (props: ThemedPickerModalProps) => {
-  const [selectedIDs, setSelectedIDs] = useState<(number | string)[]>([]);
+  const [selectedIDs, setSelectedIDs] = useState<(number | string)[]>(
+    props.initialSelectedIds ?? [],
+  );
+
+  useEffect(() => {
+    if (props.visible) {
+      setSelectedIDs(props.initialSelectedIds ?? []);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [props.visible]);
 
   const toggleItem = (itemId: number | string) => {
     setSelectedIDs((prev) => {
@@ -50,6 +42,7 @@ const ThemedPickerModal = (props: ThemedPickerModalProps) => {
   };
 
   const onFinishPressed = () => {
+    props.onFinished?.(selectedIDs);
     props.onRequestClose();
   };
 
@@ -67,7 +60,7 @@ const ThemedPickerModal = (props: ThemedPickerModalProps) => {
           }}
         >
           <ThemedSearchBar
-            placeholder={'Nach Benutzern suchen'}
+            placeholder={props.title ?? 'Suchen'}
             value={''}
             onInputChanged={() => {}}
           ></ThemedSearchBar>
@@ -98,7 +91,7 @@ const ThemedPickerModal = (props: ThemedPickerModalProps) => {
           paddingBottom: 150,
         }}
         className="z-[1] pt-[10px]"
-        data={MOCK_USERS}
+        data={props.items}
         renderItem={(item) => {
           const isSelected = selectedIDs.includes(item.item.userId);
           return (

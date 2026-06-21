@@ -22,28 +22,23 @@ const ProfileEditPage = () => {
     {
       id: 1,
       description: 'Name',
-      value: 'Mad Max',
     },
     {
       id: 2,
       description: 'Benutzername',
-      value: '@mmax',
     },
     {
       id: 3,
       description: 'Schule',
-      value: 'Rotteck-Gymnasium Freiburg',
       isEditable: false,
     },
     {
       id: 4,
       description: 'Klasse',
-      value: '9d',
     },
     {
       id: 5,
       description: 'Geburtsdatum',
-      value: '16.06.2006',
     },
   ];
 

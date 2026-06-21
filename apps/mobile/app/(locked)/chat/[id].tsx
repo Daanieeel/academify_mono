@@ -22,7 +22,7 @@ const ChatPage = () => {
   >('none');
 
   const onChatAboutPressed = () => {
-    router.push('/(locked)/chat-about/123');
+    router.push(`/(locked)/chat-about/${id}`);
   };
 
   const onSend = (text: string) => {

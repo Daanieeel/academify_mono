@@ -8,10 +8,20 @@ import ThemedHeader from '@/components/themed-header';
 import ThemedPressable from '@/components/themed-pressable';
 import ThemedSearchBar from '@/components/themed-search-bar';
 import { useSession } from '@/context/auth-context';
+import { api, type MeResponse } from '@/lib/api-client';
+import { formatRoleLabel } from '@/lib/format';
 import { Stack, useRouter } from 'expo-router';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { ScrollView, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+
+const ROLE_ICONS = {
+  student: 'student',
+  teacher: 'chalkboard-teacher',
+  admin: 'shield-star',
+  compliance_officer: 'shield-check',
+  headmaster: 'shield-star',
+} as const;
 
 const settingsItems: ThemedSettingsItemProp[] = [
   {
@@ -48,8 +58,26 @@ const settingsItems: ThemedSettingsItemProp[] = [
 
 const Settings = () => {
   const [searchBarValue, setSearchBarValue] = useState('');
+  const [me, setMe] = useState<MeResponse | undefined>(undefined);
   const { signOut } = useSession();
   const router = useRouter();
+
+  useEffect(() => {
+    api.getMe().then(setMe).catch(console.error);
+  }, []);
+
+  const [firstName, ...lastNameParts] = me?.display_name.split(' ') ?? [];
+  const badges = [
+    me?.role
+      ? {
+          icomoonIconName: ROLE_ICONS[me.role],
+          label: formatRoleLabel(me.role)!,
+        }
+      : undefined,
+    me?.class_name
+      ? { icomoonIconName: 'graduation-cap', label: me.class_name }
+      : undefined,
+  ].filter((badge): badge is NonNullable<typeof badge> => Boolean(badge));
 
   const onLogOutPressed = () => {
     console.log('from settings page: user clicked log out');
@@ -96,19 +124,10 @@ const Settings = () => {
       >
         <ThemedPressable onPress={() => {}}>
           <ThemedProfilePreview
-            firstName="Maxine"
-            lastName="Maxwell"
-            username={'@mmaxwell'}
-            badges={[
-              {
-                icomoonIconName: 'student',
-                label: 'Schüler',
-              },
-              {
-                icomoonIconName: 'graduation-cap',
-                label: '9D',
-              },
-            ]}
+            firstName={firstName ?? ''}
+            lastName={lastNameParts.join(' ')}
+            username={me ? `@${me.username}` : ''}
+            badges={badges}
           ></ThemedProfilePreview>
         </ThemedPressable>
 

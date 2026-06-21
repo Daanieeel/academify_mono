@@ -28,8 +28,32 @@ export type MeResponse = {
   user_id: string;
   username: string;
   display_name: string;
+  role:
+    | 'student'
+    | 'teacher'
+    | 'admin'
+    | 'compliance_officer'
+    | 'headmaster'
+    | null;
+  class_name: string | null;
 };
-export type Contact = { user_id: string; display_name: string };
+export type Contact = {
+  user_id: string;
+  display_name: string;
+  role:
+    | 'student'
+    | 'teacher'
+    | 'admin'
+    | 'compliance_officer'
+    | 'headmaster'
+    | null;
+  class_name: string | null;
+};
+export type SchoolClass = {
+  class_id: string;
+  class_name: string;
+  member_count: number;
+};
 export type ChatListEntry = {
   chat_id: string;
   type: string;
@@ -61,6 +85,9 @@ export const api = {
   getContacts: async (): Promise<Contact[]> =>
     (await request('/contacts')).json(),
 
+  getClasses: async (): Promise<SchoolClass[]> =>
+    (await request('/classes')).json(),
+
   getChats: async (): Promise<{ chats: ChatListEntry[] }> =>
     (await request('/chats')).json(),
 
@@ -80,9 +107,12 @@ export const api = {
     options?: { beforeCursor?: string; limit?: number },
   ): Promise<{ messages: MessageDto[]; has_more: boolean }> => {
     const params = new URLSearchParams();
-    if (options?.beforeCursor)
-      {params.set('before_cursor', options.beforeCursor);}
-    if (options?.limit) {params.set('limit', String(options.limit));}
+    if (options?.beforeCursor) {
+      params.set('before_cursor', options.beforeCursor);
+    }
+    if (options?.limit) {
+      params.set('limit', String(options.limit));
+    }
     const query = params.toString();
     return (
       await request(`/chats/${chatId}/messages${query ? `?${query}` : ''}`)
@@ -142,7 +172,9 @@ export const api = {
       },
       body: JSON.stringify({ user_id: peerUserId }),
     });
-    if (response.status === 404) {return null;}
+    if (response.status === 404) {
+      return null;
+    }
     if (!response.ok) {
       throw new Error(
         `consumeKeyPackage failed: ${response.status} ${await response.text()}`,
@@ -187,7 +219,9 @@ export const api = {
     const response = await fetch(`${API_URL}/mls/groups/${chatId}/welcome`, {
       headers: { Cookie: authClient.getCookie() },
     });
-    if (response.status === 404) {return null;}
+    if (response.status === 404) {
+      return null;
+    }
     if (!response.ok) {
       throw new Error(
         `getMlsWelcome failed: ${response.status} ${await response.text()}`,

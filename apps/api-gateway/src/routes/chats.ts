@@ -1,12 +1,15 @@
-import { and, desc, eq, inArray, lt, ne } from 'drizzle-orm';
+import { and, count, desc, eq, inArray, lt, ne } from 'drizzle-orm';
 import { Elysia, t } from 'elysia';
 import {
   chatMembers,
   chats,
+  classes,
+  classMemberships,
   db,
   mlsGroups,
   messages,
   profiles,
+  roleBindings,
   user,
   userCursorState,
   userEventStream,
@@ -21,7 +24,7 @@ import { authMiddleware } from '../auth-middleware';
 // the MLS secrets to do so.
 export const chatsRoutes = new Elysia()
   .use(authMiddleware)
-  .get('/me', async ({ userId, status }) => {
+  .get('/me', async ({ userId, institutionId, status }) => {
     const [profile] = await db
       .select({
         username: user.username,
@@ -35,10 +38,40 @@ export const chatsRoutes = new Elysia()
       return status(404, { error: 'user not found' });
     }
 
+    let role: string | null = null;
+    let className: string | null = null;
+    if (institutionId) {
+      const [roleRow] = await db
+        .select({ role: roleBindings.role })
+        .from(roleBindings)
+        .where(
+          and(
+            eq(roleBindings.userId, userId),
+            eq(roleBindings.institutionId, institutionId),
+          ),
+        );
+      role = roleRow?.role ?? null;
+
+      const [classRow] = await db
+        .select({ className: classes.name })
+        .from(classMemberships)
+        .innerJoin(classes, eq(classes.id, classMemberships.classId))
+        .where(
+          and(
+            eq(classMemberships.userId, userId),
+            eq(classes.institutionId, institutionId),
+            eq(classMemberships.state, 'active'),
+          ),
+        );
+      className = classRow?.className ?? null;
+    }
+
     return {
       user_id: userId,
       username: profile.username,
       display_name: profile.displayName ?? profile.username,
+      role,
+      class_name: className,
     };
   })
   .get('/contacts', async ({ userId, institutionId, status }) => {
@@ -61,9 +94,79 @@ export const chatsRoutes = new Elysia()
         ),
       );
 
+    if (rows.length === 0) {
+      return [];
+    }
+
+    const contactIds = rows.map((row) => row.userId);
+
+    const roleRows = await db
+      .select({ userId: roleBindings.userId, role: roleBindings.role })
+      .from(roleBindings)
+      .where(
+        and(
+          inArray(roleBindings.userId, contactIds),
+          eq(roleBindings.institutionId, institutionId),
+        ),
+      );
+    const roleByUserId = new Map<string, string>();
+    for (const row of roleRows) {
+      if (!roleByUserId.has(row.userId)) {
+        roleByUserId.set(row.userId, row.role);
+      }
+    }
+
+    const classRows = await db
+      .select({ userId: classMemberships.userId, className: classes.name })
+      .from(classMemberships)
+      .innerJoin(classes, eq(classes.id, classMemberships.classId))
+      .where(
+        and(
+          inArray(classMemberships.userId, contactIds),
+          eq(classes.institutionId, institutionId),
+          eq(classMemberships.state, 'active'),
+        ),
+      );
+    const classNameByUserId = new Map<string, string>();
+    for (const row of classRows) {
+      if (!classNameByUserId.has(row.userId)) {
+        classNameByUserId.set(row.userId, row.className);
+      }
+    }
+
     return rows.map((row) => ({
       user_id: row.userId,
       display_name: row.displayName ?? row.username,
+      role: roleByUserId.get(row.userId) ?? null,
+      class_name: classNameByUserId.get(row.userId) ?? null,
+    }));
+  })
+  .get('/classes', async ({ institutionId, status }) => {
+    if (!institutionId) {
+      return status(403, { error: 'no institution profile for this user' });
+    }
+
+    const rows = await db
+      .select({
+        classId: classes.id,
+        className: classes.name,
+        memberCount: count(classMemberships.id),
+      })
+      .from(classes)
+      .leftJoin(
+        classMemberships,
+        and(
+          eq(classMemberships.classId, classes.id),
+          eq(classMemberships.state, 'active'),
+        ),
+      )
+      .where(eq(classes.institutionId, institutionId))
+      .groupBy(classes.id, classes.name);
+
+    return rows.map((row) => ({
+      class_id: row.classId,
+      class_name: row.className,
+      member_count: row.memberCount,
     }));
   })
   .get('/chats', async ({ userId }) => {

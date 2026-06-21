@@ -1,5 +1,8 @@
-import { Dialog, DialogContent } from '@/components/ui/dialog';
+import { Icon } from '@/components/ui/icon';
+import ThemedPressable from '@/components/themed-pressable';
 import React from 'react';
+import { Modal, View } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 type ThemedModalProps = {
   children?: React.ReactNode;
@@ -9,16 +12,25 @@ type ThemedModalProps = {
 
 const ThemedModal = (props: ThemedModalProps) => {
   return (
-    <Dialog
-      open={props.visible}
-      onOpenChange={(open) => {
-        if (!open) {
-          props.onRequestClose();
-        }
-      }}
+    <Modal
+      visible={props.visible}
+      onRequestClose={props.onRequestClose}
+      animationType="slide"
+      presentationStyle="pageSheet"
     >
-      <DialogContent className="h-[90%]">{props.children}</DialogContent>
-    </Dialog>
+      <View className="flex-1 bg-neutral-100">
+        <SafeAreaView edges={['top']} className="px-[15px] pt-[15px]">
+          <View className="items-end">
+            <ThemedPressable onPress={props.onRequestClose}>
+              <View className="h-[36px] w-[36px] items-center justify-center rounded-full bg-neutral-200">
+                <Icon name="x" size={20} className="text-neutral-900" />
+              </View>
+            </ThemedPressable>
+          </View>
+        </SafeAreaView>
+        {props.children}
+      </View>
+    </Modal>
   );
 };
 

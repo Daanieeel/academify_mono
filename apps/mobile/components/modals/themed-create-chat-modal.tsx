@@ -11,7 +11,8 @@ import ThemedListPreviewItem, {
 } from '@/components/modals/themed-picker-modal/themed-list-preview-item';
 import ThemedPickerModal from '@/components/modals/themed-picker-modal/themed-picker-modal';
 import APPLICATION_CONSTANTS from '@/constants/strings';
-import { api, type Contact } from '@/lib/api-client';
+import { api, type Contact, type SchoolClass } from '@/lib/api-client';
+import { formatRoleLabel } from '@/lib/format';
 import React, { useEffect, useState } from 'react';
 import { ScrollView, View } from 'react-native';
 import ThemedPressable from '../themed-pressable';
@@ -19,18 +20,29 @@ import ThemedImagePickerModal, {
   IMAGE_URIS,
 } from './themed-image-picker-modal';
 
-const MOCK_USERS: ThemedListPreviewItemProps[] = [
-  { heading: 'Maxine Maxwell', userId: 0, caption: 'Klasse: 9d' },
-  { heading: 'Linus Bung', userId: 1, caption: 'Klasse: 9d' },
-  { heading: 'Daniel Dopatka', userId: 2, caption: 'Klasse: 9d' },
-  { heading: 'Sophie Keller', userId: 3, caption: 'Klasse: 9c' },
-  { heading: 'Leon Fischer', userId: 4, caption: 'Klasse: 9c' },
-];
+function formatContactCaption(contact: Contact): string | undefined {
+  return (
+    [formatRoleLabel(contact.role), contact.class_name]
+      .filter(Boolean)
+      .join(' · ') || undefined
+  );
+}
 
-const MOCK_CLASSES: ThemedListPreviewItemProps[] = [
-  { heading: 'Klasse 5a', userId: 0, caption: '21 Schüler' },
-  { heading: 'Klasse K1A24', userId: 1, caption: '21 Schüler' },
-];
+function contactToListItem(contact: Contact): ThemedListPreviewItemProps {
+  return {
+    userId: contact.user_id,
+    heading: contact.display_name,
+    caption: formatContactCaption(contact),
+  };
+}
+
+function classToListItem(schoolClass: SchoolClass): ThemedListPreviewItemProps {
+  return {
+    userId: schoolClass.class_id,
+    heading: schoolClass.class_name,
+    caption: `${schoolClass.member_count} Schüler:innen`,
+  };
+}
 
 export type ThemedCreateChatModalProps = {
   visible: boolean;
@@ -63,17 +75,26 @@ const ThemedBentoBox = (props: ThemedBentoBoxProps) => {
 const ThemedCreateChatModal = (props: ThemedCreateChatModalProps) => {
   const isGroup = props.mode === 'group';
   const [selectUserModalShown, setSelectUserModalShown] = useState(false);
+  const [selectClassModalShown, setSelectClassModalShown] = useState(false);
   const [avatarModalShown, setAvatarModalShown] = useState(false);
   const [avatarSource, setAvatarSource] = useState<string | undefined>(
     undefined,
   );
   const [contacts, setContacts] = useState<Contact[]>([]);
+  const [schoolClasses, setSchoolClasses] = useState<SchoolClass[]>([]);
+  const [selectedMemberIds, setSelectedMemberIds] = useState<
+    (number | string)[]
+  >([]);
+  const [selectedClassIds, setSelectedClassIds] = useState<(number | string)[]>(
+    [],
+  );
 
   useEffect(() => {
     if (!props.visible) {
       return;
     }
     api.getContacts().then(setContacts).catch(console.error);
+    api.getClasses().then(setSchoolClasses).catch(console.error);
   }, [props.visible]);
 
   const onContactPressed = async (peerUserId: string) => {
@@ -89,11 +110,22 @@ const ThemedCreateChatModal = (props: ThemedCreateChatModalProps) => {
     setSelectUserModalShown(true);
   };
 
+  const onAddClassPressed = () => {
+    setSelectClassModalShown(true);
+  };
+
   const onCreateChatPressed = () => {};
 
   const onAvatarPressed = () => {
     setAvatarModalShown(true);
   };
+
+  const selectedMembers = contacts.filter((contact) =>
+    selectedMemberIds.includes(contact.user_id),
+  );
+  const selectedClasses = schoolClasses.filter((schoolClass) =>
+    selectedClassIds.includes(schoolClass.class_id),
+  );
 
   return (
     <ThemedModal
@@ -110,8 +142,22 @@ const ThemedCreateChatModal = (props: ThemedCreateChatModalProps) => {
 
       {/* Modal for when the user wants to add additional single users */}
       <ThemedPickerModal
+        title="Nach Benutzern suchen"
+        items={contacts.map(contactToListItem)}
+        initialSelectedIds={selectedMemberIds}
+        onFinished={setSelectedMemberIds}
         visible={selectUserModalShown}
         onRequestClose={() => setSelectUserModalShown(false)}
+      ></ThemedPickerModal>
+
+      {/* Modal for when the user wants to add additional classes */}
+      <ThemedPickerModal
+        title="Nach Klassen suchen"
+        items={schoolClasses.map(classToListItem)}
+        initialSelectedIds={selectedClassIds}
+        onFinished={setSelectedClassIds}
+        visible={selectClassModalShown}
+        onRequestClose={() => setSelectClassModalShown(false)}
       ></ThemedPickerModal>
 
       {/* Button for creating the group */}
@@ -179,11 +225,16 @@ const ThemedCreateChatModal = (props: ThemedCreateChatModalProps) => {
           {/* Bento box for showing classes and adding additional ones */}
 
           <ThemedBentoBox label="Hinzugefügte Klassen">
-            {MOCK_CLASSES.map((props) => (
-              <View key={props.userId}>
+            {selectedClasses.map((schoolClass) => (
+              <View key={schoolClass.class_id}>
                 <ThemedListPreviewItem
-                  {...props}
+                  {...classToListItem(schoolClass)}
                   showRemoveButton
+                  onRemovePress={() =>
+                    setSelectedClassIds((prev) =>
+                      prev.filter((id) => id !== schoolClass.class_id),
+                    )
+                  }
                   className="bg-transparent"
                   paddingVertical={10}
                 ></ThemedListPreviewItem>
@@ -191,7 +242,7 @@ const ThemedCreateChatModal = (props: ThemedCreateChatModalProps) => {
               </View>
             ))}
             <View className="pt-[20px] pb-[10px] flex-row justify-center">
-              <Button variant="normal">
+              <Button variant="normal" onPress={onAddClassPressed}>
                 <Icon name="plus" size={18} />
                 <Text>Weitere Klasse hinzufügen</Text>
               </Button>
@@ -200,11 +251,16 @@ const ThemedCreateChatModal = (props: ThemedCreateChatModalProps) => {
 
           {/* Bento Box for showing group members and adding additional ones */}
           <ThemedBentoBox label="Gruppenmitglieder">
-            {MOCK_USERS.map((props) => (
-              <View key={props.userId}>
+            {selectedMembers.map((contact) => (
+              <View key={contact.user_id}>
                 <ThemedListPreviewItem
-                  {...props}
+                  {...contactToListItem(contact)}
                   showRemoveButton
+                  onRemovePress={() =>
+                    setSelectedMemberIds((prev) =>
+                      prev.filter((id) => id !== contact.user_id),
+                    )
+                  }
                   className="bg-transparent"
                   paddingVertical={10}
                 ></ThemedListPreviewItem>
@@ -239,7 +295,9 @@ const ThemedCreateChatModal = (props: ThemedCreateChatModalProps) => {
                   borderRadius={18}
                   userId={contact.user_id}
                   heading={contact.display_name}
-                  className="bg-neutral-50"
+                  caption={formatContactCaption(contact)}
+                  showChevron
+                  className="bg-neutral-50 border-l-[3px] border-l-primary-400"
                   paddingVertical={15}
                   paddingHorizontal={15}
                 />

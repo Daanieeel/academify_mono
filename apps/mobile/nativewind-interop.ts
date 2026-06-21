@@ -20,7 +20,6 @@ cssInterop(Animated.Text, { className: 'style' });
 // pass className to needs registering here too, the same way IcomoonIcon does.
 import * as AvatarPrimitive from '@rn-primitives/avatar';
 import * as CheckboxPrimitive from '@rn-primitives/checkbox';
-import * as DialogPrimitive from '@rn-primitives/dialog';
 import * as ProgressPrimitive from '@rn-primitives/progress';
 import * as RadioGroupPrimitive from '@rn-primitives/radio-group';
 import * as SeparatorPrimitive from '@rn-primitives/separator';
@@ -30,8 +29,6 @@ import * as ToggleGroupPrimitive from '@rn-primitives/toggle-group';
 
 cssInterop(AvatarPrimitive.Root, { className: 'style' });
 cssInterop(SwitchPrimitive.Root, { className: 'style' });
-cssInterop(DialogPrimitive.Overlay, { className: 'style' });
-cssInterop(DialogPrimitive.Content, { className: 'style' });
 cssInterop(CheckboxPrimitive.Root, { className: 'style' });
 cssInterop(CheckboxPrimitive.Indicator, { className: 'style' });
 cssInterop(RadioGroupPrimitive.Root, { className: 'style' });
