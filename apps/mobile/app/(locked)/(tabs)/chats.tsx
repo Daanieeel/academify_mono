@@ -16,7 +16,7 @@ import { formatChatTimestamp } from '@/lib/format';
 import type { ChatListEntry } from '@/lib/api-client';
 import { router, Stack } from 'expo-router';
 import React, { useEffect, useState } from 'react';
-import { View } from 'react-native';
+import { Pressable, View } from 'react-native';
 import Animated, {
   Extrapolation,
   interpolate,
@@ -211,6 +211,13 @@ const Chats = () => {
           ></Animated.FlatList>
         </>
       )}
+
+      {newChatMenuOpen ? (
+        <Pressable
+          className="absolute top-0 left-0 right-0 bottom-0"
+          onPress={onNewChatTogglePressed}
+        />
+      ) : undefined}
 
       <View
         className="absolute left-0 right-0"
