@@ -1,4 +1,5 @@
 import ThemedProfilePreview from '@/components/pages/settings/themed-profile-preview';
+import ThemedAvatarPickerModal from '@/components/modals/themed-avatar-picker-modal';
 import { Separator } from '@/components/ui/separator';
 
 import ThemedSettingsItem, {
@@ -51,6 +52,7 @@ const settingsItems: ThemedSettingsItemProp[] = [
 const Settings = () => {
   const [searchBarValue, setSearchBarValue] = useState('');
   const [me, setMe] = useState<MeResponse | undefined>(undefined);
+  const [avatarPickerShown, setAvatarPickerShown] = useState(false);
   const { signOut } = useSession();
   const router = useRouter();
 
@@ -114,14 +116,33 @@ const Settings = () => {
         }}
         className="px-[15px]"
       >
-        <ThemedPressable onPress={() => {}}>
-          <ThemedProfilePreview
-            firstName={firstName ?? ''}
-            lastName={lastNameParts.join(' ')}
-            username={me ? `@${me.username}` : ''}
-            badges={badges}
-          ></ThemedProfilePreview>
-        </ThemedPressable>
+        <ThemedProfilePreview
+          firstName={firstName ?? ''}
+          lastName={lastNameParts.join(' ')}
+          username={me ? `@${me.username}` : ''}
+          badges={badges}
+          avatarBackgroundColor={me?.avatar_background_color}
+          avatarEmoji={me?.avatar_emoji}
+          onAvatarPress={() => setAvatarPickerShown(true)}
+        ></ThemedProfilePreview>
+
+        <ThemedAvatarPickerModal
+          visible={avatarPickerShown}
+          onRequestClose={() => setAvatarPickerShown(false)}
+          currentBackgroundColor={me?.avatar_background_color}
+          currentEmoji={me?.avatar_emoji}
+          onSaved={({ backgroundColor, emoji }) =>
+            setMe((prev) =>
+              prev
+                ? {
+                    ...prev,
+                    avatar_background_color: backgroundColor,
+                    avatar_emoji: emoji,
+                  }
+                : prev,
+            )
+          }
+        ></ThemedAvatarPickerModal>
 
         <Separator className="my-[20px] mx-[20px]"></Separator>
 

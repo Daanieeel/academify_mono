@@ -22,6 +22,13 @@
       "when": 1781988440845,
       "tag": "0002_cool_blizzard",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1782067778370,
+      "tag": "0003_friendly_energizer",
+      "breakpoints": true
     }
   ]
 }

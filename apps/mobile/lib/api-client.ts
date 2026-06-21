@@ -36,6 +36,8 @@ export type MeResponse = {
     | 'headmaster'
     | null;
   class_name: string | null;
+  avatar_background_color: string | null;
+  avatar_emoji: string | null;
 };
 export type Contact = {
   user_id: string;
@@ -48,6 +50,8 @@ export type Contact = {
     | 'headmaster'
     | null;
   class_name: string | null;
+  avatar_background_color: string | null;
+  avatar_emoji: string | null;
 };
 export type SchoolClass = {
   class_id: string;
@@ -87,6 +91,23 @@ export const api = {
 
   getClasses: async (): Promise<SchoolClass[]> =>
     (await request('/classes')).json(),
+
+  updateMyAvatar: async (avatar: {
+    backgroundColor: string;
+    emoji: string;
+  }): Promise<{
+    avatar_background_color: string | null;
+    avatar_emoji: string | null;
+  }> =>
+    (
+      await request('/me/avatar', {
+        method: 'PATCH',
+        body: JSON.stringify({
+          background_color: avatar.backgroundColor,
+          emoji: avatar.emoji,
+        }),
+      })
+    ).json(),
 
   getChats: async (): Promise<{ chats: ChatListEntry[] }> =>
     (await request('/chats')).json(),

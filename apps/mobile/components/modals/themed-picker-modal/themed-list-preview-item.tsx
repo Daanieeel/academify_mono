@@ -20,6 +20,8 @@ export type ThemedListPreviewItemProps = {
   onRemovePress?: () => void;
   showChevron?: boolean;
   backgroundColor?: string;
+  avatarBackgroundColor?: string | null;
+  avatarEmoji?: string | null;
   paddingVertical?: number;
   paddingHorizontal?: number;
   borderRadius?: number;
@@ -45,7 +47,12 @@ const ThemedListPreviewItem = ({
       }}
     >
       <View className="flex-1 flex-row items-center gap-[20px]">
-        <Avatar showBorder={false} size="small"></Avatar>
+        <Avatar
+          showBorder={false}
+          size="small"
+          backgroundColor={props.avatarBackgroundColor}
+          emoji={props.avatarEmoji}
+        ></Avatar>
         <View className="flex-col items-start gap-[6px] flex-1">
           <Text variant="body">{props.heading}</Text>
           {props.badges && props.badges.length > 0 ? (

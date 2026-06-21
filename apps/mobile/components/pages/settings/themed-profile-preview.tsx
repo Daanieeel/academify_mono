@@ -3,6 +3,7 @@ import { View } from 'react-native';
 import { Text } from '@/components/ui/text';
 import { Icon } from '@/components/ui/icon';
 import { Avatar } from '@/components/ui/avatar';
+import ThemedPressable from '@/components/themed-pressable';
 
 export type ThemedUserBadgeProps = {
   icomoonIconName: string;
@@ -28,6 +29,9 @@ export type ThemedProfilePreviewProps = {
   lastName?: string;
   badges: ThemedUserBadgeProps[];
   imageSource?: string;
+  avatarBackgroundColor?: string | null;
+  avatarEmoji?: string | null;
+  onAvatarPress?: () => void;
 };
 
 const ThemedProfilePreview = ({
@@ -37,7 +41,24 @@ const ThemedProfilePreview = ({
 }: ThemedProfilePreviewProps) => {
   return (
     <View className="w-full rounded-[18px] items-center py-[20px] gap-[15px] bg-neutral-100">
-      <Avatar size="large" source={props.imageSource}></Avatar>
+      <View>
+        <Avatar
+          size="large"
+          source={props.imageSource}
+          backgroundColor={props.avatarBackgroundColor}
+          emoji={props.avatarEmoji}
+          onPress={props.onAvatarPress}
+        ></Avatar>
+        {props.onAvatarPress && (
+          <View className="absolute bottom-0 right-0">
+            <ThemedPressable onPress={props.onAvatarPress}>
+              <View className="h-[44px] w-[44px] items-center justify-center rounded-full bg-neutral-900 border-[3px] border-neutral-100">
+                <Icon name="pencil" size={20} className="text-neutral-50" />
+              </View>
+            </ThemedPressable>
+          </View>
+        )}
+      </View>
       <View className="gap-[0px] items-center">
         <Text variant="subHeading">{firstName + ' ' + lastName}</Text>
         <Text className="text-neutral-700" variant="caption">

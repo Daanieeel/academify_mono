@@ -43,6 +43,8 @@ function contactToListItem(contact: Contact): ThemedListPreviewItemProps {
     userId: contact.user_id,
     heading: contact.display_name,
     badges: contactBadges(contact),
+    avatarBackgroundColor: contact.avatar_background_color,
+    avatarEmoji: contact.avatar_emoji,
   };
 }
 
@@ -306,6 +308,8 @@ const ThemedCreateChatModal = (props: ThemedCreateChatModalProps) => {
                   userId={contact.user_id}
                   heading={contact.display_name}
                   badges={contactBadges(contact)}
+                  avatarBackgroundColor={contact.avatar_background_color}
+                  avatarEmoji={contact.avatar_emoji}
                   showChevron
                   className="bg-card shadow-md"
                   paddingVertical={15}

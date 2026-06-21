@@ -2,7 +2,7 @@ import { Icon } from '@/components/ui/icon';
 import ThemedPressable from '@/components/themed-pressable';
 import { cn } from '@/lib/utils';
 import * as AvatarPrimitive from '@rn-primitives/avatar';
-import { View } from 'react-native';
+import { Text, View } from 'react-native';
 
 const AVATAR_SIZE = {
   small: 45,
@@ -19,6 +19,9 @@ export type AvatarProps = {
   icomoonIcon?: string;
   showBorder?: boolean;
   variant?: 'person' | 'group';
+  /** Generated avatar (no real photo yet) — background color + emoji. */
+  backgroundColor?: string | null;
+  emoji?: string | null;
 };
 
 export function Avatar({
@@ -29,6 +32,8 @@ export function Avatar({
   customBorderColor,
   onPress,
   icomoonIcon,
+  backgroundColor,
+  emoji,
 }: AvatarProps) {
   const avatarSize = AVATAR_SIZE[size];
   const borderRadius = variant === 'person' ? 9999 : 40;
@@ -57,13 +62,27 @@ export function Avatar({
           style={{ height: avatarSize, width: avatarSize }}
         />
         <AvatarPrimitive.Fallback asChild>
-          <View>
-            <Icon
-              className="text-neutral-700"
-              size={avatarSize / 2}
-              name={fallbackIcon}
-            />
-          </View>
+          {emoji ? (
+            <View
+              style={{
+                height: avatarSize,
+                width: avatarSize,
+                backgroundColor: backgroundColor ?? undefined,
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}
+            >
+              <Text style={{ fontSize: avatarSize * 0.5 }}>{emoji}</Text>
+            </View>
+          ) : (
+            <View>
+              <Icon
+                className="text-neutral-700"
+                size={avatarSize / 2}
+                name={fallbackIcon}
+              />
+            </View>
+          )}
         </AvatarPrimitive.Fallback>
       </AvatarPrimitive.Root>
     </ThemedPressable>

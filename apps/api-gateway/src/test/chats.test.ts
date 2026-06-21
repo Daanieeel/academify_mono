@@ -176,6 +176,68 @@ describe('api-gateway chats routes', () => {
     expect(bob?.class_name).toBe(`10a-${suffix}`);
   });
 
+  it('PATCH /me/avatar persists and is reflected in a subsequent GET /me', async () => {
+    const patchResponse = await app.handle(
+      new Request('http://localhost/me/avatar', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json', Cookie: aliceCookie },
+        body: JSON.stringify({ background_color: '#FF00FF', emoji: '🎉' }),
+      }),
+    );
+    expect(patchResponse.status).toBe(200);
+    const patchBody = (await patchResponse.json()) as {
+      avatar_background_color: string | null;
+      avatar_emoji: string | null;
+    };
+    expect(patchBody.avatar_background_color).toBe('#FF00FF');
+    expect(patchBody.avatar_emoji).toBe('🎉');
+
+    const meResponse = await app.handle(
+      new Request('http://localhost/me', { headers: { Cookie: aliceCookie } }),
+    );
+    const meBody = (await meResponse.json()) as {
+      avatar_background_color: string | null;
+      avatar_emoji: string | null;
+    };
+    expect(meBody.avatar_background_color).toBe('#FF00FF');
+    expect(meBody.avatar_emoji).toBe('🎉');
+  });
+
+  it('PATCH /me/avatar rejects a malformed background color', async () => {
+    const response = await app.handle(
+      new Request('http://localhost/me/avatar', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json', Cookie: aliceCookie },
+        body: JSON.stringify({ background_color: 'not-a-color', emoji: '🎉' }),
+      }),
+    );
+    expect(response.status).toBe(422);
+  });
+
+  it('GET /contacts surfaces a peer’s generated avatar', async () => {
+    await app.handle(
+      new Request('http://localhost/me/avatar', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json', Cookie: bobCookie },
+        body: JSON.stringify({ background_color: '#00FF00', emoji: '🐸' }),
+      }),
+    );
+
+    const response = await app.handle(
+      new Request('http://localhost/contacts', {
+        headers: { Cookie: aliceCookie },
+      }),
+    );
+    const body = (await response.json()) as {
+      user_id: string;
+      avatar_background_color: string | null;
+      avatar_emoji: string | null;
+    }[];
+    const bob = body.find((contact) => contact.user_id === bobId);
+    expect(bob?.avatar_background_color).toBe('#00FF00');
+    expect(bob?.avatar_emoji).toBe('🐸');
+  });
+
   it('GET /classes lists the institution’s classes with member counts', async () => {
     const response = await app.handle(
       new Request('http://localhost/classes', {

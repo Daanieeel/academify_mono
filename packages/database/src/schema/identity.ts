@@ -55,6 +55,11 @@ export const profiles = pgTable('profiles', {
   displayNameCiphertext: text('display_name_ciphertext').notNull(),
   keyVersion: integer('key_version').notNull(),
   photoRef: text('photo_ref'),
+  // Generated avatar (background color + emoji) shown until real photo
+  // upload exists. Resolution order everywhere: photoRef > these > icon
+  // fallback.
+  avatarBackgroundColor: text('avatar_background_color'),
+  avatarEmoji: text('avatar_emoji'),
 });
 
 export const roleBindings = pgTable(

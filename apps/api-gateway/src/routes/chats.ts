@@ -29,6 +29,8 @@ export const chatsRoutes = new Elysia()
       .select({
         username: user.username,
         displayName: profiles.displayNameCiphertext,
+        avatarBackgroundColor: profiles.avatarBackgroundColor,
+        avatarEmoji: profiles.avatarEmoji,
       })
       .from(user)
       .leftJoin(profiles, eq(profiles.userId, user.id))
@@ -72,8 +74,37 @@ export const chatsRoutes = new Elysia()
       display_name: profile.displayName ?? profile.username,
       role,
       class_name: className,
+      avatar_background_color: profile.avatarBackgroundColor,
+      avatar_emoji: profile.avatarEmoji,
     };
   })
+  .patch(
+    '/me/avatar',
+    async ({ body, userId }) => {
+      const [updated] = await db
+        .update(profiles)
+        .set({
+          avatarBackgroundColor: body.background_color,
+          avatarEmoji: body.emoji,
+        })
+        .where(eq(profiles.userId, userId))
+        .returning({
+          avatarBackgroundColor: profiles.avatarBackgroundColor,
+          avatarEmoji: profiles.avatarEmoji,
+        });
+
+      return {
+        avatar_background_color: updated?.avatarBackgroundColor ?? null,
+        avatar_emoji: updated?.avatarEmoji ?? null,
+      };
+    },
+    {
+      body: t.Object({
+        background_color: t.String({ pattern: '^#[0-9A-Fa-f]{6}$' }),
+        emoji: t.String({ minLength: 1, maxLength: 8 }),
+      }),
+    },
+  )
   .get('/contacts', async ({ userId, institutionId, status }) => {
     if (!institutionId) {
       return status(403, { error: 'no institution profile for this user' });
@@ -84,6 +115,8 @@ export const chatsRoutes = new Elysia()
         userId: profiles.userId,
         displayName: profiles.displayNameCiphertext,
         username: user.username,
+        avatarBackgroundColor: profiles.avatarBackgroundColor,
+        avatarEmoji: profiles.avatarEmoji,
       })
       .from(profiles)
       .innerJoin(user, eq(user.id, profiles.userId))
@@ -139,6 +172,8 @@ export const chatsRoutes = new Elysia()
       display_name: row.displayName ?? row.username,
       role: roleByUserId.get(row.userId) ?? null,
       class_name: classNameByUserId.get(row.userId) ?? null,
+      avatar_background_color: row.avatarBackgroundColor,
+      avatar_emoji: row.avatarEmoji,
     }));
   })
   .get('/classes', async ({ institutionId, status }) => {
