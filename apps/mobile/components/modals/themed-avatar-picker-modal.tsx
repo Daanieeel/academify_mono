@@ -45,7 +45,7 @@ const AVATAR_GRADIENTS: Gradient[] = [
   ['#FEC566', '#B91C1C'],
 ];
 
-const AVATAR_PRESETS: { gradient: Gradient; emoji: string }[] = [
+export const AVATAR_PRESETS: { gradient: Gradient; emoji: string }[] = [
   { gradient: ['#FDE68A', '#F59E0B'], emoji: '😀' },
   { gradient: ['#89CCDD', '#0369A1'], emoji: '🐼' },
   { gradient: ['#A6D78D', '#3C7123'], emoji: '🐸' },
@@ -64,9 +64,12 @@ export type ThemedAvatarPickerModalProps = {
   currentBackgroundColor?: string | null;
   currentEmoji?: string | null;
   onSaved: (avatar: { backgroundColor: string; emoji: string }) => void;
+  /** When false, picked avatar is only handed to `onSaved` — no profile API call. Used for things like group avatars that aren't the caller's own account. */
+  persist?: boolean;
 };
 
 const ThemedAvatarPickerModal = (props: ThemedAvatarPickerModalProps) => {
+  const { persist = true } = props;
   const [gradient, setGradient] = useState<Gradient>(
     parseAvatarGradient(props.currentBackgroundColor) ?? AVATAR_GRADIENTS[0]!,
   );
@@ -98,9 +101,14 @@ const ThemedAvatarPickerModal = (props: ThemedAvatarPickerModalProps) => {
   };
 
   const onFinishPressed = async () => {
+    const backgroundColor = serializeAvatarGradient(gradient);
+    if (!persist) {
+      props.onSaved({ backgroundColor, emoji });
+      props.onRequestClose();
+      return;
+    }
     setSaving(true);
     try {
-      const backgroundColor = serializeAvatarGradient(gradient);
       await api.updateMyAvatar({ backgroundColor, emoji });
       props.onSaved({ backgroundColor, emoji });
       props.onRequestClose();

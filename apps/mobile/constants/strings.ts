@@ -35,12 +35,10 @@ const APPLICATION_CONSTANTS = {
 
   CREATE_CHAT_MODAL_SLIDER_OPTION_1: 'Gruppenchat',
   CREATE_CHAT_MODAL_SLIDER_OPTION_2: 'Einzelchat',
+  CREATE_CHAT_MODAL_SINGLE_SEARCH_PLACEHOLDER: 'Kontakte durchsuchen',
+  CREATE_CHAT_MODAL_OTHER_ROLE_GROUP_LABEL: 'Weitere',
   CREATE_CHAT_MODAL_GROUP_NAME_PLACEHOLDER: 'Gruppenname',
   CREATE_CHAT_MODAL_GROUP_DESCRIPTION_PLACEHOLDER: 'Gruppenbeschreibung',
-  CREATE_CHAT_MODAL_GROUP_NAME_INFO:
-    'Wähle einen möglichst aussagekräftigen Namen für die Gruppe, z.B. Chemie K2A24',
-  CREATE_CHAT_MODAL_GROUP_DESCRIPTION_INFO:
-    "Hier kannst Du deiner Gruppe eine Beschreibung hinzufügen, z.B. 'Gruppe von Herr Jacob für den Leistungskurs 2024'",
 };
 
 export default APPLICATION_CONSTANTS;

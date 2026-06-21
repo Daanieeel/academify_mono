@@ -155,7 +155,6 @@ const Chats = () => {
                   onInputChanged={onSearchBarInputChanged}
                 ></ThemedSearchBar>
               }
-              headerCompRight={<Avatar size="small"></Avatar>}
             ></ThemedHeader>
           </View>
         </Animated.View>

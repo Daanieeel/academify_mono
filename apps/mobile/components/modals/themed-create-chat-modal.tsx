@@ -10,16 +10,64 @@ import ThemedListPreviewItem, {
   ThemedListPreviewItemProps,
 } from '@/components/modals/themed-picker-modal/themed-list-preview-item';
 import ThemedPickerModal from '@/components/modals/themed-picker-modal/themed-picker-modal';
+import ThemedSearchBar from '@/components/themed-search-bar';
 import APPLICATION_CONSTANTS from '@/constants/strings';
 import { api, type Contact, type SchoolClass } from '@/lib/api-client';
 import { formatRoleIcon, formatRoleLabel } from '@/lib/format';
 import type { ThemedUserBadgeProps } from '@/components/pages/settings/themed-profile-preview';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { ScrollView, View } from 'react-native';
 import ThemedPressable from '../themed-pressable';
-import ThemedImagePickerModal, {
-  IMAGE_URIS,
-} from './themed-image-picker-modal';
+import ThemedAvatarPickerModal, {
+  AVATAR_PRESETS,
+} from './themed-avatar-picker-modal';
+import { serializeAvatarGradient } from '@/lib/avatar';
+
+const DEFAULT_GROUP_AVATAR = {
+  backgroundColor: serializeAvatarGradient(AVATAR_PRESETS[0]!.gradient),
+  emoji: AVATAR_PRESETS[0]!.emoji,
+};
+
+const ROLE_GROUP_ORDER: Contact['role'][] = [
+  'teacher',
+  'student',
+  'headmaster',
+  'admin',
+  'compliance_officer',
+];
+
+function groupContactsByRole(
+  contacts: Contact[],
+): { key: string; label: string; contacts: Contact[] }[] {
+  const groups = new Map<string, Contact[]>();
+  for (const contact of contacts) {
+    const key = contact.role ?? 'other';
+    const list = groups.get(key) ?? [];
+    list.push(contact);
+    groups.set(key, list);
+  }
+
+  const ordered: { key: string; label: string; contacts: Contact[] }[] = [];
+  for (const role of ROLE_GROUP_ORDER) {
+    const list = role ? groups.get(role) : undefined;
+    if (list && list.length > 0) {
+      ordered.push({
+        key: role!,
+        label: formatRoleLabel(role)!,
+        contacts: list,
+      });
+    }
+  }
+  const other = groups.get('other');
+  if (other && other.length > 0) {
+    ordered.push({
+      key: 'other',
+      label: APPLICATION_CONSTANTS.CREATE_CHAT_MODAL_OTHER_ROLE_GROUP_LABEL,
+      contacts: other,
+    });
+  }
+  return ordered;
+}
 
 function contactBadges(contact: Contact): ThemedUserBadgeProps[] {
   const badges: ThemedUserBadgeProps[] = [];
@@ -89,8 +137,11 @@ const ThemedCreateChatModal = (props: ThemedCreateChatModalProps) => {
   const [selectUserModalShown, setSelectUserModalShown] = useState(false);
   const [selectClassModalShown, setSelectClassModalShown] = useState(false);
   const [avatarModalShown, setAvatarModalShown] = useState(false);
-  const [avatarSource, setAvatarSource] = useState<string | undefined>(
-    undefined,
+  const [avatarBackgroundColor, setAvatarBackgroundColor] = useState<
+    string | undefined
+  >(DEFAULT_GROUP_AVATAR.backgroundColor);
+  const [avatarEmoji, setAvatarEmoji] = useState<string | undefined>(
+    DEFAULT_GROUP_AVATAR.emoji,
   );
   const [contacts, setContacts] = useState<Contact[]>([]);
   const [schoolClasses, setSchoolClasses] = useState<SchoolClass[]>([]);
@@ -100,6 +151,7 @@ const ThemedCreateChatModal = (props: ThemedCreateChatModalProps) => {
   const [selectedClassIds, setSelectedClassIds] = useState<(number | string)[]>(
     [],
   );
+  const [contactSearchQuery, setContactSearchQuery] = useState('');
 
   useEffect(() => {
     if (!props.visible) {
@@ -139,18 +191,38 @@ const ThemedCreateChatModal = (props: ThemedCreateChatModalProps) => {
     selectedClassIds.includes(schoolClass.class_id),
   );
 
+  const filteredContacts = useMemo(() => {
+    const query = contactSearchQuery.trim().toLowerCase();
+    if (!query) {
+      return contacts;
+    }
+    return contacts.filter((contact) =>
+      contact.display_name.toLowerCase().includes(query),
+    );
+  }, [contacts, contactSearchQuery]);
+
+  const groupedContacts = useMemo(
+    () => groupContactsByRole(filteredContacts),
+    [filteredContacts],
+  );
+
   return (
     <ThemedModal
       visible={props.visible}
       onRequestClose={onRequestClosedTriggered}
     >
-      {/* Modal for picking a new Group Image */}
-      <ThemedImagePickerModal
-        images={IMAGE_URIS}
-        onCallBack={(uri) => setAvatarSource(uri)}
-        onRequestClose={() => setAvatarModalShown(false)}
+      {/* Modal for picking the group avatar's emoji/gradient combo */}
+      <ThemedAvatarPickerModal
         visible={avatarModalShown}
-      ></ThemedImagePickerModal>
+        onRequestClose={() => setAvatarModalShown(false)}
+        currentBackgroundColor={avatarBackgroundColor}
+        currentEmoji={avatarEmoji}
+        persist={false}
+        onSaved={({ backgroundColor, emoji }) => {
+          setAvatarBackgroundColor(backgroundColor);
+          setAvatarEmoji(emoji);
+        }}
+      ></ThemedAvatarPickerModal>
 
       {/* Modal for when the user wants to add additional single users */}
       <ThemedPickerModal
@@ -198,41 +270,29 @@ const ThemedCreateChatModal = (props: ThemedCreateChatModalProps) => {
           }}
           className="pt-[20px] px-[15px]"
         >
-          {/* For creating a group avatar */}
+          {/* Row for the group avatar and name, picked/typed side by side */}
 
-          <View className="flex-row justify-center pt-[30px]">
+          <View className="flex-row items-center gap-[15px]">
             <Avatar
               onPress={onAvatarPressed}
-              source={avatarSource}
+              backgroundColor={avatarBackgroundColor}
+              emoji={avatarEmoji}
               variant="group"
               showBorder={false}
-              size="extra-large"
+              size="medium"
             ></Avatar>
-          </View>
-
-          {/* Container for the text field where the user can add the group name */}
-
-          <View>
-            <Input variant="big" placeholder="Gruppenname"></Input>
-            <Text
-              className="px-[15px] pt-[15px] text-neutral-600"
-              variant="caption"
-            >
-              {APPLICATION_CONSTANTS.CREATE_CHAT_MODAL_GROUP_NAME_INFO}
-            </Text>
+            <View className="flex-1">
+              <Input
+                variant="big"
+                className="text-[26px] leading-[30px]"
+                placeholder="Gruppenname"
+              ></Input>
+            </View>
           </View>
 
           {/* Container for the text field where the user can add the group description */}
 
-          <View>
-            <Input variant="normal" placeholder="Gruppenbeschreibung"></Input>
-            <Text
-              className="px-[15px] pt-[15px] text-neutral-600"
-              variant="caption"
-            >
-              {APPLICATION_CONSTANTS.CREATE_CHAT_MODAL_GROUP_DESCRIPTION_INFO}
-            </Text>
-          </View>
+          <Input variant="normal" placeholder="Gruppenbeschreibung"></Input>
 
           {/* Bento box for showing classes and adding additional ones */}
 
@@ -290,35 +350,53 @@ const ThemedCreateChatModal = (props: ThemedCreateChatModalProps) => {
           </ThemedBentoBox>
         </ScrollView>
       ) : (
-        <ScrollView
-          contentContainerStyle={{
-            gap: 10,
-            paddingTop: 40,
-          }}
-          className="px-[15px]"
-        >
-          {contacts.map((contact) => {
-            return (
-              <ThemedPressable
-                key={contact.user_id}
-                onPress={() => onContactPressed(contact.user_id)}
-              >
-                <ThemedListPreviewItem
-                  borderRadius={18}
-                  userId={contact.user_id}
-                  heading={contact.display_name}
-                  badges={contactBadges(contact)}
-                  avatarBackgroundColor={contact.avatar_background_color}
-                  avatarEmoji={contact.avatar_emoji}
-                  showChevron
-                  className="bg-card shadow-md"
-                  paddingVertical={15}
-                  paddingHorizontal={15}
-                />
-              </ThemedPressable>
-            );
-          })}
-        </ScrollView>
+        <>
+          <View className="px-[15px] pt-[10px]">
+            <ThemedSearchBar
+              placeholder={
+                APPLICATION_CONSTANTS.CREATE_CHAT_MODAL_SINGLE_SEARCH_PLACEHOLDER
+              }
+              value={contactSearchQuery}
+              onInputChanged={setContactSearchQuery}
+            ></ThemedSearchBar>
+          </View>
+
+          <ScrollView
+            contentContainerStyle={{
+              gap: 20,
+              paddingTop: 20,
+              paddingBottom: 40,
+            }}
+            className="px-[15px]"
+          >
+            {groupedContacts.map((group) => (
+              <View key={group.key} className="gap-[10px]">
+                <Text className="px-[5px] text-neutral-600" variant="caption">
+                  {group.label}
+                </Text>
+                {group.contacts.map((contact) => (
+                  <ThemedPressable
+                    key={contact.user_id}
+                    onPress={() => onContactPressed(contact.user_id)}
+                  >
+                    <ThemedListPreviewItem
+                      borderRadius={18}
+                      userId={contact.user_id}
+                      heading={contact.display_name}
+                      badges={contactBadges(contact)}
+                      avatarBackgroundColor={contact.avatar_background_color}
+                      avatarEmoji={contact.avatar_emoji}
+                      showChevron
+                      backgroundColor="#ffffff"
+                      paddingVertical={15}
+                      paddingHorizontal={15}
+                    />
+                  </ThemedPressable>
+                ))}
+              </View>
+            ))}
+          </ScrollView>
+        </>
       )}
     </ThemedModal>
   );

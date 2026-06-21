@@ -24,9 +24,12 @@ const ThemedPickerModal = (props: ThemedPickerModalProps) => {
     props.initialSelectedIds ?? [],
   );
 
+  const [searchQuery, setSearchQuery] = useState('');
+
   useEffect(() => {
     if (props.visible) {
       setSelectedIDs(props.initialSelectedIds ?? []);
+      setSearchQuery('');
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [props.visible]);
@@ -46,9 +49,15 @@ const ThemedPickerModal = (props: ThemedPickerModalProps) => {
     props.onRequestClose();
   };
 
-  const onAbortPressed = () => {
-    props.onRequestClose();
+  const onClearSelectionPressed = () => {
+    setSelectedIDs([]);
   };
+
+  const filteredItems = props.items.filter(
+    (item) =>
+      item.heading.toLowerCase().includes(searchQuery.trim().toLowerCase()) ||
+      item.caption?.toLowerCase().includes(searchQuery.trim().toLowerCase()),
+  );
 
   return (
     <ThemedModal visible={props.visible} onRequestClose={props.onRequestClose}>
@@ -61,12 +70,16 @@ const ThemedPickerModal = (props: ThemedPickerModalProps) => {
         >
           <ThemedSearchBar
             placeholder={props.title ?? 'Suchen'}
-            value={''}
-            onInputChanged={() => {}}
+            value={searchQuery}
+            onInputChanged={setSearchQuery}
           ></ThemedSearchBar>
         </View>
 
-        <Button variant="normal" onPress={onAbortPressed}>
+        <Button
+          variant="normal"
+          disabled={selectedIDs.length === 0}
+          onPress={onClearSelectionPressed}
+        >
           <Icon name="x-circle" size={25} />
         </Button>
       </View>
@@ -91,7 +104,7 @@ const ThemedPickerModal = (props: ThemedPickerModalProps) => {
           paddingBottom: 150,
         }}
         className="z-[1] pt-[10px]"
-        data={props.items}
+        data={filteredItems}
         renderItem={(item) => {
           const isSelected = selectedIDs.includes(item.item.userId);
           return (
@@ -101,7 +114,9 @@ const ThemedPickerModal = (props: ThemedPickerModalProps) => {
             >
               <ThemedListPreviewItem
                 paddingHorizontal={15}
-                className="bg-neutral-50"
+                paddingVertical={15}
+                borderRadius={18}
+                backgroundColor="#ffffff"
                 {...item.item}
               ></ThemedListPreviewItem>
             </ThemedSelectable>
