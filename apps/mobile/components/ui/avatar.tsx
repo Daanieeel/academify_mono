@@ -1,6 +1,7 @@
 import { Icon } from '@/components/ui/icon';
 import ThemedPressable from '@/components/themed-pressable';
-import { cn } from '@/lib/utils';
+import { parseAvatarGradient } from '@/lib/avatar';
+import { LinearGradient } from 'expo-linear-gradient';
 import * as AvatarPrimitive from '@rn-primitives/avatar';
 import { Text, View } from 'react-native';
 
@@ -39,6 +40,7 @@ export function Avatar({
   const borderRadius = variant === 'person' ? 9999 : 40;
   const fallbackIcon =
     icomoonIcon ?? (variant === 'person' ? 'user' : 'users-three');
+  const gradient = parseAvatarGradient(backgroundColor);
 
   return (
     <ThemedPressable
@@ -62,18 +64,20 @@ export function Avatar({
           style={{ height: avatarSize, width: avatarSize }}
         />
         <AvatarPrimitive.Fallback asChild>
-          {emoji ? (
-            <View
+          {emoji && gradient ? (
+            <LinearGradient
+              colors={gradient}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 1 }}
               style={{
                 height: avatarSize,
                 width: avatarSize,
-                backgroundColor: backgroundColor ?? undefined,
                 alignItems: 'center',
                 justifyContent: 'center',
               }}
             >
               <Text style={{ fontSize: avatarSize * 0.5 }}>{emoji}</Text>
-            </View>
+            </LinearGradient>
           ) : (
             <View>
               <Icon

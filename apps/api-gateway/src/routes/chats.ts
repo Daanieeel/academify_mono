@@ -17,6 +17,46 @@ import {
 
 import { authMiddleware } from '../auth-middleware';
 
+// School context: avatar emoji must stay wholesome. Server-side source of
+// truth — mirror of the client list in apps/mobile/lib/avatar.ts.
+const BLOCKED_AVATAR_EMOJIS = new Set<string>([
+  '🖕', // obscene gesture
+  '🍆', // sexual innuendo
+  '🍑', // sexual innuendo
+  '💦', // sexual innuendo
+  '🍌', // sexual innuendo
+  '👅', // sexual/suggestive
+  '🔞', // adult-content marker
+  '🍺', // alcohol
+  '🍻', // alcohol
+  '🍷', // alcohol
+  '🍸', // alcohol
+  '🍹', // alcohol
+  '🍾', // alcohol
+  '🥃', // alcohol
+  '🚬', // smoking
+  '💉', // drug use
+  '💊', // drug use
+  '🔫', // weapon
+  '🔪', // weapon
+  '🗡️', // weapon
+  '⚔️', // weapon
+  '💣', // weapon / violence
+  '🧨', // explosive
+  '🩸', // graphic / violence
+  '💀', // death / morbid
+  '☠️', // death / morbid
+  '👿', // hateful / demonic
+  '😈', // hateful / demonic
+  '🤬', // profanity
+  '🖤', // co-opted in edgy / hate contexts
+  '🐵', // monkey emoji abused in racist harassment
+  '🐒', // monkey emoji abused in racist harassment
+  '🦍', // ape emoji abused in racist harassment
+  '👌', // co-opted as a white-power hand symbol
+  '🍉', // weaponised in racist tropes
+]);
+
 // The chat-list/contacts surface a real chat UI needs that wasn't part of the
 // original sync/messages/mls/reports routes (those only ever needed a
 // single-message fetch, triggered by a sync event). The server never
@@ -80,7 +120,14 @@ export const chatsRoutes = new Elysia()
   })
   .patch(
     '/me/avatar',
-    async ({ body, userId }) => {
+    async ({ body, status, userId }) => {
+      // School context: enforce the wholesome-emoji policy server-side, not
+      // just in the client picker. Keep this in sync with the mobile mirror
+      // in apps/mobile/lib/avatar.ts.
+      if (BLOCKED_AVATAR_EMOJIS.has(body.emoji.trim())) {
+        return status(422, { error: 'emoji not allowed' });
+      }
+
       const [updated] = await db
         .update(profiles)
         .set({
@@ -100,8 +147,12 @@ export const chatsRoutes = new Elysia()
     },
     {
       body: t.Object({
-        background_color: t.String({ pattern: '^#[0-9A-Fa-f]{6}$' }),
-        emoji: t.String({ minLength: 1, maxLength: 8 }),
+        // A single hex color or a "from,to" gradient pair.
+        background_color: t.String({
+          pattern: '^#[0-9A-Fa-f]{6}(,#[0-9A-Fa-f]{6})?$',
+        }),
+        // Generous upper bound — ZWJ emoji sequences are many code units.
+        emoji: t.String({ minLength: 1, maxLength: 32 }),
       }),
     },
   )
