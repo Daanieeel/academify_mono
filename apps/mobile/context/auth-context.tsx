@@ -1,13 +1,16 @@
-import { useStorageState } from '@/hooks/use-storage-state';
-import { createContext, PropsWithChildren, use } from 'react';
+import { authClient } from '@/lib/auth-client';
+import { createContext, use, type PropsWithChildren } from 'react';
 
 const AuthContext = createContext<{
-  signIn: () => void;
+  signIn: (
+    username: string,
+    password: string,
+  ) => Promise<{ error: string | null }>;
   signOut: () => void;
-  session?: string | null;
+  session: { userId: string; username: string } | null;
   isLoading: boolean;
 }>({
-  signIn: () => null,
+  signIn: async () => ({ error: 'not wrapped in a SessionProvider' }),
   signOut: () => null,
   session: null,
   isLoading: false,
@@ -22,21 +25,28 @@ export function useSession() {
 }
 
 export function SessionProvider({ children }: PropsWithChildren) {
-  const [[isLoading, session], setSession] = useStorageState('session');
+  const { data, isPending } = authClient.useSession();
+
+  const signIn = async (username: string, password: string) => {
+    const { error } = await authClient.signIn.username({ username, password });
+    return { error: error?.message ?? null };
+  };
+
+  const signOut = () => {
+    authClient.signOut();
+  };
+
+  const session = data
+    ? { userId: data.user.id, username: data.user.username ?? data.user.name }
+    : null;
 
   return (
     <AuthContext.Provider
       value={{
-        signIn: () => {
-          console.log('From AuthContext: Sign in');
-          setSession('XXX');
-        },
-        signOut: () => {
-          console.log('From AuthContext: Sign in');
-          setSession(null);
-        },
+        signIn,
+        signOut,
         session,
-        isLoading,
+        isLoading: isPending,
       }}
     >
       {children}

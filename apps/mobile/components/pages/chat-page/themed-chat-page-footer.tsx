@@ -2,7 +2,7 @@
 
 import { useThemeColor } from '@/hooks/use-theme-color';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { Keyboard, StyleSheet, View } from 'react-native';
+import { Keyboard, StyleSheet, TextInput, View } from 'react-native';
 import Animated, {
   Easing,
   useAnimatedStyle,
@@ -23,17 +23,19 @@ const ATTACHMENT_BUTTON_HEIGHT = 280;
 export type ThemedChatPageFooterProps = {
   currentDisplay: 'keyboard' | 'attachments' | 'none';
   setCurrentDisplay: (display: 'keyboard' | 'attachments' | 'none') => void;
+  onSend?: (text: string) => void;
 };
 
 const ThemedChatPageFooter = ({
   currentDisplay,
   setCurrentDisplay,
+  onSend,
 }: ThemedChatPageFooterProps) => {
   const neutral50Color = useThemeColor({}, 'neutral-50');
   const neutral900Color = useThemeColor({}, 'neutral-900');
   const safeAreaBottom = useSafeAreaInsets().bottom;
 
-  const inputRef = useRef(null);
+  const inputRef = useRef<TextInput>(null);
 
   const [keyboardHeight, setKeyboardHeight] = useState(0);
   const additionalPadding = safeAreaBottom === 0 ? 10 : 0;
@@ -100,10 +102,10 @@ const ThemedChatPageFooter = ({
   const onShowAttachmentButtonsPressed = () => {
     if (currentDisplay === 'keyboard') {
       setCurrentDisplay('attachments');
-      inputRef.current.blur();
+      inputRef.current?.blur();
     } else if (currentDisplay === 'attachments') {
       setCurrentDisplay('keyboard');
-      inputRef.current.focus();
+      inputRef.current?.focus();
     } else if (currentDisplay === 'none') {
       setCurrentDisplay('attachments');
     }
@@ -186,7 +188,12 @@ const ThemedChatPageFooter = ({
             ]}
           >
             <SmallButton
-              onPress={() => {}}
+              onPress={() => {
+                const text = input.trim();
+                if (text === '') {return;}
+                setInput('');
+                onSend?.(text);
+              }}
               iconName="paper-plane-right"
               type="inverted"
               iconSize={22}

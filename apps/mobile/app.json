@@ -1,18 +1,16 @@
 {
   "expo": {
     "name": "academi.fy-v3",
-    "slug": "academi.fy-v3",
+    "slug": "academi-fy-v3",
     "version": "1.0.0",
     "orientation": "portrait",
     "scheme": "academifyv3",
     "userInterfaceStyle": "automatic",
-    "newArchEnabled": true,
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.anonymous.academi.fyv3"
     },
     "android": {
-      "edgeToEdgeEnabled": true,
       "predictiveBackGestureEnabled": false,
       "package": "com.anonymous.academi.fyv3"
     },
@@ -35,7 +33,8 @@
         }
       ],
       "expo-font",
-      "expo-secure-store"
+      "expo-secure-store",
+      "expo-web-browser"
     ],
     "experiments": {
       "typedRoutes": true,

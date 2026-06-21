@@ -8,7 +8,7 @@ export type ThemedTextMessageProps = {
 
 const ThemedTextMessage = ({ ...props }: ThemedTextMessageProps) => {
   return (
-    <View style={{}}>
+    <View>
       <ThemedText type="body">{props.message}</ThemedText>
     </View>
   );

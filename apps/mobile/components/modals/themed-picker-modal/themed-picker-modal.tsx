@@ -43,9 +43,9 @@ const ThemedPickerModal = (props: ThemedPickerModalProps) => {
 
   const themedListPreviewItemBackgroundColor = useThemeColor({}, 'neutral-50');
 
-  const [selectedIDs, setSelectedIDs] = useState<number[]>([]);
+  const [selectedIDs, setSelectedIDs] = useState<(number | string)[]>([]);
 
-  const toggleItem = (itemId: number) => {
+  const toggleItem = (itemId: number | string) => {
     setSelectedIDs((prev) => {
       if (prev.includes(itemId)) {
         return prev.filter((i) => i !== itemId);

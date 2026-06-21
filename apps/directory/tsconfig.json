@@ -1,0 +1,10 @@
+{
+  "extends": "../../packages/config/tsconfig/library.json",
+  "compilerOptions": {
+    "rootDir": "src",
+    "outDir": "dist",
+    "types": ["node", "bun"]
+  },
+  "include": ["src/**/*.ts"],
+  "references": [{ "path": "../../packages/env" }]
+}

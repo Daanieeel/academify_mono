@@ -1,0 +1,28 @@
+{
+  "name": "@app/directory",
+  "private": true,
+  "type": "module",
+  "module": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "dev": "bun --watch src/index.ts",
+    "build": "tsc -b",
+    "test": "bun test",
+    "lint": "bunx oxlint -c ../../packages/config/oxlint/base.json --node-plugin --import-plugin --promise-plugin --deny-warnings .",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@repo/env": "workspace:*",
+    "drizzle-orm": "catalog:",
+    "elysia": "catalog:",
+    "postgres": "^3.4.9"
+  },
+  "devDependencies": {
+    "@types/bun": "catalog:",
+    "drizzle-kit": "^0.31.10",
+    "typescript": "catalog:"
+  },
+  "peerDependencies": {
+    "typescript": "^6"
+  }
+}

@@ -11,7 +11,7 @@
     "@repo/database": "workspace:*",
     "@repo/redis": "workspace:*",
     "@repo/sync-protocol": "workspace:*",
-    "elysia": "latest"
+    "elysia": "catalog:"
   },
   "devDependencies": {
     "bun-types": "latest"

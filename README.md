@@ -10,8 +10,9 @@ A secure communication platform (web + mobile) for schools/universities:
 - Class/club group chats with automatic membership sync
 - Teacher-created ad-hoc groups
 - Institution-wide blackboard/news feed
-- Events module
+- Events module (for institution-wide events like concerts etc.)
 - Clubs directory (join/request) with dedicated chats
+- Users assigned to classes (with a head-teacher) and grades (levels) and subjects (based on their classes or a student council)
 
 ## Non-functional requirements
 
@@ -28,7 +29,9 @@ A secure communication platform (web + mobile) for schools/universities:
 - Mobile: **Expo (React Native)**
 - Realtime/API: **ElysiaJS** (REST + WebSocket)
 - Queue/workers: **BullMQ**
-- DB ORM: **Prisma**
+- DB ORM: **Drizzle**
+- Auth: **better-auth** (username + password, admin-provisioned accounts only)
+- E2EE: **MLS** (OpenMLS via WASM)
 - Redis: queue + pub/sub + ephemeral presence/sync signals
 
 ## Local development onboarding
@@ -164,13 +167,87 @@ apps/
   mobile/            # Expo app
   api-gateway/       # ElysiaJS REST + WS
   worker/            # BullMQ processors (fan-out, compliance, membership sync)
+  directory/         # control-plane: public school directory + resolve API (ADR-0009)
+  websocket/         # stub for a future dedicated WS-scale tier (not wired up)
 
 packages/
-  database/          # Prisma schema, migrations, client
-  mls/               # MLS group/session/key utilities
-  crypto/            # envelope encryption, blind index helpers
+  database/          # Drizzle schema, migrations, client (per-tenant data plane)
+  mls/               # real OpenMLS compiled to WASM (crates/mls-wasm)
+  crypto/            # AES-256-GCM + blind index + X25519 report-escrow seal/open
   redis/             # shared Redis clients, channels, queue config
   sync-protocol/     # shared event contracts, zod schemas, cursor logic
-  auth/              # shared auth/session helpers
+  auth/              # better-auth instance (username + password)
+  env/               # @t3-oss/env-core wrapper + shared schema fragments
+  client-core/       # shared reference sync state machine (web/mobile/tests)
   config/            # tsconfig/oxlint/oxfmt/etc
 ```
+
+---
+
+## 6) Feature inventory (granular, by area)
+
+Internal tracking list, not customer-facing copy. Status values: **Implemented** (real code, tested), **Scaffolded** (schema/types/endpoints exist, not wired end-to-end), **Planned** (designed, not built).
+
+### Identity & accounts
+
+- Username + password authentication (better-auth) — Implemented
+- Self-service signup disabled; accounts are admin-provisioned only — Implemented
+- Per-school institution tenancy (`institutions` table, every domain row scoped by `institution_id`) — Implemented
+- Bulk account creation via CSV upload (admin dashboard) — Planned (schema: `provisioning_batches`)
+- Account creation via invite link — Planned (schema: `invites`; endpoints `POST /admin/invites`, `POST /invites/:token/redeem` not yet built)
+- Role model: student / teacher / admin / compliance_officer / headmaster (`role_bindings`) — Implemented (read path: admin/headmaster check in report review; write path via direct DB insert only, no admin UI/endpoint yet)
+- Public school directory / picker before login — Implemented, API-only (`apps/directory`: `GET /institutions?search=`, no-auth/no-PII, tested); no web UI for the picker yet
+- Hosted vs. self-hosted deployment per institution, routed via control-plane resolve API — Implemented for the "hosted" path (`GET /institutions/:slug/resolve` returns `backend_url`); every row resolves to the single local backend for now — nothing yet provisions an actual `self_hosted` row
+
+### Organizational structure
+
+- Classes with a head teacher (Klassenlehrer) — Implemented (`classes.head_teacher_user_id`; resolved live in report-review dual-auth)
+- Grades/levels — Scaffolded
+- Subjects, tied to classes — Scaffolded
+- Class membership lifecycle (active/removed) — Scaffolded
+- Student council / subject assignment by class — Scaffolded
+
+### Messaging & sync
+
+- Canonical event-stream protocol (Zod schemas, versioned, WS + REST DTOs) — Implemented (`@repo/sync-protocol`)
+- Per-user monotonic cursor semantics (progression/duplicate/out-of-order/stale-ack rules) — Implemented (`@repo/sync-protocol` runtime/cursor)
+- Inbox-pattern delivery (per-user `user_event_stream`, worker-owned fan-out) — Implemented, verified end-to-end against live Postgres+Redis (`apps/worker/src/{inbox,processors}.ts`)
+- `POST /messages` → enqueue → worker fan-out → per-recipient inbox row — Implemented, verified via real HTTP + automated test (`apps/api-gateway/src/routes/messages.ts`)
+- `POST /sync` (cursor-paginated fetch) and `POST /ack` (monotonic-only, idempotent) — Implemented, verified (`apps/api-gateway/src/routes/sync.ts`)
+- `WS /ws`: gap-check on `client.hello` → `server.sync.required`; live `event.notify` push on Redis wake signal — Implemented, verified against a real socket connection (`apps/api-gateway/src/ws.ts`)
+- 1:1 chats (DM) — Implemented (messaging path works for `chats.type = 'dm'`; no dedicated `/chats` creation endpoint yet — rows created directly)
+- Class/club-linked group chats with membership sync — Scaffolded (schema only; auto-membership-sync from class/club not built)
+- Teacher-created ad-hoc groups — Scaffolded (`chats.type = 'adhoc'`)
+- Message edit — Scaffolded (`messages.edited_at`)
+- Message delete via tombstone (not hard delete) — Scaffolded (`messages.deleted_at`)
+- Reconnect/offline catch-up — Implemented end-to-end, including a real client: shared reference state machine `@repo/client-core` (CONNECT → HELLO → SYNC_REQUIRED? → FETCH_LOOP → APPLY → ACK → LIVE, with reconnect backoff) verified against a real disconnect/reconnect cycle in the e2e harness
+- Multi-device support per user — Scaffolded (`devices` table wired into MLS DS; sync-side multi-device fan-out not yet exercised)
+- End-to-end test harness (real OpenMLS encryption, live push, offline catch-up, report-escrow dual-auth) — Implemented (`packages/client-core/src/test/e2e.test.ts`), spawns real gateway+worker processes against live Postgres+Redis
+
+### End-to-end encryption (MLS)
+
+- Real OpenMLS (RFC 9420) compiled to WASM, no stub — Implemented (`crates/mls-wasm`, `packages/mls`)
+- Two-party group creation, key package exchange, Welcome, encrypt/decrypt — Implemented, verified against real wasm32 build from Bun
+- Remove member from group — Planned (wasm wrapper only covers create/add)
+- Multi-device key packages per user — Scaffolded (schema supports it; wasm wrapper is single-device per party)
+- Persistent group/key-package storage (vs. current in-memory) — Planned (wasm side still uses in-memory `OpenMlsRustCrypto` storage)
+- Server-side Delivery Service (device registration, key package upload/consume, group/member registration, one-time Welcome relay, group state fetch) — Implemented, verified end-to-end against real HTTP (`apps/api-gateway/src/routes/mls.ts`) — pure metadata relay, never touches wasm bindings or private keys
+
+### Compliance & reporting
+
+- Report-escrow: reporter re-encrypts a reported message to an institution compliance public key — Implemented (`@repo/crypto` seal/open primitives, tested)
+- `POST /reports` — store ciphertext only, server never sees plaintext — Implemented, verified end-to-end (`apps/api-gateway/src/routes/reports.ts`)
+- `POST /reports/:id/review` — dual-authorization (admin + reporter's Klassenlehrer, two *distinct* approvers within a 24h window) before decrypt — Implemented, verified end-to-end with real accounts (admin approves → `awaiting_second_approval`; Klassenlehrer approves → plaintext returned, matches original)
+- Compliance private key custody — MVP stand-in via `COMPLIANCE_PRIVATE_KEY` env var, not real KMS (see ADR-0006); public half lives in `compliance_keys`
+- Immutable, hash-chained audit log (`audit_log.prev_hash`) — Scaffolded (rows written on ack-advance and report-decrypt; hash-chaining itself — populating `prev_hash` — not yet wired)
+- Institutional auditing mode (broader, policy-gated, dual-approval access beyond single reports) — Planned, deferred past MVP
+
+### Other product surfaces (from product scope, not started)
+
+- Institution-wide blackboard/news feed — Scaffolded (schema: `blackboard_posts`)
+- Events module (institution-wide events, e.g. concerts) — Scaffolded (schema: `events`)
+- Clubs directory with join requests (pending/approved/rejected/cancelled) — Scaffolded (schema: `clubs`, `club_memberships`, `join_requests`)
+- Encrypted PII at rest with blind-index exact-match search — Implemented as primitives (`@repo/crypto`), applied to `profiles.display_name_ciphertext`; not yet applied to other PII fields
+- Structured logging / correlation IDs across gateway → worker → notify — Planned
+- Metrics, SLO dashboards, alerting — Planned
+- Load testing, chaos/failure-injection testing — Planned

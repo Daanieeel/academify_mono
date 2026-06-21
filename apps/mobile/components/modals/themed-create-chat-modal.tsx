@@ -11,8 +11,9 @@ import ThemedSlider from '@/components/themed-slider';
 import { ThemedText } from '@/components/themed-text';
 import ThemedTextField from '@/components/themed-text-field';
 import APPLICATION_CONSTANTS from '@/constants/strings';
+import { api, type Contact } from '@/lib/api-client';
 import { useThemeColor } from '@/hooks/use-theme-color';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { ScrollView, StyleSheet, View } from 'react-native';
 import ThemedPressable from '../themed-pressable';
 import ThemedImagePickerModal, {
@@ -35,6 +36,7 @@ const MOCK_CLASSES: ThemedListPreviewItemProps[] = [
 export type ThemedCreateChatModalProps = {
   visible: boolean;
   onRequestClose: () => void;
+  onChatCreated: (chatId: string) => void;
 };
 
 export type ThemedBentoBoxProps = {
@@ -85,12 +87,23 @@ const ThemedCreateChatModal = (props: ThemedCreateChatModalProps) => {
   const [avatarSource, setAvatarSource] = useState<string | undefined>(
     undefined,
   );
+  const [contacts, setContacts] = useState<Contact[]>([]);
 
   const neutral600Color = useThemeColor({}, 'neutral-600');
   const chatPreviewBackgroundColor = useThemeColor({}, 'neutral-50');
 
+  useEffect(() => {
+    if (!props.visible) {return;}
+    api.getContacts().then(setContacts).catch(console.error);
+  }, [props.visible]);
+
   const onThemedSliderPress = (newIndex: number) => {
     setCurrentTab(newIndex);
+  };
+
+  const onContactPressed = async (peerUserId: string) => {
+    const { chat_id } = await api.createChat(peerUserId);
+    props.onChatCreated(chat_id);
   };
 
   const onRequestClosedTriggered = () => {
@@ -265,20 +278,19 @@ const ThemedCreateChatModal = (props: ThemedCreateChatModalProps) => {
           }}
           style={styles.chatScrollView}
         >
-          {MOCK_USERS.map((props, key) => {
+          {contacts.map((contact) => {
             return (
               <ThemedPressable
-                key={props.userId ?? key}
-                disabled
-                onPress={() => {}}
+                key={contact.user_id}
+                onPress={() => onContactPressed(contact.user_id)}
               >
                 <ThemedListPreviewItem
                   borderRadius={18}
-                  key={key}
+                  userId={contact.user_id}
+                  heading={contact.display_name}
                   backgroundColor={chatPreviewBackgroundColor}
                   paddingVertical={15}
                   paddingHorizontal={15}
-                  {...props}
                 />
               </ThemedPressable>
             );
@@ -288,6 +300,8 @@ const ThemedCreateChatModal = (props: ThemedCreateChatModalProps) => {
     </ThemedModal>
   );
 };
+
+export default ThemedCreateChatModal;
 
 const styles = StyleSheet.create({
   'slider-view': {
@@ -325,5 +339,3 @@ const styles = StyleSheet.create({
     paddingHorizontal: 15,
   },
 });
-
-export default ThemedCreateChatModal;

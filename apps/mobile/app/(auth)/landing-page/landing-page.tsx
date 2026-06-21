@@ -10,7 +10,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 const LandingPage = () => {
   const handleLoginButtonPress = () => {
     console.warn('Login button pressed');
-    router.push('/(auth)/username-page/');
+    router.push('/(auth)/username-page');
   };
 
   const handleUntisLoginButtonPress = () => {};

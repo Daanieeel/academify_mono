@@ -1,4 +1,7 @@
 import type { RedisOptions } from 'ioredis';
+import { createEnv, redisEnvSchema } from '@repo/env';
+
+const env = createEnv({ server: redisEnvSchema, runtimeEnv: process.env });
 
 export const channelNames = {
   presence: 'presence:events',
@@ -12,10 +15,10 @@ export const queueNames = {
 
 export const getRedisConnectionOptions = (): RedisOptions => {
   return {
-    host: process.env.REDIS_HOST ?? '127.0.0.1',
-    port: Number(process.env.REDIS_PORT ?? 6379),
-    username: process.env.REDIS_USERNAME || undefined,
-    password: process.env.REDIS_PASSWORD || undefined,
+    host: env.REDIS_HOST,
+    port: env.REDIS_PORT,
+    username: env.REDIS_USERNAME,
+    password: env.REDIS_PASSWORD,
     maxRetriesPerRequest: null,
   };
 };

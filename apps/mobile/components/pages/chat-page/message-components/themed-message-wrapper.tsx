@@ -34,7 +34,7 @@ const ThemedMessageWrapper = ({ ...props }: ThemedMessageWrapperProps) => {
       style={[
         {
           maxWidth: '80%',
-          minWidth: props.imageContent && '80%',
+          minWidth: props.imageContent ? '80%' : undefined,
           alignSelf: props.userIsSender ? 'flex-end' : 'flex-start',
           backgroundColor: messageBackground,
         },

@@ -4,6 +4,7 @@
     "strict": true,
     "module": "ESNext",
     "moduleResolution": "Bundler",
+    "types": ["node"],
     "paths": {
       "@/*": ["./*"]
     }

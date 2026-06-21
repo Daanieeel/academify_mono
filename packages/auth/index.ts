@@ -1,18 +1,25 @@
-import { createBlindIndex } from '@repo/crypto';
-import { z } from 'zod';
+import { betterAuth, type BetterAuthOptions } from 'better-auth';
+import { username } from 'better-auth/plugins';
+import { expo } from '@better-auth/expo';
+import { drizzleAdapter } from 'better-auth/adapters/drizzle';
+import { db, user, session, account, verification } from '@repo/database';
 
-const sessionSchema = z.object({
-  userId: z.string().min(1),
-  issuedAt: z.string().datetime(),
-  signature: z.string().min(1),
-});
-
-export type SessionPayload = z.infer<typeof sessionSchema>;
-
-export const createSessionId = (userId: string): string => {
-  return createBlindIndex(`session:${userId}:${Date.now()}`);
+const authOptions: BetterAuthOptions = {
+  database: drizzleAdapter(db, {
+    provider: 'pg',
+    schema: { user, session, account, verification },
+  }),
+  emailAndPassword: { enabled: false },
+  // `academifyv3://` is the mobile app's scheme (apps/mobile/app.json) — the
+  // Expo plugin sets it as the Origin header on native requests, which
+  // better-auth otherwise rejects as untrusted.
+  trustedOrigins: ['academifyv3://'],
+  plugins: [username(), expo()],
+  session: {
+    expiresIn: 60 * 60 * 24 * 7,
+  },
 };
 
-export const parseSessionPayload = (payload: unknown): SessionPayload => {
-  return sessionSchema.parse(payload);
-};
+export const auth = betterAuth(authOptions);
+
+export type Auth = typeof auth;

@@ -1,0 +1,128 @@
+import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
+import { join } from 'node:path';
+
+// Builds the self-contained HTML bundle that `apps/mobile`'s hidden WebView
+// loads to run real OpenMLS crypto (see ADR-0010). React Native's JS engine
+// (Hermes) has no WebAssembly support at all, but the native WebView on both
+// platforms is a full browser engine that does — so the wasm-pack `--target
+// web` build (from `bun run build:wasm:web`) gets inlined here verbatim,
+// followed by a small postMessage RPC harness, into one HTML string.
+
+const root = join(import.meta.dir, '..');
+const wasmWebDir = join(root, 'src/wasm-web');
+const outDir = join(root, 'src/webview');
+
+const glueSource = readFileSync(join(wasmWebDir, 'mls_wasm.js'), 'utf8');
+const wasmBase64 = readFileSync(join(wasmWebDir, 'mls_wasm_bg.wasm')).toString(
+  'base64',
+);
+
+// `__wbg_init` (wasm-bindgen's web-target loader, defined in `glueSource`
+// above) accepts a `BufferSource` directly and instantiates via
+// `WebAssembly.instantiate(bytes, imports)` — no `fetch`/server needed, which
+// is what makes embedding the wasm as inline base64 work here.
+const harness = `
+const WASM_BASE64 = ${JSON.stringify(wasmBase64)};
+
+function base64ToBytes(base64) {
+  const binary = atob(base64);
+  const bytes = new Uint8Array(binary.length);
+  for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
+  return bytes;
+}
+
+function bytesToBase64(bytes) {
+  let binary = '';
+  for (let i = 0; i < bytes.length; i++) binary += String.fromCharCode(bytes[i]);
+  return btoa(binary);
+}
+
+const parties = new Map();
+
+function post(payload) {
+  const json = JSON.stringify(payload);
+  if (window.ReactNativeWebView) {
+    window.ReactNativeWebView.postMessage(json);
+  } else {
+    window.parent.postMessage(json, '*');
+  }
+}
+
+async function dispatch(method, partyId, args) {
+  // \`partyId\` is a per-chat key, not a per-user one: the wasm \`MlsParty\`
+  // struct holds exactly one \`Option<MlsGroup>\`, so one chat's group needs
+  // its own party instance even though it's the same logged-in user's
+  // identity (\`args[0]\` on createParty) joining several chats.
+  if (method === 'createParty') {
+    parties.set(partyId, new MlsParty(args[0]));
+    return null;
+  }
+  const party = parties.get(partyId);
+  if (!party) {
+    throw new Error('no MLS party for id ' + partyId);
+  }
+  switch (method) {
+    case 'generateKeyPackage':
+      return bytesToBase64(party.generate_key_package());
+    case 'createGroup':
+      party.create_group();
+      return null;
+    case 'addMember':
+      return bytesToBase64(party.add_member(base64ToBytes(args[0])));
+    case 'joinFromWelcome':
+      party.join_from_welcome(base64ToBytes(args[0]));
+      return null;
+    case 'encrypt':
+      return bytesToBase64(party.encrypt(base64ToBytes(args[0])));
+    case 'decrypt':
+      return bytesToBase64(party.decrypt(base64ToBytes(args[0])));
+    default:
+      throw new Error('unknown MLS bridge method ' + method);
+  }
+}
+
+async function onMessageEvent(event) {
+  let request;
+  try {
+    request = JSON.parse(typeof event.data === 'string' ? event.data : '{}');
+  } catch {
+    return;
+  }
+  const { id, method, partyId, args } = request;
+  if (!id || !method) return;
+  try {
+    const result = await dispatch(method, partyId, args || []);
+    post({ id, result });
+  } catch (err) {
+    post({ id, error: err && err.message ? err.message : String(err) });
+  }
+}
+
+// react-native-webview delivers RN -> page messages via \`document\`'s
+// 'message' event on Android and \`window\`'s on iOS — listen on both.
+window.addEventListener('message', onMessageEvent);
+document.addEventListener('message', onMessageEvent);
+
+__wbg_init({ module_or_path: base64ToBytes(WASM_BASE64) })
+  .then(() => post({ id: '__ready__', result: true }))
+  .catch((err) => post({ id: '__ready__', error: err && err.message ? err.message : String(err) }));
+`;
+
+const html = `<!DOCTYPE html>
+<html>
+<head><meta charset="utf-8" /></head>
+<body>
+<script type="module">
+${glueSource}
+${harness}
+</script>
+</body>
+</html>`;
+
+mkdirSync(outDir, { recursive: true });
+writeFileSync(
+  join(outDir, 'generated-bundle.ts'),
+  `export const MLS_WEBVIEW_HTML: string = ${JSON.stringify(html)};\n`,
+);
+
+console.log(`webview bundle written (${(html.length / 1024).toFixed(0)} KB)`);

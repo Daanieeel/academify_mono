@@ -4,6 +4,7 @@ import SmallButton from '@/components/buttons/small-button';
 import { ThemedText } from '@/components/themed-text';
 import ThemedTextField from '@/components/themed-text-field';
 import APPLICATION_CONSTANTS from '@/constants/strings';
+import { useSession } from '@/context/auth-context';
 import { useThemeColor } from '@/hooks/use-theme-color';
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import React, { useState } from 'react';
@@ -16,23 +17,31 @@ const UsernamePage = () => {
   const [isValid, setIsValid] = useState(true);
 
   const router = useRouter();
+  const { signIn } = useSession();
   const errorColor = useThemeColor({}, 'red-500');
   const neutral900Color = useThemeColor({}, 'neutral-900');
-  const userId = useLocalSearchParams().id;
+  const userId = useLocalSearchParams().id as string;
 
   const handleBackButtonPress = () => {
     router.back();
   };
 
-  const handleValidatePassword = () => {
+  const handleValidatePassword = async () => {
     if (password.length < 1) {
       setIsValid(false);
       setInputError('Du hast nichts in das Feld eingegeben');
-      return false;
-    } else {
-      setIsValid(true);
-      router.push(`/(auth)/user-card-page/${userId}`);
+      return;
     }
+
+    const { error } = await signIn(userId, password);
+    if (error) {
+      setIsValid(false);
+      setInputError(error);
+      return;
+    }
+
+    setIsValid(true);
+    router.push(`/(auth)/user-card-page/${userId}`);
   };
 
   const handleInputChange = (input: string) => {

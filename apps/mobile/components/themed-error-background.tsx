@@ -15,7 +15,7 @@ const ThemedErrorBackground = ({
   ...props
 }: ThemedErrorBackgroundProps) => {
   const neutral800Color = useThemeColor({}, 'neutral-800');
-  const neutral600Color = useThemeColor({}, 'neutral-800');
+  const neutral600Color = useThemeColor({}, 'neutral-600');
 
   return (
     <View
@@ -32,14 +32,14 @@ const ThemedErrorBackground = ({
         name={iconName}
       ></IcomoonIcon>
       <ThemedText
-        style={{ textAlign: 'center' }}
+        style={styles.textCenter}
         color={neutral800Color}
         type="subHeading"
       >
         {props.title}
       </ThemedText>
       <ThemedText
-        style={{ textAlign: 'center' }}
+        style={styles.textCenter}
         color={neutral600Color}
         type="caption"
       >
@@ -59,6 +59,9 @@ const styles = StyleSheet.create({
     gap: 5,
     maxWidth: '60%',
     alignItems: 'center',
+  },
+  textCenter: {
+    textAlign: 'center',
   },
 });
 

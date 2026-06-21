@@ -1,8 +1,10 @@
 import {
   ackRequestDtoSchema,
+  jobPayloadSchema,
   syncRequestDtoSchema,
   syncResponseDtoSchema,
   type AckRequestDto,
+  type JobPayload,
   type SyncRequestDto,
   type SyncResponseDto,
   type UserEventEnvelope,
@@ -29,4 +31,8 @@ export function parseSyncResponseDto(input: unknown): SyncResponseDto {
 
 export function parseAckRequestDto(input: unknown): AckRequestDto {
   return ackRequestDtoSchema.parse(input);
+}
+
+export function parseJobPayload(input: unknown): JobPayload {
+  return jobPayloadSchema.parse(input);
 }

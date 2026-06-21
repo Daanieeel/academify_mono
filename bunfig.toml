@@ -1,0 +1,10 @@
+[install]
+# Metro (apps/mobile's bundler) resolves Babel plugins relative to
+# @babel/core's own location, not relative to the preset that declares them —
+# that breaks under bun's default per-package node_modules isolation (see
+# docs/local-development.md's mobile troubleshooting section). Hoisted
+# linking matches the flat node_modules layout Metro/Babel expect.
+linker = "hoisted"
+
+[test]
+pathIgnorePatterns = ["**/dist/**"]

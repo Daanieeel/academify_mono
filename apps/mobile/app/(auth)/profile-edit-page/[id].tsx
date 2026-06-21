@@ -5,7 +5,6 @@ import ProfilePic from '@/components/profile-pic';
 import { ThemedText } from '@/components/themed-text';
 import ThemedTextField from '@/components/themed-text-field';
 import APPLICATION_CONSTANTS from '@/constants/strings';
-import { useSession } from '@/context/auth-context';
 import { useThemeColor } from '@/hooks/use-theme-color';
 import { router, Stack } from 'expo-router';
 import React, { useState } from 'react';
@@ -49,10 +48,8 @@ const ProfileEditPage = () => {
     },
   ];
 
-  const neutral400Color = useThemeColor({}, 'neutral-400');
   const neutral900Color = useThemeColor({}, 'neutral-900');
-
-  const { signIn } = useSession();
+  const neutral400Color = useThemeColor({}, 'neutral-400');
 
   const [values, setValues] = useState<Record<string, string>>({
     '1': inputData[0].value ?? '',
@@ -67,8 +64,7 @@ const ProfileEditPage = () => {
   };
 
   const handleContinueButtonPress = () => {
-    signIn();
-    router.replace('/(tabs)/chats');
+    router.replace('/(locked)/(tabs)/chats');
   };
 
   const handleChange = (id: number, newValue: string) => {

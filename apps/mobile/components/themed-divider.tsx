@@ -1,10 +1,11 @@
 import { useThemeColor } from '@/hooks/use-theme-color';
 import React from 'react';
-import { View, ViewStyle } from 'react-native';
+import { View, ViewStyle, StyleSheet } from 'react-native';
 
 export type ThemedDividerProps = {
   props?: React.ComponentProps<typeof View>;
   style?: ViewStyle;
+  className?: string;
 };
 
 const ThemedDivider = (props: ThemedDividerProps) => {
@@ -13,15 +14,15 @@ const ThemedDivider = (props: ThemedDividerProps) => {
   return (
     <View
       {...props.props}
-      style={[
-        props.style,
-        {
-          backgroundColor: dividerColor,
-          height: 1.5,
-        },
-      ]}
+      style={[styles.divider, { backgroundColor: dividerColor }, props.style]}
     ></View>
   );
 };
+
+const styles = StyleSheet.create({
+  divider: {
+    height: 1.5,
+  },
+});
 
 export default ThemedDivider;

@@ -1,24 +1,20 @@
 import { Worker } from 'bullmq';
-import { createSessionId } from '@repo/auth';
-import { getRedisConnectionOptions } from '@repo/redis';
+import { getRedisConnectionOptions, queueNames } from '@repo/redis';
 import { jobPayloadSchema } from '@repo/sync-protocol';
 
-const SYNC_QUEUE_NAME = 'sync_jobs';
+import { processJob } from './src/processors';
 
 const worker = new Worker(
-  SYNC_QUEUE_NAME,
+  queueNames.sync,
   async (job) => {
     const payload = jobPayloadSchema.parse(job.data);
-    return {
-      handled: true,
-      userId: payload.userId,
-      sessionId: createSessionId(payload.userId),
-    };
+    await processJob(payload);
+    return { handled: true, command: payload.command };
   },
   { connection: getRedisConnectionOptions() },
 );
 
-console.log(`Worker active for queue: ${SYNC_QUEUE_NAME}`);
+console.log(`Worker active for queue: ${queueNames.sync}`);
 
 worker.on('failed', (job, error) => {
   console.error(`Job ${job?.id ?? 'unknown'} failed`, error);

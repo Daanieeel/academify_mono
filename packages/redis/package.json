@@ -18,11 +18,12 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "ioredis": "^5.10.1"
+    "@repo/env": "workspace:*",
+    "ioredis": "catalog:"
   },
   "devDependencies": {
-    "@types/bun": "latest",
-    "typescript": "^6.0.3"
+    "@types/bun": "catalog:",
+    "typescript": "catalog:"
   },
   "peerDependencies": {
     "typescript": "^6"

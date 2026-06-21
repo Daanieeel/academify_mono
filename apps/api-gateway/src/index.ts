@@ -1,35 +1,27 @@
 import { Elysia } from 'elysia';
-import { createSessionId } from '@repo/auth';
-import { channelNames } from '@repo/redis';
-import { presenceMessageSchema } from '@repo/sync-protocol';
+import { auth } from '@repo/auth';
 
-const app = new Elysia()
+import { env } from './env';
+import { chatsRoutes } from './routes/chats';
+import { messagesRoutes } from './routes/messages';
+import { mlsRoutes } from './routes/mls';
+import { reportsRoutes } from './routes/reports';
+import { syncRoutes } from './routes/sync';
+import { wsRoutes } from './ws';
+
+export const app = new Elysia()
   .get('/health', () => ({ ok: true, service: 'api-gateway' }))
-  .get('/session/:userId', ({ params }) => ({
-    userId: params.userId,
-    sessionId: createSessionId(params.userId),
-    channel: channelNames.presence,
-  }))
-  .ws('/ws', {
-    open(wsClient) {
-      const initialMessage = presenceMessageSchema.parse({
-        userId: 'system',
-        status: 'online',
-        at: new Date().toISOString(),
-      });
-      wsClient.send(JSON.stringify(initialMessage));
-    },
-    message(wsClient, raw) {
-      const parsed = presenceMessageSchema.safeParse(JSON.parse(String(raw)));
-      if (!parsed.success) {
-        wsClient.send(JSON.stringify({ error: 'invalid payload' }));
-        return;
-      }
-      wsClient.send(JSON.stringify(parsed.data));
-    },
-  })
-  .listen(Number(process.env.API_GATEWAY_PORT ?? 3001));
+  .mount(auth.handler)
+  .use(chatsRoutes)
+  .use(messagesRoutes)
+  .use(syncRoutes)
+  .use(mlsRoutes)
+  .use(reportsRoutes)
+  .use(wsRoutes);
 
-console.log(
-  `API Gateway listening on ${app.server?.hostname}:${app.server?.port}`,
-);
+if (import.meta.main) {
+  app.listen(env.API_GATEWAY_PORT);
+  console.log(
+    `API Gateway listening on ${app.server?.hostname}:${app.server?.port}`,
+  );
+}

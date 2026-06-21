@@ -9,16 +9,24 @@
     ".": {
       "types": "./dist/index.d.ts",
       "import": "./dist/index.js"
+    },
+    "./webview": {
+      "types": "./dist/src/webview/generated-bundle.d.ts",
+      "import": "./dist/src/webview/generated-bundle.js"
     }
   },
   "scripts": {
     "dev": "echo \"MLS package has no dev server\"",
-    "build": "tsc -b",
-    "test": "echo \"No tests yet for mls\"",
+    "build:wasm": "cd ../../crates/mls-wasm && wasm-pack build --target nodejs --out-dir ../../packages/mls/src/wasm",
+    "build:wasm:web": "cd ../../crates/mls-wasm && wasm-pack build --target web --out-dir ../../packages/mls/src/wasm-web",
+    "build:webview": "bun run build:wasm:web && bun run scripts/build-webview-bundle.ts",
+    "build": "bun run build:wasm && bun run build:webview && tsc -b && mkdir -p dist/src/wasm && cp src/wasm/*.js src/wasm/*.wasm src/wasm/*.d.ts dist/src/wasm/",
+    "test": "bun test",
     "lint": "bunx oxlint -c ../config/oxlint/base.json --import-plugin --promise-plugin --deny-warnings .",
     "typecheck": "tsc --noEmit"
   },
   "devDependencies": {
-    "typescript": "^6.0.3"
+    "@types/bun": "catalog:",
+    "typescript": "catalog:"
   }
 }

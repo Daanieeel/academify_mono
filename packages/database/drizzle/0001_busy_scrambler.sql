@@ -1,0 +1,1 @@
+ALTER TABLE "mls_group_members" ADD COLUMN "pending_welcome" "bytea";

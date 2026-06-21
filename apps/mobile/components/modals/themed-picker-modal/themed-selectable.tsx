@@ -16,7 +16,6 @@ const ThemedSelectable = ({
   ...props
 }: ThemedSelectableProps) => {
   const borderColor = useThemeColor({}, 'neutral-900');
-
   const scale = useRef(new Animated.Value(1)).current;
   const haptic = useHaptic('medium');
 

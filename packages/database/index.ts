@@ -1,13 +1,12 @@
-export interface DatabaseClient {
-  $connect(): Promise<void>;
-  $disconnect(): Promise<void>;
-}
+import { drizzle } from 'drizzle-orm/postgres-js';
+import postgres from 'postgres';
+import { createEnv, databaseEnvSchema } from '@repo/env';
+import * as schema from './src/schema/index';
 
-export const prisma = {
-  async $connect() {
-    return;
-  },
-  async $disconnect() {
-    return;
-  },
-} satisfies DatabaseClient;
+const env = createEnv({ server: databaseEnvSchema, runtimeEnv: process.env });
+
+const queryClient = postgres(env.DATABASE_URL);
+
+export const db = drizzle(queryClient, { schema });
+
+export * from './src/schema/index';

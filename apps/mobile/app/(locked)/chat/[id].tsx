@@ -2,14 +2,21 @@ import ThemedMessageWrapper from '@/components/pages/chat-page/message-component
 import ThemedChatPageFooter from '@/components/pages/chat-page/themed-chat-page-footer';
 import ThemedChatPageHeader from '@/components/pages/chat-page/themed-chat-page-header';
 import ThemedAcademiBackground from '@/components/themed-academi-background';
-import { MOCK_MESSAGE_DATA } from '@/constants/mock-data/MockChatMessageData';
+import { ThemedText } from '@/components/themed-text';
+import { useSession } from '@/context/auth-context';
+import { useChatThread } from '@/hooks/use-chat-thread';
 import { useThemeColor } from '@/hooks/use-theme-color';
-import { router } from 'expo-router';
+import { formatChatTimestamp } from '@/lib/format';
+import { router, useLocalSearchParams } from 'expo-router';
 import React, { useRef, useState } from 'react';
 import { FlatList, StyleSheet, View } from 'react-native';
 
 const ChatPage = () => {
   const neutral50Color = useThemeColor({}, 'neutral-50');
+
+  const { id } = useLocalSearchParams<{ id: string }>();
+  const { session } = useSession();
+  const { peer, messages, mlsError, sendMessage } = useChatThread(id);
 
   const isScrollingRef = useRef(false);
 
@@ -19,6 +26,12 @@ const ChatPage = () => {
 
   const onChatAboutPressed = () => {
     router.push('/(locked)/chat-about/123');
+  };
+
+  const onSend = (text: string) => {
+    sendMessage(text).catch((error) => {
+      console.error('failed to send message:', error);
+    });
   };
 
   return (
@@ -34,7 +47,14 @@ const ChatPage = () => {
 
       <ThemedChatPageHeader
         onChatAboutPressed={onChatAboutPressed}
+        chatName={peer?.display_name}
       ></ThemedChatPageHeader>
+
+      {mlsError ? (
+        <View style={{ paddingHorizontal: 15, paddingVertical: 8 }}>
+          <ThemedText type="caption">{mlsError}</ThemedText>
+        </View>
+      ) : null}
 
       {/* Container for the actual message list */}
 
@@ -64,11 +84,22 @@ const ChatPage = () => {
             }
           }}
           style={styles['message-list']}
-          data={MOCK_MESSAGE_DATA}
+          data={[...messages].reverse()}
+          keyExtractor={(message) => message.id}
           scrollEventThrottle={16}
           ItemSeparatorComponent={() => <View style={{ height: 15 }}></View>}
-          renderItem={(item) => (
-            <ThemedMessageWrapper {...item.item}></ThemedMessageWrapper>
+          renderItem={({ item }) => (
+            <ThemedMessageWrapper
+              messageId={item.id}
+              userIsSender={item.senderUserId === session?.userId}
+              textContent={{ message: item.text }}
+              senderName={
+                item.senderUserId === session?.userId
+                  ? 'Du'
+                  : (peer?.display_name ?? '...')
+              }
+              sendDate={formatChatTimestamp(item.createdAt)}
+            ></ThemedMessageWrapper>
           )}
         ></FlatList>
         <View style={styles['message-list-background']}>
@@ -81,6 +112,7 @@ const ChatPage = () => {
       <ThemedChatPageFooter
         currentDisplay={footerCurrentDisplay}
         setCurrentDisplay={setFooterCurrentDisplay}
+        onSend={onSend}
       ></ThemedChatPageFooter>
     </View>
   );

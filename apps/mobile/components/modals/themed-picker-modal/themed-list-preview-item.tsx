@@ -7,7 +7,7 @@ import { ThemedText } from '../../themed-text';
 
 export type ThemedListPreviewItemProps = {
   avatar?: React.ReactNode;
-  userId: number;
+  userId: number | string;
   heading: string;
   caption?: string;
   showRemoveButton?: boolean;

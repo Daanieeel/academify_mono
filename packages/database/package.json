@@ -1,15 +1,21 @@
 {
   "name": "@repo/database",
-  "private": true,
-  "type": "module",
   "module": "dist/index.js",
-  "types": "dist/index.d.ts",
+  "devDependencies": {
+    "@types/bun": "catalog:",
+    "drizzle-kit": "^0.31.10",
+    "typescript": "catalog:"
+  },
+  "peerDependencies": {
+    "typescript": "^6"
+  },
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
       "import": "./dist/index.js"
     }
   },
+  "private": true,
   "scripts": {
     "dev": "echo \"Database package has no dev server\"",
     "build": "tsc -b",
@@ -17,15 +23,11 @@
     "lint": "bunx oxlint -c ../config/oxlint/base.json --node-plugin --import-plugin --promise-plugin --deny-warnings .",
     "typecheck": "tsc --noEmit"
   },
+  "type": "module",
+  "types": "dist/index.d.ts",
   "dependencies": {
-    "@prisma/client": "^7.7.0"
-  },
-  "devDependencies": {
-    "@types/bun": "latest",
-    "prisma": "^7.7.0",
-    "typescript": "^6.0.3"
-  },
-  "peerDependencies": {
-    "typescript": "^6"
+    "@repo/env": "workspace:*",
+    "drizzle-orm": "catalog:",
+    "postgres": "^3.4.9"
   }
 }

@@ -10,6 +10,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 export type ThemedChatPageHeaderProps = {
   onChatAboutPressed: () => void;
+  chatName?: string;
 };
 
 const ThemedChatPageHeader = (props: ThemedChatPageHeaderProps) => {
@@ -52,7 +53,7 @@ const ThemedChatPageHeader = (props: ThemedChatPageHeaderProps) => {
             }}
           >
             <ProfilePic size={'small'}></ProfilePic>
-            <ThemedText type="body">Bio K1A24</ThemedText>
+            <ThemedText type="body">{props.chatName ?? 'Bio K1A24'}</ThemedText>
           </View>
         </ThemedPressable>
       </View>

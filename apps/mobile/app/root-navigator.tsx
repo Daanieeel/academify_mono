@@ -30,14 +30,7 @@ const RootNavigator = () => {
   }
 
   const { session } = useSession();
-  console.log('from root-navigator: session is ' + session);
-  let isAuthenticated;
-
-  if (session === null) {
-    isAuthenticated = true;
-  } else {
-    isAuthenticated = true;
-  }
+  const isAuthenticated = session !== null;
 
   return (
     <Stack screenOptions={{ headerShown: false }}>

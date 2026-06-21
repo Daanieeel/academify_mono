@@ -6,14 +6,26 @@
     "apps/mobile",
     "apps/api-gateway",
     "apps/worker",
+    "apps/directory",
     "packages/database",
     "packages/mls",
     "packages/crypto",
     "packages/redis",
     "packages/sync-protocol",
     "packages/auth",
+    "packages/env",
+    "packages/client-core",
     "packages/config"
   ],
+  "catalog": {
+    "@types/bun": "^1.3.14",
+    "bullmq": "^5.79.0",
+    "drizzle-orm": "^0.45.2",
+    "elysia": "^1.4.11",
+    "ioredis": "^5.10.1",
+    "typescript": "^6.0.3",
+    "zod": "^4.3.6"
+  },
   "scripts": {
     "build": "turbo run build",
     "dev": "turbo run dev --filter=@app/api-gateway --filter=@app/worker",
@@ -35,7 +47,7 @@
     "oxfmt": "^0.45.0",
     "oxlint": "^1.26.0",
     "turbo": "latest",
-    "typescript": "^6.0.3"
+    "typescript": "catalog:"
   },
   "lint-staged": {
     "*.{js,mjs,cjs,jsx,ts,tsx}": [
@@ -43,5 +55,8 @@
       "bunx oxlint -c packages/config/oxlint/base.json --import-plugin --promise-plugin --node-plugin --react-plugin --jsx-a11y-plugin --nextjs-plugin --react-perf-plugin --fix --no-error-on-unmatched-pattern"
     ]
   },
-  "packageManager": "bun@1.3.5"
+  "packageManager": "bun@1.3.5",
+  "patchedDependencies": {
+    "react-native-css-interop@0.2.3": "patches/react-native-css-interop@0.2.3.patch"
+  }
 }

@@ -7,20 +7,27 @@
   "types": "dist/index.d.ts",
   "scripts": {
     "dev": "bun --watch src/index.ts",
+    "seed": "bun run src/scripts/seed.ts",
     "build": "tsc -b",
-    "test": "echo \"No tests yet for api-gateway\"",
+    "test": "bun test",
     "lint": "bunx oxlint -c ../../packages/config/oxlint/base.json --node-plugin --import-plugin --promise-plugin --deny-warnings .",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
     "@repo/auth": "workspace:*",
+    "@repo/crypto": "workspace:*",
     "@repo/database": "workspace:*",
+    "@repo/env": "workspace:*",
     "@repo/redis": "workspace:*",
     "@repo/sync-protocol": "workspace:*",
     "@sinclair/typebox": "^0.34.41",
-    "elysia": "^1.4.11"
+    "bullmq": "catalog:",
+    "drizzle-orm": "catalog:",
+    "elysia": "catalog:",
+    "ioredis": "catalog:"
   },
   "devDependencies": {
-    "typescript": "^6.0.3"
+    "@types/bun": "catalog:",
+    "typescript": "catalog:"
   }
 }

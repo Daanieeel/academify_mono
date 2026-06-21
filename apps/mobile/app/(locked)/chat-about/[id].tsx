@@ -98,8 +98,8 @@ const ChatAboutPage = () => {
               paddingBottom: 15,
               gap: 10,
             }}
-            horizontal
             style={{}}
+            horizontal
           >
             {data.chatImages.map((imageUri, index) => {
               return (

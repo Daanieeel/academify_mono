@@ -55,4 +55,7 @@ yarn-error.log*
 .vercel/
 
 # generated artifacts
-packages/database/generated/prisma/
+packages/mls/src/wasm/
+
+# rust
+**/target/
