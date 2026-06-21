@@ -74,6 +74,8 @@ const UsernamePage = () => {
           value={text}
           onChangeText={handleInputChange}
           heightBased={60}
+          autoCorrect={false}
+          spellCheck={false}
         ></Input>
         {!isValid && (
           <View className="mt-[10px] flex-row gap-[5px] items-center">

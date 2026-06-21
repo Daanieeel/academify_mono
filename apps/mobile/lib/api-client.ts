@@ -171,6 +171,11 @@ export const api = {
       })
     ).json(),
 
+  // Marks all unconsumed key packages for this user as consumed so that a
+  // peer can never use stale key material from a previous app session.
+  purgeKeyPackages: async (): Promise<{ purged: boolean }> =>
+    (await request('/mls/key-packages', { method: 'DELETE' })).json(),
+
   uploadKeyPackage: async (
     deviceId: string,
     keyPackageBytes: string,

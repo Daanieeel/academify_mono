@@ -3,6 +3,7 @@ import { useMlsBridge } from '@/context/mls-context';
 import { useSyncStore, type RawMessage } from '@/context/sync-context';
 import { api, type MessageDto } from '@/lib/api-client';
 import { base64UrlToBytes, bytesToBase64Url } from '@/lib/base64';
+import * as ExpoCrypto from 'expo-crypto';
 import { useCallback, useEffect, useRef, useState } from 'react';
 
 // Matches crates/mls-wasm's CIPHERSUITE constant — metadata only, the
@@ -64,7 +65,9 @@ export function useChatThread(chatId: string) {
 
     (async () => {
       const detail = await api.getChatDetail(chatId);
-      if (cancelled) {return;}
+      if (cancelled) {
+        return;
+      }
       setPeer(detail.peer);
 
       if (!partyCreatedRef.current && session) {
@@ -75,7 +78,9 @@ export function useChatThread(chatId: string) {
       if (detail.group_exists) {
         setCurrentEpoch(detail.current_epoch ?? 1);
         const welcome = await api.getMlsWelcome(chatId);
-        if (cancelled) {return;}
+        if (cancelled) {
+          return;
+        }
         if (welcome) {
           await mlsBridge.joinFromWelcome(
             chatId,
@@ -93,12 +98,16 @@ export function useChatThread(chatId: string) {
       }
 
       const page = await api.getChatMessages(chatId, { limit: 100 });
-      if (cancelled) {return;}
+      if (cancelled) {
+        return;
+      }
       setHistory(page.messages.map(toRawMessage));
       setLoading(false);
     })().catch((error) => {
       console.error('failed to load chat thread:', error);
-      if (!cancelled) {setLoading(false);}
+      if (!cancelled) {
+        setLoading(false);
+      }
     });
 
     return () => {
@@ -110,24 +119,34 @@ export function useChatThread(chatId: string) {
 
   // Decrypt anything new, once we've joined (or created) the group.
   useEffect(() => {
-    if (!groupEstablished || !session) {return;}
+    if (!groupEstablished || !session) {
+      return;
+    }
     let cancelled = false;
 
     (async () => {
       for (const message of allMessages) {
-        if (plaintextById[message.id] !== undefined) {continue;}
-        if (message.senderUserId === session.userId) {continue;}
+        if (plaintextById[message.id] !== undefined) {
+          continue;
+        }
+        if (message.senderUserId === session.userId) {
+          continue;
+        }
         try {
           const plaintext = await mlsBridge.decrypt(
             chatId,
             base64UrlToBytes(message.ciphertext),
           );
-          if (cancelled) {return;}
+          if (cancelled) {
+            return;
+          }
           const text = new TextDecoder().decode(plaintext);
           setPlaintextById((prev) => ({ ...prev, [message.id]: text }));
         } catch (error) {
           console.error('failed to decrypt message', message.id, error);
-          if (cancelled) {return;}
+          if (cancelled) {
+            return;
+          }
           setPlaintextById((prev) => ({
             ...prev,
             [message.id]: '🔒 (nicht entschlüsselbar)',
@@ -179,7 +198,7 @@ export function useChatThread(chatId: string) {
           await api.createMlsGroup({
             chat_id: chatId,
             mls_group_id: bytesToBase64Url(
-              crypto.getRandomValues(new Uint8Array(16)),
+              ExpoCrypto.getRandomValues(new Uint8Array(16)),
             ),
             cipher_suite: CIPHER_SUITE,
             device_id: deviceId,
@@ -197,7 +216,7 @@ export function useChatThread(chatId: string) {
         setGroupEstablished(true);
       }
 
-      const messageId = crypto.randomUUID();
+      const messageId = ExpoCrypto.randomUUID();
       const ciphertext = await mlsBridge.encrypt(
         chatId,
         new TextEncoder().encode(text),

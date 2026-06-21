@@ -1,9 +1,11 @@
 import { Input } from '@/components/ui/input';
+import { BlurView } from 'expo-blur';
+import { LinearGradient } from 'expo-linear-gradient';
 
 // The footer for the chat page including a textfield and buttons for attachments as well as the send button
 
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { Keyboard, TextInput, View } from 'react-native';
+import { Keyboard, StyleSheet, TextInput, View } from 'react-native';
 import Animated, {
   Easing,
   useAnimatedStyle,
@@ -124,7 +126,16 @@ const ThemedChatPageFooter = ({
   });
 
   return (
-    <View className="px-[15px] z-[9999] border-t-[1.5px] pt-[10px] flex-col gap-[10px] bg-neutral-50 border-neutral-900">
+    <View className="px-[15px] z-[9999] pt-[10px] flex-col gap-[10px] bg-transparent">
+      <BlurView
+        intensity={50}
+        tint="light"
+        style={StyleSheet.absoluteFillObject}
+      />
+      <LinearGradient
+        colors={['rgba(250, 250, 245, 0)', 'rgba(250, 250, 245, 1)']}
+        style={StyleSheet.absoluteFillObject}
+      />
       {/* View for the plus button, textfield and send button */}
 
       <View className="flex-row items-center">

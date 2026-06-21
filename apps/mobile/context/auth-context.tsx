@@ -6,12 +6,12 @@ const AuthContext = createContext<{
     username: string,
     password: string,
   ) => Promise<{ error: string | null }>;
-  signOut: () => void;
+  signOut: () => Promise<void>;
   session: { userId: string; username: string } | null;
   isLoading: boolean;
 }>({
   signIn: async () => ({ error: 'not wrapped in a SessionProvider' }),
-  signOut: () => null,
+  signOut: async () => {},
   session: null,
   isLoading: false,
 });
@@ -32,8 +32,8 @@ export function SessionProvider({ children }: PropsWithChildren) {
     return { error: error?.message ?? null };
   };
 
-  const signOut = () => {
-    authClient.signOut();
+  const signOut = async () => {
+    await authClient.signOut();
   };
 
   const session = data

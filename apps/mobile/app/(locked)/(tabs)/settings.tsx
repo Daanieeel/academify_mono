@@ -73,10 +73,13 @@ const Settings = () => {
       : undefined,
   ].filter((badge): badge is NonNullable<typeof badge> => Boolean(badge));
 
-  const onLogOutPressed = () => {
+  const onLogOutPressed = async () => {
     console.log('from settings page: user clicked log out');
-    signOut();
-    router.dismissTo('/');
+    await signOut();
+    if (router.canDismiss()) {
+      router.dismissAll();
+    }
+    router.replace('/(auth)/landing-page/landing-page');
   };
 
   const onDarkModePressed = () => {

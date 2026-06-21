@@ -2,8 +2,6 @@ import { eq } from 'drizzle-orm';
 import { auth } from '@repo/auth';
 import { generateComplianceKeyPair } from '@repo/crypto';
 import {
-  chatMembers,
-  chats,
   classMemberships,
   classes,
   complianceKeys,
@@ -66,24 +64,6 @@ async function createUser(seedUser: SeedUser, institutionId: string) {
   });
 
   return created!;
-}
-
-async function createDm(
-  userAId: string,
-  userBId: string,
-  institutionId: string,
-) {
-  const [chat] = await db
-    .insert(chats)
-    .values({ institutionId, type: 'dm', createdBy: userAId })
-    .returning();
-
-  await db.insert(chatMembers).values([
-    { chatId: chat!.id, userId: userAId },
-    { chatId: chat!.id, userId: userBId },
-  ]);
-
-  return chat!;
 }
 
 function printSummary(complianceKeyLine: string | null) {
@@ -154,11 +134,6 @@ async function main() {
       role: 'student' as const,
     })),
   ]);
-
-  const [alice, bob, clara, david] = students;
-  await createDm(alice!.id, bob!.id, institutionId);
-  await createDm(clara!.id, david!.id, institutionId);
-  await createDm(bob!.id, clara!.id, institutionId);
 
   printSummary(
     `COMPLIANCE_PRIVATE_KEY=${complianceKeyPair.privateKey.toString('base64url')}`,

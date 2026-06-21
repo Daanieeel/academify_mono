@@ -37,7 +37,9 @@
     "lint": "turbo run lint",
     "lint:ox": "bunx oxlint -c packages/config/oxlint/base.json --import-plugin --promise-plugin --node-plugin --react-plugin --jsx-a11y-plugin --nextjs-plugin --react-perf-plugin --deny-warnings .",
     "lint:fix": "bunx oxlint -c packages/config/oxlint/base.json --import-plugin --promise-plugin --node-plugin --react-plugin --jsx-a11y-plugin --nextjs-plugin --react-perf-plugin --fix .",
-    "typecheck": "turbo run typecheck"
+    "typecheck": "turbo run typecheck",
+    "clear-db": "docker compose -f docker-compose.dev.yml down -v && docker compose -f docker-compose.dev.yml up -d && sleep 2 && cd packages/database && bunx drizzle-kit push",
+    "seed": "bun run --cwd apps/api-gateway seed"
   },
   "dependencies": {},
   "devDependencies": {

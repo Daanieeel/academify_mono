@@ -1,4 +1,5 @@
 import { and, eq, isNull } from 'drizzle-orm';
+
 import { Elysia, t } from 'elysia';
 import {
   chatMembers,
@@ -38,6 +39,35 @@ export const mlsRoutes = new Elysia()
       }),
     },
   )
+  // Purge all unconsumed key packages for every device belonging to the
+  // current user. Called at session start so stale key material from a
+  // previous run (whose in-memory MLS party is now gone) can never be
+  // consumed by a peer, avoiding NoMatchingKeyPackage on joinFromWelcome.
+  .delete('/mls/key-packages', async ({ userId }) => {
+    // Collect all device IDs owned by this user
+    const userDevices = await db
+      .select({ id: devices.id })
+      .from(devices)
+      .where(and(eq(devices.userId, userId), isNull(devices.revokedAt)));
+
+    if (userDevices.length > 0) {
+      const deviceIds = userDevices.map((d) => d.id);
+      // Mark unconsumed packages as consumed (soft-delete)
+      for (const deviceId of deviceIds) {
+        await db
+          .update(keyPackages)
+          .set({ consumedAt: new Date() })
+          .where(
+            and(
+              eq(keyPackages.deviceId, deviceId),
+              isNull(keyPackages.consumedAt),
+            ),
+          );
+      }
+    }
+
+    return { purged: true };
+  })
   .post(
     '/mls/key-packages',
     async ({ body, userId, status }) => {

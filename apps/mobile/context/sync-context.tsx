@@ -54,6 +54,14 @@ async function ensureDeviceRegistered(
   mlsBridge: ReturnType<typeof useMlsBridge>,
 ): Promise<string> {
   await mlsBridge.createParty(DEVICE_PARTY_KEY, userId);
+
+  // Invalidate any unconsumed key packages from previous sessions. Those
+  // packages were generated with a different (now-lost) in-memory MLS party,
+  // so a peer consuming them would produce a Welcome that this session cannot
+  // accept (NoMatchingKeyPackage). Safe to fire-and-forget any errors here
+  // since it's a best-effort cleanup — the server also guards against this.
+  await api.purgeKeyPackages().catch(() => {});
+
   const { device_id } = await api.registerDevice(
     bytesToBase64Url(new Uint8Array([1])),
   );
