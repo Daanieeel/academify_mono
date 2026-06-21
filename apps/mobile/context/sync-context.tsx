@@ -91,14 +91,16 @@ export function SyncProvider({ children }: PropsWithChildren) {
     }
 
     let cancelled = false;
-    const cursorKey = `sync-cursor:${session.userId}`;
+    const cursorKey = `sync-cursor-${session.userId}`;
 
     const client = new SyncClient(
       { backendUrl: API_URL, headers: { Cookie: authClient.getCookie() } },
       async (event) => {
         if (event.event_type === 'message.created') {
           const message = await api.getMessage(event.entity_id);
-          if (cancelled) {return;}
+          if (cancelled) {
+            return;
+          }
           addMessage({
             id: message.message_id,
             chatId: message.chat_id,
@@ -118,7 +120,9 @@ export function SyncProvider({ children }: PropsWithChildren) {
 
     void ensureDeviceRegistered(session.userId, mlsBridge)
       .then((registeredDeviceId) => {
-        if (!cancelled) {setDeviceId(registeredDeviceId);}
+        if (!cancelled) {
+          setDeviceId(registeredDeviceId);
+        }
       })
       .catch((error) => {
         console.error('failed to register MLS device/key packages:', error);
@@ -126,7 +130,9 @@ export function SyncProvider({ children }: PropsWithChildren) {
 
     void (async () => {
       const storedCursor = (await SecureStore.getItemAsync(cursorKey)) ?? '0';
-      if (cancelled) {return;}
+      if (cancelled) {
+        return;
+      }
       await client.connect(storedCursor);
     })().catch((error) => {
       console.error('sync client failed to connect:', error);

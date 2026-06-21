@@ -4,6 +4,10 @@ import { Button } from '@/components/ui/button';
 import { Icon } from '@/components/ui/icon';
 import { Text } from '@/components/ui/text';
 import { Avatar } from '@/components/ui/avatar';
+import {
+  ThemedUserBadge,
+  type ThemedUserBadgeProps,
+} from '@/components/pages/settings/themed-profile-preview';
 import { cn } from '@/lib/utils';
 
 export type ThemedListPreviewItemProps = {
@@ -11,6 +15,7 @@ export type ThemedListPreviewItemProps = {
   userId: number | string;
   heading: string;
   caption?: string;
+  badges?: ThemedUserBadgeProps[];
   showRemoveButton?: boolean;
   onRemovePress?: () => void;
   showChevron?: boolean;
@@ -41,12 +46,20 @@ const ThemedListPreviewItem = ({
     >
       <View className="flex-1 flex-row items-center gap-[20px]">
         <Avatar showBorder={false} size="small"></Avatar>
-        <View className="flex-col items-start gap-[2px]">
+        <View className="flex-col items-start gap-[6px] flex-1">
           <Text variant="body">{props.heading}</Text>
-          {props.caption && (
-            <Text variant="caption" className="text-neutral-600">
-              {props.caption}
-            </Text>
+          {props.badges && props.badges.length > 0 ? (
+            <View className="flex-row flex-wrap gap-[5px]">
+              {props.badges.map((badge, index) => (
+                <ThemedUserBadge key={index} {...badge}></ThemedUserBadge>
+              ))}
+            </View>
+          ) : (
+            props.caption && (
+              <Text variant="caption" className="text-neutral-600">
+                {props.caption}
+              </Text>
+            )
           )}
         </View>
       </View>

@@ -65,8 +65,9 @@
   --color-blue-800: #0369a1;
   --color-blue-900: #ff6033;
   --color-untis-orange: #ff6033;
+  --color-card: #e9e7dc;
   }
-  
+
   @media (prefers-color-scheme: dark) {
     :root {
   --color-neutral-50: #27231c;
@@ -130,6 +131,7 @@
   --color-blue-800: #0284c7;
   --color-blue-900: #ff6033;
   --color-untis-orange: #ff6033;
+  --color-card: #3c372e;
     }
   }
 }

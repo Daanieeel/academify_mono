@@ -40,7 +40,7 @@ const RootNavigator = () => {
             */}
       <Stack.Protected guard={isAuthenticated}>
         <Stack.Screen
-          name="/(locked)/(tabs)"
+          name="(locked)/(tabs)"
           options={{ animation: 'none' }}
         ></Stack.Screen>
       </Stack.Protected>

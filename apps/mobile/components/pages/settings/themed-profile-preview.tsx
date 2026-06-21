@@ -9,7 +9,7 @@ export type ThemedUserBadgeProps = {
   label: string;
 };
 
-const ThemedUserBadge = (props: ThemedUserBadgeProps) => {
+export const ThemedUserBadge = (props: ThemedUserBadgeProps) => {
   const uppercaseLabel = props.label.toUpperCase();
 
   return (

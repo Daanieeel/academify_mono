@@ -12,6 +12,20 @@ export function formatRoleLabel(
   return role ? ROLE_LABELS[role] : undefined;
 }
 
+const ROLE_ICONS = {
+  student: 'student',
+  teacher: 'chalkboard-teacher',
+  admin: 'shield-star',
+  compliance_officer: 'shield-check',
+  headmaster: 'shield-star',
+} as const;
+
+export function formatRoleIcon(
+  role: keyof typeof ROLE_ICONS | null | undefined,
+): string | undefined {
+  return role ? ROLE_ICONS[role] : undefined;
+}
+
 export function formatChatTimestamp(iso: string): string {
   const date = new Date(iso);
   const now = new Date();

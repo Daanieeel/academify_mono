@@ -77,6 +77,8 @@ module.exports = {
       colors: {
         transparent: 'transparent',
         current: 'currentColor',
+        white: '#FFFFFF',
+        card: 'var(--color-card)',
         'untis-orange': 'var(--color-untis-orange)',
       },
       fontFamily: {

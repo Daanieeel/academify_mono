@@ -12,7 +12,8 @@ import ThemedListPreviewItem, {
 import ThemedPickerModal from '@/components/modals/themed-picker-modal/themed-picker-modal';
 import APPLICATION_CONSTANTS from '@/constants/strings';
 import { api, type Contact, type SchoolClass } from '@/lib/api-client';
-import { formatRoleLabel } from '@/lib/format';
+import { formatRoleIcon, formatRoleLabel } from '@/lib/format';
+import type { ThemedUserBadgeProps } from '@/components/pages/settings/themed-profile-preview';
 import React, { useEffect, useState } from 'react';
 import { ScrollView, View } from 'react-native';
 import ThemedPressable from '../themed-pressable';
@@ -20,19 +21,28 @@ import ThemedImagePickerModal, {
   IMAGE_URIS,
 } from './themed-image-picker-modal';
 
-function formatContactCaption(contact: Contact): string | undefined {
-  return (
-    [formatRoleLabel(contact.role), contact.class_name]
-      .filter(Boolean)
-      .join(' · ') || undefined
-  );
+function contactBadges(contact: Contact): ThemedUserBadgeProps[] {
+  const badges: ThemedUserBadgeProps[] = [];
+  if (contact.role) {
+    badges.push({
+      icomoonIconName: formatRoleIcon(contact.role)!,
+      label: formatRoleLabel(contact.role)!,
+    });
+  }
+  if (contact.class_name) {
+    badges.push({
+      icomoonIconName: 'graduation-cap',
+      label: contact.class_name,
+    });
+  }
+  return badges;
 }
 
 function contactToListItem(contact: Contact): ThemedListPreviewItemProps {
   return {
     userId: contact.user_id,
     heading: contact.display_name,
-    caption: formatContactCaption(contact),
+    badges: contactBadges(contact),
   };
 }
 
@@ -295,9 +305,9 @@ const ThemedCreateChatModal = (props: ThemedCreateChatModalProps) => {
                   borderRadius={18}
                   userId={contact.user_id}
                   heading={contact.display_name}
-                  caption={formatContactCaption(contact)}
+                  badges={contactBadges(contact)}
                   showChevron
-                  className="bg-neutral-50 border-l-[3px] border-l-primary-400"
+                  className="bg-card shadow-md"
                   paddingVertical={15}
                   paddingHorizontal={15}
                 />

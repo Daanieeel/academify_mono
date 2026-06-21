@@ -164,9 +164,20 @@ export class SyncClient {
   private async openSocket(): Promise<void> {
     return new Promise((resolve, reject) => {
       const wsUrl = `${this.backendUrl.replace(/^http/, 'ws')}/ws`;
-      const ws = new this.webSocketImpl(wsUrl, {
-        headers: this.headers,
-      } as never);
+      // Headers can't go in one fixed argument slot — Bun's WebSocket (used
+      // in tests) reads `options.headers` from the 2nd constructor arg, like
+      // a browser's `protocols` slot, while React Native's WebSocket reads
+      // it from the 3rd (`protocols` is genuinely 2nd there). Passing the
+      // same options object in both spots lets each runtime pick up the one
+      // it actually reads; a real browser WebSocket (which supports neither)
+      // just ignores the extra arguments.
+      const wsOptions = { headers: this.headers };
+      const WebSocketCtor = this.webSocketImpl as unknown as new (
+        url: string,
+        options?: unknown,
+        options2?: unknown,
+      ) => WebSocket;
+      const ws = new WebSocketCtor(wsUrl, wsOptions, wsOptions);
       this.ws = ws;
       let settled = false;
 
