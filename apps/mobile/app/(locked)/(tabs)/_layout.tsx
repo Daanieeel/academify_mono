@@ -12,13 +12,25 @@ export default function TabLayout() {
     if (Platform.OS === 'ios') {
       switch (iconName) {
         case 'chat-circle':
-          return require('../../../assets/images/app/tabs/chat-circle.png');
+          return {
+            default: require('../../../assets/images/app/tabs/chat-circle.png'),
+            selected: require('../../../assets/images/app/tabs/chat-circle-fill.png'),
+          };
         case 'binoculars':
-          return require('../../../assets/images/app/tabs/binoculars.png');
+          return {
+            default: require('../../../assets/images/app/tabs/binoculars.png'),
+            selected: require('../../../assets/images/app/tabs/binoculars-fill.png'),
+          };
         case 'megaphone-simple':
-          return require('../../../assets/images/app/tabs/megaphone-simple.png');
+          return {
+            default: require('../../../assets/images/app/tabs/megaphone-simple.png'),
+            selected: require('../../../assets/images/app/tabs/megaphone-simple-fill.png'),
+          };
         case 'wrench':
-          return require('../../../assets/images/app/tabs/wrench.png');
+          return {
+            default: require('../../../assets/images/app/tabs/wrench.png'),
+            selected: require('../../../assets/images/app/tabs/wrench-fill.png'),
+          };
       }
     }
     return undefined; // Android falls back to md
