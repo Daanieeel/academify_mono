@@ -25,7 +25,10 @@ import Animated, {
   useAnimatedStyle,
   useSharedValue,
 } from 'react-native-reanimated';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import {
+  SafeAreaView,
+  useSafeAreaInsets,
+} from 'react-native-safe-area-context';
 
 const HEADER_MAX_HEIGHT = 150;
 const HEADER_MIN_HEIGHT = 75;
@@ -48,6 +51,8 @@ function toPreviewProps(chat: ChatListEntry): ThemedChatPreviewProps {
 
 const Chats = () => {
   const neutral50Color = useThemeColor({}, 'neutral-50');
+  const safeArea = useSafeAreaInsets();
+  const bottomInset = safeArea.bottom > 0 ? 105 : 75;
 
   const scrollY = useSharedValue(0);
   const { chats } = useChats();
@@ -157,7 +162,12 @@ const Chats = () => {
         )}
       ></Animated.FlatList>
 
-      <View style={styles['new-chat-button-wrapper']}>
+      <View
+        style={[
+          styles['new-chat-button-wrapper'],
+          { bottom: bottomInset + 30 },
+        ]}
+      >
         <SimpleButton
           icomoonIcon="magic-wand"
           label={APPLICATION_CONSTANTS.CHATS_PAGE_NEW_CHAT_BUTTON_LABEL}
@@ -178,7 +188,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     left: 0,
     right: 0,
-    bottom: 30,
     justifyContent: 'center',
     position: 'absolute',
   },

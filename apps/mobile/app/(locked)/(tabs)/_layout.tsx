@@ -1,162 +1,83 @@
-import IcomoonIcon from '@/components/IcomoonIcon';
-import { ThemedText } from '@/components/themed-text';
+import { NativeTabs } from 'expo-router/unstable-native-tabs';
 import { useThemeColor } from '@/hooks/use-theme-color';
-import { Tabs } from 'expo-router';
 import React from 'react';
-import { View } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
-
-const TAB_BAR_HEIGHT = 75;
+import { Platform } from 'react-native';
 
 export default function TabLayout() {
-  const primary100Color = useThemeColor({}, 'primary-100');
   const primary900Color = useThemeColor({}, 'primary-900');
   const neutral50Color = useThemeColor({}, 'neutral-50');
   const neutral900Color = useThemeColor({}, 'neutral-900');
-  const tabBarIconSize = 25;
 
-  const safeAreBottomInsets = useSafeAreaInsets().bottom;
-  let tabBarHeight;
-
-  // Increase the bottom margin of the tab bar for devices with round screen corners
-  if (safeAreBottomInsets > 0) {
-    tabBarHeight = TAB_BAR_HEIGHT + 30;
-  } else {
-    tabBarHeight = TAB_BAR_HEIGHT;
-  }
+  const getCustomIcon = (iconName: string) => {
+    if (Platform.OS === 'ios') {
+      switch (iconName) {
+        case 'chat-circle':
+          return require('../../../assets/images/app/tabs/chat-circle.png');
+        case 'binoculars':
+          return require('../../../assets/images/app/tabs/binoculars.png');
+        case 'megaphone-simple':
+          return require('../../../assets/images/app/tabs/megaphone-simple.png');
+        case 'wrench':
+          return require('../../../assets/images/app/tabs/wrench.png');
+      }
+    }
+    return undefined; // Android falls back to md
+  };
 
   return (
-    <Tabs
-      screenOptions={{
-        headerShadowVisible: false,
-        tabBarActiveTintColor: primary900Color,
-        tabBarInactiveTintColor: neutral900Color,
-        tabBarIconStyle: {
-          alignItems: 'center',
-          height: 40,
-        },
-        tabBarStyle: {
-          height: tabBarHeight,
-          borderTopWidth: 1.5,
-          borderTopColor: neutral900Color,
-          backgroundColor: neutral50Color,
-          elevation: 0,
-          shadowOpacity: 0,
-        },
+    <NativeTabs
+      tintColor={primary900Color}
+      labelStyle={{
+        color: neutral900Color,
       }}
     >
-      <Tabs.Screen
+      <NativeTabs.Trigger
         name="chats"
-        options={{
-          tabBarLabel: ({ color }) => (
-            <ThemedText color={color} type="caption" numberOfLines={1}>
-              Chats
-            </ThemedText>
-          ),
-          tabBarIcon: ({ focused, color }) => (
-            <View
-              style={{
-                backgroundColor: focused ? primary100Color : 'transparent',
-                width: 60,
-                height: 30,
-                justifyContent: 'center',
-                alignItems: 'center',
-                borderRadius: 10,
-              }}
-            >
-              <IcomoonIcon
-                color={color}
-                name="chat-circle"
-                size={tabBarIconSize}
-              ></IcomoonIcon>
-            </View>
-          ),
-        }}
-      />
-      <Tabs.Screen
+        contentStyle={{ backgroundColor: neutral50Color }}
+      >
+        <NativeTabs.Trigger.Label>Chats</NativeTabs.Trigger.Label>
+        <NativeTabs.Trigger.Icon
+          src={getCustomIcon('chat-circle')}
+          renderingMode="template"
+          md="chat"
+        />
+      </NativeTabs.Trigger>
+
+      <NativeTabs.Trigger
         name="explore"
-        options={{
-          tabBarLabel: ({ color }) => (
-            <ThemedText color={color} type="caption" numberOfLines={1}>
-              Entdecken
-            </ThemedText>
-          ),
-          tabBarIcon: ({ focused, color }) => (
-            <View
-              style={{
-                backgroundColor: focused ? primary100Color : 'transparent',
-                width: 60,
-                height: 30,
-                justifyContent: 'center',
-                alignItems: 'center',
-                borderRadius: 10,
-              }}
-            >
-              <IcomoonIcon
-                color={color}
-                name="binoculars"
-                size={tabBarIconSize}
-              ></IcomoonIcon>
-            </View>
-          ),
-        }}
-      />
-      <Tabs.Screen
+        contentStyle={{ backgroundColor: neutral50Color }}
+      >
+        <NativeTabs.Trigger.Label>Entdecken</NativeTabs.Trigger.Label>
+        <NativeTabs.Trigger.Icon
+          src={getCustomIcon('binoculars')}
+          renderingMode="template"
+          md="explore"
+        />
+      </NativeTabs.Trigger>
+
+      <NativeTabs.Trigger
         name="blackboards"
-        options={{
-          tabBarLabel: ({ color }) => (
-            <ThemedText color={color} type="caption" numberOfLines={1}>
-              Blackboards
-            </ThemedText>
-          ),
-          tabBarIcon: ({ focused, color }) => (
-            <View
-              style={{
-                backgroundColor: focused ? primary100Color : 'transparent',
-                width: 60,
-                height: 30,
-                justifyContent: 'center',
-                alignItems: 'center',
-                borderRadius: 10,
-              }}
-            >
-              <IcomoonIcon
-                color={color}
-                name="megaphone-simple"
-                size={tabBarIconSize}
-              ></IcomoonIcon>
-            </View>
-          ),
-        }}
-      />
-      <Tabs.Screen
+        contentStyle={{ backgroundColor: neutral50Color }}
+      >
+        <NativeTabs.Trigger.Label>Blackboards</NativeTabs.Trigger.Label>
+        <NativeTabs.Trigger.Icon
+          src={getCustomIcon('megaphone-simple')}
+          renderingMode="template"
+          md="campaign"
+        />
+      </NativeTabs.Trigger>
+
+      <NativeTabs.Trigger
         name="settings"
-        options={{
-          tabBarLabel: ({ color }) => (
-            <ThemedText color={color} type="caption" numberOfLines={1}>
-              Einstellungen
-            </ThemedText>
-          ),
-          tabBarIcon: ({ focused, color }) => (
-            <View
-              style={{
-                backgroundColor: focused ? primary100Color : 'transparent',
-                width: 60,
-                height: 30,
-                justifyContent: 'center',
-                alignItems: 'center',
-                borderRadius: 10,
-              }}
-            >
-              <IcomoonIcon
-                color={color}
-                name="wrench"
-                size={tabBarIconSize}
-              ></IcomoonIcon>
-            </View>
-          ),
-        }}
-      />
-    </Tabs>
+        contentStyle={{ backgroundColor: neutral50Color }}
+      >
+        <NativeTabs.Trigger.Label>Einstellungen</NativeTabs.Trigger.Label>
+        <NativeTabs.Trigger.Icon
+          src={getCustomIcon('wrench')}
+          renderingMode="template"
+          md="settings"
+        />
+      </NativeTabs.Trigger>
+    </NativeTabs>
   );
 }
