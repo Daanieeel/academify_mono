@@ -1,12 +1,12 @@
-import { ThemedText } from '@/components/themed-text';
-import { useThemeColor } from '@/hooks/use-theme-color';
 import React from 'react';
-import { StyleProp, StyleSheet, View, ViewStyle } from 'react-native';
+import { StyleProp, View, ViewStyle } from 'react-native';
+import { Text } from '@/components/ui/text';
 
 type LandingPageSpeachBubbleProps = {
   type: 'normal' | 'inverted';
   content: string;
   style?: StyleProp<ViewStyle>;
+  className?: string;
 };
 
 const LandingPageSpeachBubble = ({
@@ -14,30 +14,21 @@ const LandingPageSpeachBubble = ({
   content,
   style,
 }: LandingPageSpeachBubbleProps) => {
-  const backgroundColor =
-    type === 'inverted'
-      ? useThemeColor({}, 'neutral-900')
-      : useThemeColor({}, 'neutral-200');
-  const textColor =
-    type === 'inverted'
-      ? useThemeColor({}, 'neutral-200')
-      : useThemeColor({}, 'neutral-900');
+  const bgColorClass =
+    type === 'inverted' ? 'bg-neutral-900' : 'bg-neutral-200';
+  const textColorClass =
+    type === 'inverted' ? 'text-neutral-200' : 'text-neutral-900';
 
   return (
-    <View style={[styles['bubble'], { backgroundColor }, style]}>
-      <ThemedText type="heading2" color={textColor}>
+    <View
+      className={`rounded-[18px] max-w-[70%] p-[12px] ${bgColorClass}`}
+      style={style}
+    >
+      <Text variant="heading2" className={textColorClass}>
         {content}
-      </ThemedText>
+      </Text>
     </View>
   );
 };
-
-const styles = StyleSheet.create({
-  bubble: {
-    borderRadius: 18,
-    maxWidth: '70%',
-    padding: 12,
-  },
-});
 
 export default LandingPageSpeachBubble;

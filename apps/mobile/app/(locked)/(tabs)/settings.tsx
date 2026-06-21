@@ -1,16 +1,16 @@
 import ThemedProfilePreview from '@/components/pages/settings/themed-profile-preview';
+import { Separator } from '@/components/ui/separator';
+
 import ThemedSettingsItem, {
   ThemedSettingsItemProp,
 } from '@/components/pages/settings/themed-settings-item';
-import ThemedDivider from '@/components/themed-divider';
 import ThemedHeader from '@/components/themed-header';
 import ThemedPressable from '@/components/themed-pressable';
 import ThemedSearchBar from '@/components/themed-search-bar';
 import { useSession } from '@/context/auth-context';
-import { useThemeColor } from '@/hooks/use-theme-color';
 import { Stack, useRouter } from 'expo-router';
 import React, { useState } from 'react';
-import { ScrollView, StyleSheet, View } from 'react-native';
+import { ScrollView, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 const settingsItems: ThemedSettingsItemProp[] = [
@@ -47,8 +47,6 @@ const settingsItems: ThemedSettingsItemProp[] = [
 ];
 
 const Settings = () => {
-  const neutral50Color = useThemeColor({}, 'neutral-50');
-
   const [searchBarValue, setSearchBarValue] = useState('');
   const { signOut } = useSession();
   const router = useRouter();
@@ -75,14 +73,7 @@ const Settings = () => {
   };
 
   return (
-    <View
-      style={[
-        styles['main-container'],
-        {
-          backgroundColor: neutral50Color,
-        },
-      ]}
-    >
+    <View className="flex-1 bg-neutral-50">
       <SafeAreaView>
         <Stack.Screen options={{ headerShown: false }}></Stack.Screen>
         <ThemedHeader
@@ -101,7 +92,7 @@ const Settings = () => {
         contentContainerStyle={{
           paddingBottom: 50,
         }}
-        style={styles['scroll-view']}
+        className="px-[15px]"
       >
         <ThemedPressable onPress={() => {}}>
           <ThemedProfilePreview
@@ -121,11 +112,9 @@ const Settings = () => {
           ></ThemedProfilePreview>
         </ThemedPressable>
 
-        <ThemedDivider
-          style={{ marginVertical: 20, marginHorizontal: 20 }}
-        ></ThemedDivider>
+        <Separator className="my-[20px] mx-[20px]"></Separator>
 
-        <View style={styles['settings-items-container']}>
+        <View className="gap-[10px]">
           {settingsItems.map((item, key) => (
             <ThemedPressable
               key={key}
@@ -139,17 +128,5 @@ const Settings = () => {
     </View>
   );
 };
-
-const styles = StyleSheet.create({
-  'main-container': {
-    flex: 1,
-  },
-  'scroll-view': {
-    paddingHorizontal: 15,
-  },
-  'settings-items-container': {
-    gap: 10,
-  },
-});
 
 export default Settings;

@@ -1,20 +1,19 @@
-import SimpleButton from '@/components/buttons/simple-button';
-import SmallButton from '@/components/buttons/small-button';
+import { Button } from '@/components/ui/button';
+import { Icon } from '@/components/ui/icon';
+import { Text } from '@/components/ui/text';
 import ThemedModal from '@/components/modals/themed-modal';
+import { Avatar } from '@/components/ui/avatar';
+import { Separator } from '@/components/ui/separator';
+import { Input } from '@/components/ui/input';
+
 import ThemedListPreviewItem, {
   ThemedListPreviewItemProps,
 } from '@/components/modals/themed-picker-modal/themed-list-preview-item';
 import ThemedPickerModal from '@/components/modals/themed-picker-modal/themed-picker-modal';
-import ProfilePic from '@/components/profile-pic';
-import ThemedDivider from '@/components/themed-divider';
-import ThemedSlider from '@/components/themed-slider';
-import { ThemedText } from '@/components/themed-text';
-import ThemedTextField from '@/components/themed-text-field';
 import APPLICATION_CONSTANTS from '@/constants/strings';
 import { api, type Contact } from '@/lib/api-client';
-import { useThemeColor } from '@/hooks/use-theme-color';
 import React, { useEffect, useState } from 'react';
-import { ScrollView, StyleSheet, View } from 'react-native';
+import { ScrollView, View } from 'react-native';
 import ThemedPressable from '../themed-pressable';
 import ThemedImagePickerModal, {
   IMAGE_URIS,
@@ -35,6 +34,7 @@ const MOCK_CLASSES: ThemedListPreviewItemProps[] = [
 
 export type ThemedCreateChatModalProps = {
   visible: boolean;
+  mode: 'single' | 'group';
   onRequestClose: () => void;
   onChatCreated: (chatId: string) => void;
 };
@@ -45,43 +45,23 @@ export type ThemedBentoBoxProps = {
 };
 
 const ThemedBentoBox = (props: ThemedBentoBoxProps) => {
-  const backgroundColor = useThemeColor({}, 'neutral-50');
-  const textColor = useThemeColor({}, 'neutral-600');
-
   return (
-    <View
-      style={{
-        backgroundColor,
-        borderRadius: 18,
-      }}
-    >
+    <View className="bg-neutral-50 rounded-[18px]">
       {props.label && (
-        <ThemedText
-          style={{
-            paddingTop: 15,
-            paddingLeft: 15,
-          }}
-          color={textColor}
-          type="caption"
+        <Text
+          className="pt-[15px] pl-[15px] text-neutral-600"
+          variant="caption"
         >
           {props.label}
-        </ThemedText>
+        </Text>
       )}
-      <View
-        style={{
-          paddingHorizontal: 20,
-          paddingTop: 15,
-          paddingBottom: 10,
-        }}
-      >
-        {props.children}
-      </View>
+      <View className="px-[20px] pt-[15px] pb-[10px]">{props.children}</View>
     </View>
   );
 };
 
 const ThemedCreateChatModal = (props: ThemedCreateChatModalProps) => {
-  const [currentTab, setCurrentTab] = useState<number>(0);
+  const isGroup = props.mode === 'group';
   const [selectUserModalShown, setSelectUserModalShown] = useState(false);
   const [avatarModalShown, setAvatarModalShown] = useState(false);
   const [avatarSource, setAvatarSource] = useState<string | undefined>(
@@ -89,17 +69,12 @@ const ThemedCreateChatModal = (props: ThemedCreateChatModalProps) => {
   );
   const [contacts, setContacts] = useState<Contact[]>([]);
 
-  const neutral600Color = useThemeColor({}, 'neutral-600');
-  const chatPreviewBackgroundColor = useThemeColor({}, 'neutral-50');
-
   useEffect(() => {
-    if (!props.visible) {return;}
+    if (!props.visible) {
+      return;
+    }
     api.getContacts().then(setContacts).catch(console.error);
   }, [props.visible]);
-
-  const onThemedSliderPress = (newIndex: number) => {
-    setCurrentTab(newIndex);
-  };
 
   const onContactPressed = async (peerUserId: string) => {
     const { chat_id } = await api.createChat(peerUserId);
@@ -108,7 +83,6 @@ const ThemedCreateChatModal = (props: ThemedCreateChatModalProps) => {
 
   const onRequestClosedTriggered = () => {
     props.onRequestClose();
-    setCurrentTab(0);
   };
 
   const onAddUserPressed = () => {
@@ -141,80 +115,65 @@ const ThemedCreateChatModal = (props: ThemedCreateChatModalProps) => {
       ></ThemedPickerModal>
 
       {/* Button for creating the group */}
-      {currentTab === 0 ? (
-        <View style={styles['finish-button']}>
-          <SimpleButton
-            icomoonIcon="check"
-            label={'Gruppe erstellen'}
-            onPress={onCreateChatPressed}
-            type={'primary'}
-          ></SimpleButton>
+      {isGroup ? (
+        <View className="absolute bottom-[30px] left-[15px] right-[15px] z-[999]">
+          <Button variant="primary" size="lg" onPress={onCreateChatPressed}>
+            <Text>Gruppe erstellen</Text>
+            <Icon name="check" size={24} />
+          </Button>
         </View>
       ) : undefined}
 
-      {/* Slider to switch between creating a group chat or single chat */}
-      <View style={[styles['slider-view']]}>
-        <ThemedSlider
-          onPressCallBack={onThemedSliderPress}
-          options={[
-            APPLICATION_CONSTANTS.CREATE_CHAT_MODAL_SLIDER_OPTION_1,
-            APPLICATION_CONSTANTS.CREATE_CHAT_MODAL_SLIDER_OPTION_2,
-          ]}
-          currentOption={currentTab}
-        ></ThemedSlider>
+      <View className="pt-[20px] px-[15px] pb-[10px]">
+        <Text variant="heading2">
+          {isGroup
+            ? APPLICATION_CONSTANTS.CREATE_CHAT_MODAL_SLIDER_OPTION_1
+            : APPLICATION_CONSTANTS.CREATE_CHAT_MODAL_SLIDER_OPTION_2}
+        </Text>
       </View>
 
-      {/* Following is based on the slider position */}
-      {currentTab === 0 ? (
+      {isGroup ? (
         <ScrollView
           contentContainerStyle={{
             gap: 40,
             paddingBottom: 150,
           }}
-          style={[styles['scroll-container']]}
+          className="pt-[20px] px-[15px]"
         >
           {/* For creating a group avatar */}
 
-          <View style={styles['avatar-wrapper']}>
-            <ProfilePic
+          <View className="flex-row justify-center pt-[30px]">
+            <Avatar
               onPress={onAvatarPressed}
               source={avatarSource}
-              avatarType="group"
+              variant="group"
               showBorder={false}
               size="extra-large"
-            ></ProfilePic>
+            ></Avatar>
           </View>
 
           {/* Container for the text field where the user can add the group name */}
 
           <View>
-            <ThemedTextField
-              type="big"
-              placeholder="Gruppenname"
-            ></ThemedTextField>
-            <ThemedText
-              style={styles['text-field-description']}
-              color={neutral600Color}
-              type="caption"
+            <Input variant="big" placeholder="Gruppenname"></Input>
+            <Text
+              className="px-[15px] pt-[15px] text-neutral-600"
+              variant="caption"
             >
               {APPLICATION_CONSTANTS.CREATE_CHAT_MODAL_GROUP_NAME_INFO}
-            </ThemedText>
+            </Text>
           </View>
 
           {/* Container for the text field where the user can add the group description */}
 
           <View>
-            <ThemedTextField
-              type="normal"
-              placeholder="Gruppenbeschreibung"
-            ></ThemedTextField>
-            <ThemedText
-              style={styles['text-field-description']}
-              color={neutral600Color}
-              type="caption"
+            <Input variant="normal" placeholder="Gruppenbeschreibung"></Input>
+            <Text
+              className="px-[15px] pt-[15px] text-neutral-600"
+              variant="caption"
             >
               {APPLICATION_CONSTANTS.CREATE_CHAT_MODAL_GROUP_DESCRIPTION_INFO}
-            </ThemedText>
+            </Text>
           </View>
 
           {/* Bento box for showing classes and adding additional ones */}
@@ -225,18 +184,17 @@ const ThemedCreateChatModal = (props: ThemedCreateChatModalProps) => {
                 <ThemedListPreviewItem
                   {...props}
                   showRemoveButton
-                  backgroundColor="transparent"
+                  className="bg-transparent"
                   paddingVertical={10}
                 ></ThemedListPreviewItem>
-                <ThemedDivider></ThemedDivider>
+                <Separator></Separator>
               </View>
             ))}
-            <View style={styles['add-additional-button-container']}>
-              <SmallButton
-                type="normal"
-                iconName="plus"
-                label="Weitere Klasse hinzufügen"
-              ></SmallButton>
+            <View className="pt-[20px] pb-[10px] flex-row justify-center">
+              <Button variant="normal">
+                <Icon name="plus" size={18} />
+                <Text>Weitere Klasse hinzufügen</Text>
+              </Button>
             </View>
           </ThemedBentoBox>
 
@@ -247,25 +205,18 @@ const ThemedCreateChatModal = (props: ThemedCreateChatModalProps) => {
                 <ThemedListPreviewItem
                   {...props}
                   showRemoveButton
-                  backgroundColor="transparent"
+                  className="bg-transparent"
                   paddingVertical={10}
                 ></ThemedListPreviewItem>
-                <ThemedDivider></ThemedDivider>
+                <Separator></Separator>
               </View>
             ))}
-            <View
-              style={{
-                flexDirection: 'row',
-                justifyContent: 'center',
-              }}
-            >
-              <View style={styles['add-additional-button-container']}>
-                <SmallButton
-                  type="normal"
-                  onPress={onAddUserPressed}
-                  iconName="plus"
-                  label="Weitere Benutzer hinzufügen"
-                ></SmallButton>
+            <View className="flex-row justify-center">
+              <View className="pt-[20px] pb-[10px] flex-row justify-center">
+                <Button variant="normal" onPress={onAddUserPressed}>
+                  <Icon name="plus" size={18} />
+                  <Text>Weitere Benutzer hinzufügen</Text>
+                </Button>
               </View>
             </View>
           </ThemedBentoBox>
@@ -276,7 +227,7 @@ const ThemedCreateChatModal = (props: ThemedCreateChatModalProps) => {
             gap: 10,
             paddingTop: 40,
           }}
-          style={styles.chatScrollView}
+          className="px-[15px]"
         >
           {contacts.map((contact) => {
             return (
@@ -288,7 +239,7 @@ const ThemedCreateChatModal = (props: ThemedCreateChatModalProps) => {
                   borderRadius={18}
                   userId={contact.user_id}
                   heading={contact.display_name}
-                  backgroundColor={chatPreviewBackgroundColor}
+                  className="bg-neutral-50"
                   paddingVertical={15}
                   paddingHorizontal={15}
                 />
@@ -302,40 +253,3 @@ const ThemedCreateChatModal = (props: ThemedCreateChatModalProps) => {
 };
 
 export default ThemedCreateChatModal;
-
-const styles = StyleSheet.create({
-  'slider-view': {
-    paddingTop: 20,
-    paddingHorizontal: 15,
-    paddingBottom: 10,
-  },
-  'scroll-container': {
-    paddingTop: 20,
-    paddingHorizontal: 15,
-  },
-  'add-additional-button-container': {
-    paddingTop: 20,
-    paddingBottom: 10,
-    flexDirection: 'row',
-    justifyContent: 'center',
-  },
-  'finish-button': {
-    position: 'absolute',
-    bottom: 30,
-    left: 15,
-    right: 15,
-    zIndex: 999,
-  },
-  'text-field-description': {
-    paddingHorizontal: 15,
-    paddingTop: 15,
-  },
-  'avatar-wrapper': {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    paddingTop: 30,
-  },
-  chatScrollView: {
-    paddingHorizontal: 15,
-  },
-});

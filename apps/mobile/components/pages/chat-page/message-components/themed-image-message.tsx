@@ -1,8 +1,7 @@
-import IcomoonIcon from '@/components/IcomoonIcon';
-import { ThemedText } from '@/components/themed-text';
-import { useThemeColor } from '@/hooks/use-theme-color';
 import React, { useState } from 'react';
-import { Image, StyleSheet, Text, View } from 'react-native';
+import { Image, View } from 'react-native';
+import { Text } from '@/components/ui/text';
+import { Icon } from '@/components/ui/icon';
 
 export type ThemedImageMessageProps = {
   sources: string[];
@@ -25,7 +24,7 @@ const ThemedImageMessage = ({
   switch (true) {
     case numberOfPictures === 1:
       return (
-        <View style={styles['image-1-container']}>
+        <View className="w-[100%] overflow-hidden bg-transparent rounded-tl-[13px] rounded-tr-[13px] rounded-bl-[5px] rounded-br-[5px]">
           <Image
             height={400}
             width={undefined}
@@ -37,16 +36,16 @@ const ThemedImageMessage = ({
     case numberOfPictures === 2: {
       const scaleFactor = 2.02;
       return (
-        <View onLayout={onLayout} style={styles['image-2-3-4-inner-container']}>
+        <View onLayout={onLayout} className="flex-row justify-between w-[100%]">
           <Image
-            style={styles['image-2-3-4']}
+            className="rounded-[13px]"
             height={width / scaleFactor}
             width={width / scaleFactor}
             resizeMode="cover"
             source={{ uri: props.sources[0] }}
           ></Image>
           <Image
-            style={styles['image-2-3-4']}
+            className="rounded-[13px]"
             height={width / scaleFactor}
             width={width / scaleFactor}
             resizeMode="cover"
@@ -58,20 +57,20 @@ const ThemedImageMessage = ({
     case numberOfPictures === 3: {
       const scaleFactor = 2.02;
       return (
-        <View style={styles['image-3-4-outer-container']}>
+        <View className="flex-col gap-[3px]">
           <View
             onLayout={onLayout}
-            style={styles['image-2-3-4-inner-container']}
+            className="flex-row justify-between w-[100%]"
           >
             <Image
-              style={styles['image-2-3-4']}
+              className="rounded-[13px]"
               height={width / scaleFactor}
               width={width / scaleFactor}
               resizeMode="cover"
               source={{ uri: props.sources[0] }}
             ></Image>
             <Image
-              style={styles['image-2-3-4']}
+              className="rounded-[13px]"
               height={width / scaleFactor}
               width={width / scaleFactor}
               resizeMode="cover"
@@ -80,10 +79,10 @@ const ThemedImageMessage = ({
           </View>
           <View
             onLayout={onLayout}
-            style={styles['image-2-3-4-inner-container']}
+            className="flex-row justify-between w-[100%]"
           >
             <Image
-              style={styles['image-2-3-4']}
+              className="rounded-[13px]"
               height={width / scaleFactor}
               width={width / scaleFactor}
               resizeMode="cover"
@@ -95,28 +94,22 @@ const ThemedImageMessage = ({
     }
     case numberOfPictures >= 4: {
       const scaleFactor = 2.02;
-      const backgroundColor = !userIsSender
-        ? useThemeColor({}, 'primary-100')
-        : useThemeColor({}, 'neutral-100');
-      const textColor = !userIsSender
-        ? useThemeColor({}, 'primary-900')
-        : useThemeColor({}, 'neutral-900');
       const numberOfPicturesRemaining = numberOfPictures - 3;
       return (
-        <View style={styles['image-3-4-outer-container']}>
+        <View className="flex-col gap-[3px]">
           <View
             onLayout={onLayout}
-            style={styles['image-2-3-4-inner-container']}
+            className="flex-row justify-between w-[100%]"
           >
             <Image
-              style={styles['image-2-3-4']}
+              className="rounded-[13px]"
               height={width / scaleFactor}
               width={width / scaleFactor}
               resizeMode="cover"
               source={{ uri: props.sources[0] }}
             ></Image>
             <Image
-              style={styles['image-2-3-4']}
+              className="rounded-[13px]"
               height={width / scaleFactor}
               width={width / scaleFactor}
               resizeMode="cover"
@@ -125,34 +118,37 @@ const ThemedImageMessage = ({
           </View>
           <View
             onLayout={onLayout}
-            style={styles['image-2-3-4-inner-container']}
+            className="flex-row justify-between w-[100%]"
           >
             <Image
-              style={styles['image-2-3-4']}
+              className="rounded-[13px]"
               height={width / scaleFactor}
               width={width / scaleFactor}
               resizeMode="cover"
               source={{ uri: props.sources[2] }}
             ></Image>
             <View
-              style={[
-                {
-                  height: width / scaleFactor,
-                  width: width / scaleFactor,
-                  backgroundColor,
-                  borderRadius: 13,
-                },
-                styles['placeholder'],
-              ]}
+              className={`flex-col items-center justify-center gap-[5px] rounded-[13px] ${!userIsSender ? 'bg-primary-100' : 'bg-neutral-100'}`}
+              style={{
+                height: width / scaleFactor,
+                width: width / scaleFactor,
+              }}
             >
-              <IcomoonIcon
+              <Icon
                 size={35}
-                color={textColor}
+                className={
+                  !userIsSender ? 'text-primary-900' : 'text-neutral-900'
+                }
                 name="panorama"
-              ></IcomoonIcon>
-              <ThemedText color={textColor} type="caption">
+              ></Icon>
+              <Text
+                className={
+                  !userIsSender ? 'text-primary-900' : 'text-neutral-900'
+                }
+                variant="caption"
+              >
                 {'+ ' + numberOfPicturesRemaining + ' ' + 'Bilder'}
-              </ThemedText>
+              </Text>
             </View>
           </View>
         </View>
@@ -164,33 +160,4 @@ const ThemedImageMessage = ({
   }
 };
 
-const styles = StyleSheet.create({
-  'image-1-container': {
-    width: '100%',
-    overflow: 'hidden',
-    backgroundColor: 'transparent',
-    borderTopLeftRadius: 13,
-    borderTopRightRadius: 13,
-    borderBottomLeftRadius: 5,
-    borderBottomRightRadius: 5,
-  },
-  'image-2-3-4-inner-container': {
-    justifyContent: 'space-between',
-    width: '100%',
-    flexDirection: 'row',
-  },
-  'image-2-3-4': {
-    borderRadius: 13,
-  },
-  'image-3-4-outer-container': {
-    flexDirection: 'column',
-    gap: 3,
-  },
-  placeholder: {
-    flexDirection: 'column',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 5,
-  },
-});
 export default ThemedImageMessage;

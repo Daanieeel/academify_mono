@@ -8,7 +8,7 @@ import {
   useState,
   type PropsWithChildren,
 } from 'react';
-import { StyleSheet, View } from 'react-native';
+import { View } from 'react-native';
 import { WebView, type WebViewMessageEvent } from 'react-native-webview';
 
 // Real OpenMLS crypto, run inside a hidden WebView (see docs/adr/0010) since
@@ -145,7 +145,10 @@ export function MlsBridgeProvider({ children }: PropsWithChildren) {
           layout space in normal flow (seen as a flex:1 box eating the screen).
           Absolute-position it out of flow entirely so it can never displace
           real content regardless of WebView's internal default sizing. */}
-      <View style={styles.hiddenView} pointerEvents="none">
+      <View
+        className="absolute top-0 left-0 w-[1px] h-[1px] overflow-hidden"
+        pointerEvents="none"
+      >
         {/* WebView's own `style` stays inline rather than className — this is
             the exact prop that silently failed to size correctly before (see
             comment above), so it keeps the one styling path verified to work
@@ -162,14 +165,3 @@ export function MlsBridgeProvider({ children }: PropsWithChildren) {
     </MlsBridgeContext.Provider>
   );
 }
-
-const styles = StyleSheet.create({
-  hiddenView: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    width: 1,
-    height: 1,
-    overflow: 'hidden',
-  },
-});

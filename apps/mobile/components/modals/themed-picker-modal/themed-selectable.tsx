@@ -1,7 +1,8 @@
 import { useHaptic } from '@/hooks/use-haptics';
-import { useThemeColor } from '@/hooks/use-theme-color';
+import { cn } from '@/lib/utils';
+import * as CheckboxPrimitive from '@rn-primitives/checkbox';
 import React, { useRef } from 'react';
-import { Animated, Pressable } from 'react-native';
+import { Animated } from 'react-native';
 
 export type ThemedSelectableProps = {
   children?: React.ReactNode;
@@ -15,7 +16,6 @@ const ThemedSelectable = ({
   selected = false,
   ...props
 }: ThemedSelectableProps) => {
-  const borderColor = useThemeColor({}, 'neutral-900');
   const scale = useRef(new Animated.Value(1)).current;
   const haptic = useHaptic('medium');
 
@@ -36,34 +36,26 @@ const ThemedSelectable = ({
   };
 
   return (
-    <Pressable
-      onPressOut={handlePressOut}
-      onPressIn={handlePressIn}
-      onPress={() => {
-        if (props.onPress) {
-          props.onPress();
-        }
-        if (haptic) {
-          haptic();
-        }
+    <CheckboxPrimitive.Root
+      checked={selected}
+      onCheckedChange={() => {
+        props.onPress?.();
+        haptic?.();
       }}
+      onPressIn={handlePressIn}
+      onPressOut={handlePressOut}
+      asChild
     >
       <Animated.View
-        style={{
-          overflow: 'hidden',
-          borderRadius: 20,
-          borderColor: selected ? borderColor : 'transparent',
-          borderWidth: 2,
-          transform: [
-            {
-              scale,
-            },
-          ],
-        }}
+        className={cn(
+          'overflow-hidden rounded-[20px] border-[2px]',
+          selected ? 'border-neutral-900' : 'border-transparent',
+        )}
+        style={{ transform: [{ scale }] }}
       >
         {props.children}
       </Animated.View>
-    </Pressable>
+    </CheckboxPrimitive.Root>
   );
 };
 

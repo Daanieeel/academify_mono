@@ -1,10 +1,12 @@
-import SimpleButton from '@/components/buttons/simple-button';
 import LandingPageSpeachBubble from '@/components/pages/landing-page/landing-page-speach-bubble';
+import { Button } from '@/components/ui/button';
+import { Icon } from '@/components/ui/icon';
+import { Text } from '@/components/ui/text';
 import APPLICATION_CONSTANTS from '@/constants/strings';
 import { useThemeColor } from '@/hooks/use-theme-color';
 import { Stack, useRouter } from 'expo-router';
 import React from 'react';
-import { Image, StyleSheet, View } from 'react-native';
+import { Image, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 const LandingPage = () => {
@@ -20,51 +22,50 @@ const LandingPage = () => {
   return (
     <SafeAreaView className="flex-1 bg-neutral-50">
       <Stack.Screen options={{ headerShown: false }}></Stack.Screen>
-      <View style={{ flex: 1, flexDirection: 'column', padding: 15 }}>
-        <View style={{ flex: 1 }}>
-          <View style={{ flexShrink: 1, zIndex: 1 }} className="w-100vw">
+      <View className="flex-1 flex-col p-[15px]">
+        <View className="flex-1">
+          <View className="w-100vw shrink z-[1]">
             <LandingPageSpeachBubble
-              style={{ maxWidth: '65%', transform: [{ rotate: '352deg' }] }}
+              className="max-w-[65%]"
+              style={{ transform: [{ rotate: '352deg' }] }}
               type="inverted"
               content={APPLICATION_CONSTANTS.LANDING_BUBBLE_1}
             ></LandingPageSpeachBubble>
           </View>
-          <View
-            style={{ flexShrink: 1 }}
-            className="w-100vw display-flex items-end"
-          >
+          <View className="w-100vw display-flex items-end shrink">
             <LandingPageSpeachBubble
-              style={{ maxWidth: '75%', transform: [{ rotate: '4deg' }] }}
+              className="max-w-[75%]"
+              style={{ transform: [{ rotate: '4deg' }] }}
               type="normal"
               content={APPLICATION_CONSTANTS.LANDING_BUBBLE_2}
             ></LandingPageSpeachBubble>
           </View>
-          <View style={styles.imageView}>
+          <View className="flex-1">
             <Image
-              style={styles.image}
+              className="flex-1 h-full w-[50%]"
+              style={{ resizeMode: 'contain' }}
               source={require('@/assets/images/app/wild-boar.png')}
             ></Image>
           </View>
         </View>
-        <View style={{ flexShrink: 1, gap: 10 }}>
-          <SimpleButton
-            label={APPLICATION_CONSTANTS.LANDING_BUTTON_1}
-            type="primary"
-            icomoonIcon="arrow-right"
-            onPress={handleLoginButtonPress}
-          ></SimpleButton>
-          <SimpleButton
-            dynamicIconLeft={() => (
-              <Image
-                style={styles.untisIcon}
-                source={require('@/assets/images/app/untis-3x.png')}
-              />
-            )}
-            label={APPLICATION_CONSTANTS.LANDING_BUTTON_2}
-            type="secondary"
-            customTextColor={useThemeColor({}, 'untis-orange')}
+        <View className="shrink gap-[10px]">
+          <Button variant="primary" size="lg" onPress={handleLoginButtonPress}>
+            <Text>{APPLICATION_CONSTANTS.LANDING_BUTTON_1}</Text>
+            <Icon name="arrow-right" size={24} />
+          </Button>
+          <Button
+            variant="secondary"
+            size="lg"
             onPress={handleUntisLoginButtonPress}
-          ></SimpleButton>
+          >
+            <Image
+              className="h-[26px] w-[26px]"
+              source={require('@/assets/images/app/untis-3x.png')}
+            />
+            <Text color={useThemeColor({}, 'untis-orange')}>
+              {APPLICATION_CONSTANTS.LANDING_BUTTON_2}
+            </Text>
+          </Button>
         </View>
       </View>
     </SafeAreaView>
@@ -72,20 +73,5 @@ const LandingPage = () => {
 };
 
 // Style Sheet for additional styles (object-contain not implemented in nativewind)
-const styles = StyleSheet.create({
-  imageView: {
-    flex: 1,
-  },
-  image: {
-    flex: 1,
-    height: '100%',
-    width: '50%',
-    resizeMode: 'contain',
-  },
-  untisIcon: {
-    height: 26,
-    width: 26,
-  },
-});
 
 export default LandingPage;

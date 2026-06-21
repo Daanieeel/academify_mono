@@ -1,34 +1,38 @@
-import SmallButton from '@/components/buttons/small-button';
 import ThemedCreateChatModal from '@/components/modals/themed-create-chat-modal';
+import { Avatar } from '@/components/ui/avatar';
+import { Separator } from '@/components/ui/separator';
+
 import ThemedChatPreview, {
   type ThemedChatPreviewProps,
 } from '@/components/pages/chats/themed-chat-preview';
 
-import ProfilePic from '@/components/profile-pic';
-import ThemedDivider from '@/components/themed-divider';
 import ThemedErrorBackground from '@/components/themed-error-background';
 import ThemedHeader from '@/components/themed-header';
 import ThemedPressable from '@/components/themed-pressable';
 import ThemedSearchBar from '@/components/themed-search-bar';
 import APPLICATION_CONSTANTS from '@/constants/strings';
-import { useThemeColor } from '@/hooks/use-theme-color';
 import { useChats } from '@/hooks/use-chats';
 import { formatChatTimestamp } from '@/lib/format';
 import type { ChatListEntry } from '@/lib/api-client';
 import { router, Stack } from 'expo-router';
-import React, { useState } from 'react';
-import { StyleSheet, View } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { View } from 'react-native';
 import Animated, {
   Extrapolation,
   interpolate,
   useAnimatedScrollHandler,
   useAnimatedStyle,
   useSharedValue,
+  withSpring,
 } from 'react-native-reanimated';
 import {
   SafeAreaView,
   useSafeAreaInsets,
 } from 'react-native-safe-area-context';
+import { Button } from '@/components/ui/button';
+import { Icon } from '@/components/ui/icon';
+import { Skeleton } from '@/components/ui/skeleton';
+import { Text } from '@/components/ui/text';
 
 const HEADER_MAX_HEIGHT = 150;
 const HEADER_MIN_HEIGHT = 75;
@@ -50,15 +54,37 @@ function toPreviewProps(chat: ChatListEntry): ThemedChatPreviewProps {
 }
 
 const Chats = () => {
-  const neutral50Color = useThemeColor({}, 'neutral-50');
   const safeArea = useSafeAreaInsets();
   const bottomInset = safeArea.bottom > 0 ? 83 : 56;
 
   const scrollY = useSharedValue(0);
-  const { chats } = useChats();
+  const { chats, loading } = useChats();
 
   const [searchText, setSearchText] = useState('');
   const [modalShown, setModalShown] = useState(false); // Modal for create a new chat
+  const [chatModalMode, setChatModalMode] = useState<'single' | 'group'>(
+    'group',
+  );
+  const [newChatMenuOpen, setNewChatMenuOpen] = useState(false);
+  const newChatMenuProgress = useSharedValue(0);
+
+  useEffect(() => {
+    newChatMenuProgress.value = withSpring(newChatMenuOpen ? 1 : 0, {
+      damping: 26,
+      stiffness: 320,
+      mass: 0.5,
+    });
+  }, [newChatMenuOpen, newChatMenuProgress]);
+
+  const newChatOptionsStyle = useAnimatedStyle(() => ({
+    opacity: newChatMenuProgress.value,
+    transform: [{ scale: 0.85 + 0.15 * newChatMenuProgress.value }],
+  }));
+
+  const newChatMainButtonStyle = useAnimatedStyle(() => ({
+    opacity: 1 - newChatMenuProgress.value,
+    transform: [{ scale: 1 - 0.1 * newChatMenuProgress.value }],
+  }));
 
   const scrollHandler = useAnimatedScrollHandler({
     onScroll: (event) => {
@@ -80,7 +106,13 @@ const Chats = () => {
     setSearchText(input);
   };
 
-  const onNewChatPressed = () => {
+  const onNewChatTogglePressed = () => {
+    setNewChatMenuOpen((prev) => !prev);
+  };
+
+  const onChatModeSelected = (mode: 'single' | 'group') => {
+    setChatModalMode(mode);
+    setNewChatMenuOpen(false);
     setModalShown(true);
   };
 
@@ -94,9 +126,7 @@ const Chats = () => {
   };
 
   return (
-    <View
-      style={[styles['main-container'], { backgroundColor: neutral50Color }]}
-    >
+    <View className="flex-1 bg-neutral-50">
       <Stack.Screen
         options={{
           headerShown: false,
@@ -105,101 +135,159 @@ const Chats = () => {
 
       <ThemedCreateChatModal
         visible={modalShown}
+        mode={chatModalMode}
         onRequestClose={() => setModalShown(false)}
         onChatCreated={onChatCreated}
       ></ThemedCreateChatModal>
 
       {/* HEADER */}
       <SafeAreaView edges={['top']}>
-        <Animated.View style={[headerStyle, { overflow: 'hidden' }]}>
-          <ThemedHeader
-            headerTitle={APPLICATION_CONSTANTS.CHATS_PAGE_HEADER}
-            headerSearchBar={
-              <ThemedSearchBar
-                placeholder={
-                  APPLICATION_CONSTANTS.CHATS_PAGE_SEARCH_BAR_PLACEHOLDER
-                }
-                value={searchText}
-                onInputChanged={onSearchBarInputChanged}
-              ></ThemedSearchBar>
-            }
-            headerCompRight={<ProfilePic size="small"></ProfilePic>}
-          ></ThemedHeader>
+        <Animated.View style={headerStyle}>
+          <View className="overflow-hidden">
+            <ThemedHeader
+              headerTitle={APPLICATION_CONSTANTS.CHATS_PAGE_HEADER}
+              headerSearchBar={
+                <ThemedSearchBar
+                  placeholder={
+                    APPLICATION_CONSTANTS.CHATS_PAGE_SEARCH_BAR_PLACEHOLDER
+                  }
+                  value={searchText}
+                  onInputChanged={onSearchBarInputChanged}
+                ></ThemedSearchBar>
+              }
+              headerCompRight={<Avatar size="small"></Avatar>}
+            ></ThemedHeader>
+          </View>
         </Animated.View>
       </SafeAreaView>
 
-      {/* If no chats are available: INFO */}
-      {chats.length === 0 ? (
-        <View
-          style={{
-            width: '100%',
-            height: '60%',
-            alignItems: 'center',
-            justifyContent: 'center',
-          }}
-        >
-          <ThemedErrorBackground
-            title={APPLICATION_CONSTANTS.CHATS_PAGE_NO_CHATS_AVAILABLE_HEADING}
-            description={
-              APPLICATION_CONSTANTS.CHATS_PAGE_NO_CHATS_AVAILABLE_DESCRIPTION
-            }
-          ></ThemedErrorBackground>
+      {/* Loading state: skeleton placeholder rows */}
+      {loading ? (
+        <View className="pt-[10px] px-[15px] gap-[15px]">
+          {[0, 1, 2, 3, 4, 5].map((index) => (
+            <View
+              key={index}
+              className="h-[80px] items-center w-full flex-row gap-[15px]"
+            >
+              <Skeleton className="h-[45px] w-[45px] rounded-full" />
+              <View className="gap-[10px] flex-1">
+                <Skeleton className="h-[14px] w-[50%]" />
+                <Skeleton className="h-[14px] w-[80%]" />
+              </View>
+            </View>
+          ))}
         </View>
-      ) : undefined}
+      ) : (
+        <>
+          {/* If no chats are available: INFO */}
+          {chats.length === 0 ? (
+            <View className="w-full h-[60%] items-center justify-center">
+              <ThemedErrorBackground
+                title={
+                  APPLICATION_CONSTANTS.CHATS_PAGE_NO_CHATS_AVAILABLE_HEADING
+                }
+                description={
+                  APPLICATION_CONSTANTS.CHATS_PAGE_NO_CHATS_AVAILABLE_DESCRIPTION
+                }
+              ></ThemedErrorBackground>
+            </View>
+          ) : undefined}
 
-      {/* LIST */}
-      <Animated.FlatList
-        onScroll={scrollHandler}
-        contentContainerStyle={{ paddingBottom: 100 }}
-        ItemSeparatorComponent={() => <ThemedDivider></ThemedDivider>}
-        style={styles['flat-list']}
-        data={chats}
-        keyExtractor={(chat) => chat.chat_id}
-        renderItem={({ item }) => (
-          <ThemedPressable onPress={() => onChatPressed(item.chat_id)}>
-            <ThemedChatPreview {...toPreviewProps(item)}></ThemedChatPreview>
-          </ThemedPressable>
-        )}
-      ></Animated.FlatList>
+          {/* LIST */}
+          <Animated.FlatList
+            onScroll={scrollHandler}
+            contentContainerStyle={{ paddingBottom: 100 }}
+            ItemSeparatorComponent={() => <Separator></Separator>}
+            className="pt-[10px] pb-[50px] px-[15px]"
+            data={chats}
+            keyExtractor={(chat) => chat.chat_id}
+            renderItem={({ item }) => (
+              <ThemedPressable onPress={() => onChatPressed(item.chat_id)}>
+                <ThemedChatPreview
+                  {...toPreviewProps(item)}
+                ></ThemedChatPreview>
+              </ThemedPressable>
+            )}
+          ></Animated.FlatList>
+        </>
+      )}
 
       <View
-        style={[
-          styles['new-chat-button-wrapper'],
-          { bottom: bottomInset + 15 },
-        ]}
+        className="absolute left-0 right-0"
+        style={{ bottom: bottomInset + 15, height: 60 }}
       >
-        <SmallButton
-          iconName="magic-wand"
-          label={APPLICATION_CONSTANTS.CHATS_PAGE_NEW_CHAT_BUTTON_LABEL}
-          onPress={onNewChatPressed}
-          type={'inverted'}
-          customPaddingVertical={14}
-          customPaddingHorizontal={24}
-          customBorderRadius={22}
-          iconSize={22}
-        />
+        <Animated.View
+          style={[
+            {
+              position: 'absolute',
+              top: 0,
+              bottom: 0,
+              left: 0,
+              right: 0,
+              alignItems: 'center',
+              justifyContent: 'center',
+            },
+            newChatOptionsStyle,
+          ]}
+          pointerEvents={newChatMenuOpen ? 'auto' : 'none'}
+        >
+          <View className="flex-row items-center gap-[8px]">
+            <Button
+              variant="inverted"
+              onPress={() => onChatModeSelected('single')}
+              className="px-[16px] py-[14px] rounded-[22px]"
+            >
+              <Icon name="user" size={20} />
+              <Text>Einzel</Text>
+            </Button>
+            <Button
+              variant="inverted"
+              onPress={() => onChatModeSelected('group')}
+              className="px-[16px] py-[14px] rounded-[22px]"
+            >
+              <Icon name="users-three" size={20} />
+              <Text>Gruppe</Text>
+            </Button>
+            <Button
+              variant="normal"
+              onPress={onNewChatTogglePressed}
+              className="p-0 rounded-[24px]"
+              style={{ height: 48, width: 48 }}
+            >
+              <Icon name="x" size={22} className="text-neutral-900" />
+            </Button>
+          </View>
+        </Animated.View>
+
+        <Animated.View
+          style={[
+            {
+              position: 'absolute',
+              top: 0,
+              bottom: 0,
+              left: 0,
+              right: 0,
+              alignItems: 'center',
+              justifyContent: 'center',
+            },
+            newChatMainButtonStyle,
+          ]}
+          pointerEvents={newChatMenuOpen ? 'none' : 'auto'}
+        >
+          <Button
+            variant="inverted"
+            onPress={onNewChatTogglePressed}
+            className="px-[24px] py-[14px] rounded-[22px]"
+          >
+            <Icon name="magic-wand" size={22} />
+            <Text>
+              {APPLICATION_CONSTANTS.CHATS_PAGE_NEW_CHAT_BUTTON_LABEL}
+            </Text>
+          </Button>
+        </Animated.View>
       </View>
     </View>
   );
 };
-
-const styles = StyleSheet.create({
-  'main-container': {
-    flex: 1,
-  },
-
-  'new-chat-button-wrapper': {
-    alignItems: 'center',
-    left: 0,
-    right: 0,
-    justifyContent: 'center',
-    position: 'absolute',
-  },
-  'flat-list': {
-    paddingTop: 10,
-    paddingBottom: 50,
-    paddingHorizontal: 15,
-  },
-});
 
 export default Chats;

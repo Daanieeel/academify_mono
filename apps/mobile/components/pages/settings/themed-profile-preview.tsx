@@ -1,9 +1,8 @@
-import IcomoonIcon from '@/components/IcomoonIcon';
-import ProfilePic from '@/components/profile-pic';
-import { ThemedText } from '@/components/themed-text';
-import { useThemeColor } from '@/hooks/use-theme-color';
 import React from 'react';
-import { StyleSheet, View } from 'react-native';
+import { View } from 'react-native';
+import { Text } from '@/components/ui/text';
+import { Icon } from '@/components/ui/icon';
+import { Avatar } from '@/components/ui/avatar';
 
 export type ThemedUserBadgeProps = {
   icomoonIconName: string;
@@ -11,30 +10,14 @@ export type ThemedUserBadgeProps = {
 };
 
 const ThemedUserBadge = (props: ThemedUserBadgeProps) => {
-  const primary900Color = useThemeColor({}, 'primary-900');
-  const primary100Color = useThemeColor({}, 'primary-100');
-
   const uppercaseLabel = props.label.toUpperCase();
 
   return (
-    <View
-      style={{
-        backgroundColor: primary900Color,
-        paddingHorizontal: 5,
-        borderRadius: 8,
-        paddingVertical: 5,
-        gap: 2,
-        alignItems: 'center',
-        flexDirection: 'row',
-      }}
-    >
-      <IcomoonIcon
-        name={props.icomoonIconName}
-        color={primary100Color}
-      ></IcomoonIcon>
-      <ThemedText type="caption" color={primary100Color}>
+    <View className="bg-primary-900 px-[5px] rounded-[8px] py-[5px] gap-[2px] items-center flex-row">
+      <Icon name={props.icomoonIconName} className="text-primary-100"></Icon>
+      <Text variant="caption" className="text-primary-100">
         {uppercaseLabel}
-      </ThemedText>
+      </Text>
     </View>
   );
 };
@@ -52,36 +35,16 @@ const ThemedProfilePreview = ({
   lastName = '',
   ...props
 }: ThemedProfilePreviewProps) => {
-  const neutral100Color = useThemeColor({}, 'neutral-100');
-  const neutral700Color = useThemeColor({}, 'neutral-700');
-  const neutral400Color = useThemeColor({}, 'neutral-400');
-
   return (
-    <View
-      style={[styles['main-container'], { backgroundColor: neutral100Color }]}
-    >
-      <ProfilePic
-        customBorderColor={neutral400Color}
-        size="large"
-        source={props.imageSource}
-      ></ProfilePic>
-      <View
-        style={{
-          gap: 0,
-          alignItems: 'center',
-        }}
-      >
-        <ThemedText type="subHeading">{firstName + ' ' + lastName}</ThemedText>
-        <ThemedText color={neutral700Color} type="caption">
+    <View className="w-full rounded-[18px] items-center py-[20px] gap-[15px] bg-neutral-100">
+      <Avatar size="large" source={props.imageSource}></Avatar>
+      <View className="gap-[0px] items-center">
+        <Text variant="subHeading">{firstName + ' ' + lastName}</Text>
+        <Text className="text-neutral-700" variant="caption">
           {props.username}
-        </ThemedText>
+        </Text>
       </View>
-      <View
-        style={{
-          flexDirection: 'row',
-          gap: 5,
-        }}
-      >
+      <View className="flex-row gap-[5px]">
         {props.badges.map((badgeProps, key) => (
           <ThemedUserBadge {...badgeProps} key={key}></ThemedUserBadge>
         ))}
@@ -89,15 +52,5 @@ const ThemedProfilePreview = ({
     </View>
   );
 };
-
-const styles = StyleSheet.create({
-  'main-container': {
-    width: '100%',
-    borderRadius: 18,
-    alignItems: 'center',
-    paddingVertical: 20,
-    gap: 15,
-  },
-});
 
 export default ThemedProfilePreview;

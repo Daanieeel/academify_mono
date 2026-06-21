@@ -1,10 +1,9 @@
-import { useThemeColor } from '@/hooks/use-theme-color';
 import React from 'react';
 import { View } from 'react-native';
 
-import IcomoonIcon from '@/components/IcomoonIcon';
-import { ThemedText } from '@/components/themed-text';
-import ThemedToggle from '@/components/themed-toggle';
+import { Switch } from '@/components/ui/switch';
+import { Text } from '@/components/ui/text';
+import { Icon } from '@/components/ui/icon';
 
 export type ThemedSettingsItemProp = {
   label: string;
@@ -16,58 +15,30 @@ export type ThemedSettingsItemProp = {
 };
 
 const ThemedSettingsItem = ({ ...props }: ThemedSettingsItemProp) => {
-  const neutral100Color = useThemeColor({}, 'neutral-100');
-  const neutral900Color = useThemeColor({}, 'neutral-900');
-  const primary300Color = useThemeColor({}, 'primary-300');
-
   return (
-    <View
-      style={{
-        backgroundColor: neutral100Color,
-        width: '100%',
-        height: 68,
-        justifyContent: 'space-between',
-        paddingHorizontal: 20,
-        alignItems: 'center',
-        flexDirection: 'row',
-        borderRadius: 18,
-      }}
-    >
-      <View
-        style={{
-          gap: 15,
-          flexDirection: 'row',
-          alignItems: 'center',
-        }}
-      >
-        <IcomoonIcon
+    <View className="bg-neutral-100 w-full h-[68px] justify-between px-[20px] items-center flex-row rounded-[18px]">
+      <View className="gap-[15px] flex-row items-center">
+        <Icon
           size={24}
-          color={neutral900Color}
+          className="text-neutral-900"
           name={props.icomoonIcon}
-        ></IcomoonIcon>
-        <ThemedText type="body" color={neutral900Color}>
+        ></Icon>
+        <Text variant="body" className="text-neutral-900">
           {props.label}
-        </ThemedText>
+        </Text>
       </View>
       {props.type === 'link' ? (
-        <View
-          style={{
-            paddingHorizontal: 8,
-            paddingVertical: 3,
-            backgroundColor: primary300Color,
-            borderRadius: 6,
-          }}
-        >
-          <IcomoonIcon
+        <View className="px-[8px] py-[3px] bg-primary-300 rounded-[6px]">
+          <Icon
             size={20}
-            color={neutral900Color}
+            className="text-neutral-900"
             name="arrow-right"
-          ></IcomoonIcon>
+          ></Icon>
         </View>
       ) : (
-        <ThemedToggle
-          isActive={props.isActive}
-          onValueChange={() => {
+        <Switch
+          defaultChecked={props.isActive}
+          onCheckedChange={() => {
             if (
               props.onValueChange !== null &&
               props.onValueChange !== undefined
@@ -75,7 +46,7 @@ const ThemedSettingsItem = ({ ...props }: ThemedSettingsItemProp) => {
               props.onValueChange();
             }
           }}
-        ></ThemedToggle>
+        />
       )}
     </View>
   );

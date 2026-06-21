@@ -1,7 +1,6 @@
-import { useThemeColor } from '@/hooks/use-theme-color';
 import React from 'react';
-import { StyleSheet, View } from 'react-native';
-import { ThemedText } from './themed-text';
+import { View } from 'react-native';
+import { Text } from '@/components/ui/text';
 
 export type ThemedHeaderProps = {
   headerTitle: string;
@@ -10,45 +9,17 @@ export type ThemedHeaderProps = {
 };
 
 const ThemedHeader = (props: ThemedHeaderProps) => {
-  const neutral50Color = useThemeColor({}, 'neutral-50');
-
   return (
-    <View
-      style={[
-        {
-          backgroundColor: neutral50Color,
-        },
-        styles['header-container'],
-      ]}
-    >
-      <View style={styles['header-title-container']}>
-        <ThemedText
-          numberOfLines={1}
-          style={{ textAlign: 'left' }}
-          type="heading2"
-        >
+    <View className="px-[15px] overflow-hidden pt-[30px] gap-[10px] bg-neutral-50">
+      <View className="w-full justify-between flex-row items-center">
+        <Text numberOfLines={1} className="text-left" variant="heading2">
           {props.headerTitle}
-        </ThemedText>
+        </Text>
         {props.headerCompRight}
       </View>
       {props.headerSearchBar}
     </View>
   );
 };
-
-const styles = StyleSheet.create({
-  'header-container': {
-    paddingHorizontal: 15,
-    overflow: 'hidden',
-    paddingTop: 30,
-    gap: 10,
-  },
-  'header-title-container': {
-    width: '100%',
-    justifyContent: 'space-between',
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-});
 
 export default ThemedHeader;

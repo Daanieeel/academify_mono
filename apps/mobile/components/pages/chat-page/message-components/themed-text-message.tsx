@@ -1,6 +1,6 @@
-import { ThemedText } from '@/components/themed-text';
 import React from 'react';
 import { View } from 'react-native';
+import { Text } from '@/components/ui/text';
 
 export type ThemedTextMessageProps = {
   message: string;
@@ -9,7 +9,7 @@ export type ThemedTextMessageProps = {
 const ThemedTextMessage = ({ ...props }: ThemedTextMessageProps) => {
   return (
     <View>
-      <ThemedText type="body">{props.message}</ThemedText>
+      <Text variant="body">{props.message}</Text>
     </View>
   );
 };

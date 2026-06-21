@@ -1,15 +1,14 @@
-import { useThemeColor } from '@/hooks/use-theme-color';
 import React, { useState } from 'react';
-import { FlatList, StyleSheet, View } from 'react-native';
-import SimpleButton from '../../buttons/simple-button';
-import SmallButton from '../../buttons/small-button';
+import { FlatList, View } from 'react-native';
 import ThemedSearchBar from '../../themed-search-bar';
-import { ThemedText } from '../../themed-text';
 import ThemedModal from '../themed-modal';
 import ThemedListPreviewItem, {
   ThemedListPreviewItemProps,
 } from './themed-list-preview-item';
 import ThemedSelectable from './themed-selectable';
+import { Button } from '@/components/ui/button';
+import { Icon } from '@/components/ui/icon';
+import { Text } from '@/components/ui/text';
 
 const MOCK_USERS: ThemedListPreviewItemProps[] = [
   { heading: 'Maxine Maxwell', userId: 0, caption: 'Klasse: 9d' },
@@ -38,11 +37,6 @@ type ThemedPickerModalProps = {
 };
 
 const ThemedPickerModal = (props: ThemedPickerModalProps) => {
-  const neutral200Color = useThemeColor({}, 'neutral-200');
-  const neutral600Color = useThemeColor({}, 'neutral-600');
-
-  const themedListPreviewItemBackgroundColor = useThemeColor({}, 'neutral-50');
-
   const [selectedIDs, setSelectedIDs] = useState<(number | string)[]>([]);
 
   const toggleItem = (itemId: number | string) => {
@@ -66,7 +60,7 @@ const ThemedPickerModal = (props: ThemedPickerModalProps) => {
   return (
     <ThemedModal visible={props.visible} onRequestClose={props.onRequestClose}>
       {/* Header View including finished button and title as well as the modal dismiss indicator */}
-      <View style={styles['header-view']}>
+      <View className="flex-row gap-[5px] px-[15px] pb-[10px] pt-[10px]">
         <View
           style={{
             flex: 1,
@@ -79,34 +73,22 @@ const ThemedPickerModal = (props: ThemedPickerModalProps) => {
           ></ThemedSearchBar>
         </View>
 
-        <SmallButton
-          onPress={onAbortPressed}
-          type="normal"
-          iconName="x-circle"
-          iconSize={25}
-        ></SmallButton>
+        <Button variant="normal" onPress={onAbortPressed}>
+          <Icon name="x-circle" size={25} />
+        </Button>
       </View>
 
-      <View
-        style={[
-          styles['counter'],
-          {
-            backgroundColor: neutral200Color,
-          },
-        ]}
-      >
-        <ThemedText color={neutral600Color} type="caption">
+      <View className="absolute bottom-[100px] left-[10px] z-[9999] rounded-[18px] bg-neutral-200 p-[10px]">
+        <Text className="text-neutral-600" variant="caption">
           {selectedIDs.length + '/200'}
-        </ThemedText>
+        </Text>
       </View>
 
-      <View style={styles['finish-button']}>
-        <SimpleButton
-          label={'Fertig'}
-          icomoonIcon="check"
-          onPress={onFinishPressed}
-          type={'primary'}
-        ></SimpleButton>
+      <View className="absolute bottom-[30px] left-[15px] right-[15px] z-[9999]">
+        <Button variant="primary" size="lg" onPress={onFinishPressed}>
+          <Text>Fertig</Text>
+          <Icon name="check" size={24} />
+        </Button>
       </View>
 
       <FlatList
@@ -115,7 +97,7 @@ const ThemedPickerModal = (props: ThemedPickerModalProps) => {
           paddingHorizontal: 20,
           paddingBottom: 150,
         }}
-        style={styles['flat-list']}
+        className="z-[1] pt-[10px]"
         data={MOCK_USERS}
         renderItem={(item) => {
           const isSelected = selectedIDs.includes(item.item.userId);
@@ -126,7 +108,7 @@ const ThemedPickerModal = (props: ThemedPickerModalProps) => {
             >
               <ThemedListPreviewItem
                 paddingHorizontal={15}
-                backgroundColor={themedListPreviewItemBackgroundColor}
+                className="bg-neutral-50"
                 {...item.item}
               ></ThemedListPreviewItem>
             </ThemedSelectable>
@@ -136,34 +118,5 @@ const ThemedPickerModal = (props: ThemedPickerModalProps) => {
     </ThemedModal>
   );
 };
-
-const styles = StyleSheet.create({
-  'header-view': {
-    paddingTop: 10,
-    paddingBottom: 10,
-    flexDirection: 'row',
-    paddingHorizontal: 15,
-    gap: 5,
-  },
-  'finish-button': {
-    position: 'absolute',
-    zIndex: 9999,
-    bottom: 30,
-    right: 15,
-    left: 15,
-  },
-  'flat-list': {
-    zIndex: 1,
-    paddingTop: 10,
-  },
-  counter: {
-    position: 'absolute',
-    zIndex: 9999,
-    bottom: 100,
-    padding: 10,
-    borderRadius: 18,
-    left: 10,
-  },
-});
 
 export default ThemedPickerModal;

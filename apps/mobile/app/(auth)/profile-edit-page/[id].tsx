@@ -1,15 +1,14 @@
-import SimpleButton from '@/components/buttons/simple-button';
-import SmallButton from '@/components/buttons/small-button';
-import IcomoonIcon from '@/components/IcomoonIcon';
-import ProfilePic from '@/components/profile-pic';
-import { ThemedText } from '@/components/themed-text';
-import ThemedTextField from '@/components/themed-text-field';
 import APPLICATION_CONSTANTS from '@/constants/strings';
 import { useThemeColor } from '@/hooks/use-theme-color';
 import { router, Stack } from 'expo-router';
 import React, { useState } from 'react';
-import { ScrollView, StyleSheet, View } from 'react-native';
+import { ScrollView, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { Button } from '@/components/ui/button';
+import { Text } from '@/components/ui/text';
+import { Icon } from '@/components/ui/icon';
+import { Avatar } from '@/components/ui/avatar';
+import { Input } from '@/components/ui/input';
 
 export type ProfilePageInputFieldData = {
   id: number;
@@ -49,7 +48,6 @@ const ProfileEditPage = () => {
   ];
 
   const neutral900Color = useThemeColor({}, 'neutral-900');
-  const neutral400Color = useThemeColor({}, 'neutral-400');
 
   const [values, setValues] = useState<Record<string, string>>({
     '1': inputData[0].value ?? '',
@@ -75,52 +73,39 @@ const ProfileEditPage = () => {
   };
 
   return (
-    <View style={{ flex: 1 }}>
+    <View className="flex-1">
       <Stack.Screen
         options={{
           title: '',
           headerShown: true,
           headerTransparent: true,
           headerLeft: () => (
-            <SmallButton
-              onPress={handleBackButtonPress}
-              label="Zurück"
-              iconName="arrow-left"
-            ></SmallButton>
+            <Button onPress={handleBackButtonPress}>
+              <Icon name="arrow-left" />
+              <Text>Zurück</Text>
+            </Button>
           ),
         }}
       ></Stack.Screen>
-      <ScrollView style={styles['scroll-view']}>
-        <View style={styles['header-container']}>
-          <View style={styles['text-container']}>
-            <ThemedText
-              style={{ width: '80%', textAlign: 'center' }}
-              type="heading2"
-            >
+      <ScrollView className="gap-[20px] px-[15px]">
+        <View className="mt-[150px] gap-[40px] mb-[50px]">
+          <View className="w-full items-center gap-[10px]">
+            <Text className="w-[80%] text-center" variant="heading2">
               {APPLICATION_CONSTANTS.PROFILE_EDIT_PAGE_HEADING}
-            </ThemedText>
-            <ThemedText
-              style={{ width: '80%', textAlign: 'center' }}
-              type="body"
-            >
+            </Text>
+            <Text className="w-[80%] text-center" variant="body">
               {APPLICATION_CONSTANTS.PROFILE_EDIT_PAGE_SUBHEADING}
-            </ThemedText>
+            </Text>
           </View>
-          <View style={styles['pic-icon-container']}>
-            <ProfilePic size={'large'}></ProfilePic>
-            <View
-              style={[styles['hairline'], { backgroundColor: neutral400Color }]}
-            ></View>
-            <IcomoonIcon
-              name="sparkle"
-              size={70}
-              color={neutral900Color}
-            ></IcomoonIcon>
+          <View className="w-full justify-center flex-row gap-[30px] items-center">
+            <Avatar size={'large'}></Avatar>
+            <View className="w-[2px] h-[80px] bg-neutral-400"></View>
+            <Icon name="sparkle" size={70} color={neutral900Color}></Icon>
           </View>
         </View>
         {inputData.map((inputField) => (
-          <View key={inputField.id} style={[styles['text-field-wrapper']]}>
-            <ThemedTextField
+          <View key={inputField.id} className="pb-[10px]">
+            <Input
               key={inputField.id}
               placeholder={inputField.value ?? 'Hinzufügen'}
               fieldDescription={inputField.description}
@@ -128,62 +113,19 @@ const ProfileEditPage = () => {
               isEditable={inputField.isEditable}
               heightBased={65}
               onChangeText={(input) => handleChange(inputField.id, input)}
-            ></ThemedTextField>
+            ></Input>
           </View>
         ))}
-        <View style={styles['bottom-inset-container']}></View>
+        <View className="h-[200px]"></View>
       </ScrollView>
-      <SafeAreaView style={styles['continue-button-wrapper']}>
-        <SimpleButton
-          label={APPLICATION_CONSTANTS.GENERAL_NEXT_PAGE}
-          onPress={handleContinueButtonPress}
-          icomoonIcon="arrow-right"
-          type={'primary'}
-        ></SimpleButton>
+      <SafeAreaView className="absolute left-0 right-0 px-[15px] bottom-[20px]">
+        <Button variant="primary" size="lg" onPress={handleContinueButtonPress}>
+          <Text>{APPLICATION_CONSTANTS.GENERAL_NEXT_PAGE}</Text>
+          <Icon name="arrow-right" size={24} />
+        </Button>
       </SafeAreaView>
     </View>
   );
 };
-
-const styles = StyleSheet.create({
-  'header-container': {
-    marginTop: 150,
-    gap: 40,
-    marginBottom: 50,
-  },
-  'pic-icon-container': {
-    width: '100%',
-    justifyContent: 'center',
-    flexDirection: 'row',
-    gap: 30,
-    alignItems: 'center',
-  },
-  'text-container': {
-    width: '100%',
-    alignItems: 'center',
-    gap: 10,
-  },
-  hairline: {
-    width: 2,
-    height: 80,
-  },
-  'scroll-view': {
-    gap: 20,
-    paddingHorizontal: 15,
-  },
-  'text-field-wrapper': {
-    paddingBottom: 10,
-  },
-  'bottom-inset-container': {
-    height: 200,
-  },
-  'continue-button-wrapper': {
-    left: 0,
-    right: 0,
-    position: 'absolute',
-    paddingHorizontal: 15,
-    bottom: 20,
-  },
-});
 
 export default ProfileEditPage;

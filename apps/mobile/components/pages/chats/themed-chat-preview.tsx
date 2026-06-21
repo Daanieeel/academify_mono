@@ -1,8 +1,7 @@
-import ProfilePic from '@/components/profile-pic';
-import { ThemedText } from '@/components/themed-text';
-import { useThemeColor } from '@/hooks/use-theme-color';
 import React from 'react';
-import { StyleSheet, View } from 'react-native';
+import { View } from 'react-native';
+import { Text } from '@/components/ui/text';
+import { Avatar } from '@/components/ui/avatar';
 
 export type ThemedChatPreviewProps = {
   chatName: string;
@@ -20,12 +19,6 @@ const ThemedChatPreview = ({
 }: ThemedChatPreviewProps) => {
   let lastMessageEmoji;
 
-  const primaryColor = useThemeColor({}, 'neutral-900');
-  const secondaryColor = read
-    ? useThemeColor({}, 'neutral-500')
-    : useThemeColor({}, 'neutral-900');
-  const red500Color = useThemeColor({}, 'red-500');
-
   switch (lastMessageType) {
     case 'audio':
       lastMessageEmoji = '🎧';
@@ -42,68 +35,39 @@ const ThemedChatPreview = ({
   }
 
   return (
-    <View style={styles['main-container']}>
-      <ProfilePic size={'medium'} source={props.chatIcon}></ProfilePic>
-      <View style={styles['text-container']}>
-        <View
-          style={{
-            flexDirection: 'row',
-            justifyContent: 'space-between',
-          }}
-        >
-          <ThemedText numberOfLines={1} type="body" color={primaryColor}>
+    <View className="h-[80px] items-center w-[100%] flex-row gap-[15px]">
+      <Avatar size={'medium'} source={props.chatIcon}></Avatar>
+      <View className="gap-[10px] flex-col flex-1 justify-start">
+        <View className="flex-row justify-between">
+          <Text numberOfLines={1} variant="body" className="text-neutral-900">
             {props.chatName}
-          </ThemedText>
+          </Text>
 
           {/* Last message + unread badge */}
-          <View
-            style={{
-              flexDirection: 'row',
-              alignItems: 'center',
-              gap: 5,
-            }}
-          >
-            <ThemedText numberOfLines={1} type="caption" color={secondaryColor}>
+          <View className="flex-row items-center gap-[5px]">
+            <Text
+              numberOfLines={1}
+              variant="caption"
+              className={read ? 'text-neutral-500' : 'text-neutral-900'}
+            >
               {props.lastMessageTime ?? ''}
-            </ThemedText>
+            </Text>
             {read === true ? null : (
-              <View
-                style={[
-                  styles['unread-badge'],
-                  { backgroundColor: red500Color },
-                ]}
-              ></View>
+              <View className="w-[5px] h-[5px] rounded-[9999px] bg-red-500"></View>
             )}
           </View>
           {/* Last message + unread badge */}
         </View>
-        <ThemedText numberOfLines={2} type="caption" color={secondaryColor}>
+        <Text
+          numberOfLines={2}
+          variant="caption"
+          className={read ? 'text-neutral-500' : 'text-neutral-900'}
+        >
           {lastMessageEmoji + ' ' + props.lastMessage}
-        </ThemedText>
+        </Text>
       </View>
     </View>
   );
 };
-
-const styles = StyleSheet.create({
-  'main-container': {
-    height: 80,
-    alignItems: 'center',
-    width: '100%',
-    flexDirection: 'row',
-    gap: 15,
-  },
-  'text-container': {
-    gap: 10,
-    flexDirection: 'column',
-    flex: 1,
-    justifyContent: 'flex-start',
-  },
-  'unread-badge': {
-    width: 5,
-    height: 5,
-    borderRadius: 9999,
-  },
-});
 
 export default ThemedChatPreview;

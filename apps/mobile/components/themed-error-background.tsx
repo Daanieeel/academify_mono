@@ -1,8 +1,7 @@
-import { useThemeColor } from '@/hooks/use-theme-color';
 import React from 'react';
-import { StyleSheet, View } from 'react-native';
-import IcomoonIcon from './IcomoonIcon';
-import { ThemedText } from './themed-text';
+import { View } from 'react-native';
+import { Text } from '@/components/ui/text';
+import { Icon } from '@/components/ui/icon';
 
 type ThemedErrorBackgroundProps = {
   title: string;
@@ -14,55 +13,17 @@ const ThemedErrorBackground = ({
   iconName = 'smiley-x-eyes',
   ...props
 }: ThemedErrorBackgroundProps) => {
-  const neutral800Color = useThemeColor({}, 'neutral-800');
-  const neutral600Color = useThemeColor({}, 'neutral-600');
-
   return (
-    <View
-      style={[
-        styles['main-container'],
-        {
-          borderColor: neutral600Color,
-        },
-      ]}
-    >
-      <IcomoonIcon
-        color={neutral800Color}
-        size={50}
-        name={iconName}
-      ></IcomoonIcon>
-      <ThemedText
-        style={styles.textCenter}
-        color={neutral800Color}
-        type="subHeading"
-      >
+    <View className="bg-transparent border-[1.5px] border-dashed p-[20px] rounded-[18px] gap-[5px] max-w-[60%] items-center border-neutral-600">
+      <Icon className="text-neutral-800" size={50} name={iconName}></Icon>
+      <Text className="text-center text-neutral-800" variant="subHeading">
         {props.title}
-      </ThemedText>
-      <ThemedText
-        style={styles.textCenter}
-        color={neutral600Color}
-        type="caption"
-      >
+      </Text>
+      <Text className="text-center text-neutral-600" variant="caption">
         {props.description}
-      </ThemedText>
+      </Text>
     </View>
   );
 };
-
-const styles = StyleSheet.create({
-  'main-container': {
-    backgroundColor: 'transparent',
-    borderWidth: 1.5,
-    borderStyle: 'dashed',
-    padding: 20,
-    borderRadius: 18,
-    gap: 5,
-    maxWidth: '60%',
-    alignItems: 'center',
-  },
-  textCenter: {
-    textAlign: 'center',
-  },
-});
 
 export default ThemedErrorBackground;

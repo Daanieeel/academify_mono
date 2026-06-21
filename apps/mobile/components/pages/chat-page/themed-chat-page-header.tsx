@@ -1,12 +1,12 @@
-import SmallButton from '@/components/buttons/small-button';
-import ProfilePic from '@/components/profile-pic';
 import ThemedPressable from '@/components/themed-pressable';
-import { ThemedText } from '@/components/themed-text';
-import { useThemeColor } from '@/hooks/use-theme-color';
 import { router } from 'expo-router';
 import React from 'react';
-import { StyleSheet, View } from 'react-native';
+import { View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { Button } from '@/components/ui/button';
+import { Icon } from '@/components/ui/icon';
+import { Text } from '@/components/ui/text';
+import { Avatar } from '@/components/ui/avatar';
 
 export type ThemedChatPageHeaderProps = {
   onChatAboutPressed: () => void;
@@ -14,9 +14,6 @@ export type ThemedChatPageHeaderProps = {
 };
 
 const ThemedChatPageHeader = (props: ThemedChatPageHeaderProps) => {
-  const neutral900Color = useThemeColor({}, 'neutral-900');
-  const neutral50Color = useThemeColor({}, 'neutral-50');
-
   const onBackButtonPressed = () => {
     router.back();
   };
@@ -24,60 +21,24 @@ const ThemedChatPageHeader = (props: ThemedChatPageHeaderProps) => {
   return (
     <SafeAreaView
       edges={['top']}
-      style={[
-        styles['main-container'],
-        {
-          borderBottomColor: neutral900Color,
-          backgroundColor: neutral50Color,
-        },
-      ]}
+      className="px-[15px] pb-[10px] border-b-[1.5px] pt-[20px] w-[100%] flex-row justify-between items-center z-[9999] border-b-neutral-900 bg-neutral-50"
     >
-      <View
-        style={{
-          flexDirection: 'row',
-          alignItems: 'center',
-          gap: 20,
-        }}
-      >
-        <SmallButton
-          iconSize={25}
-          onPress={onBackButtonPressed}
-          iconName="arrow-left"
-        ></SmallButton>
+      <View className="flex-row items-center gap-[20px]">
+        <Button variant="normal" onPress={onBackButtonPressed}>
+          <Icon name="arrow-left" size={25} />
+        </Button>
         <ThemedPressable onPress={props.onChatAboutPressed}>
-          <View
-            style={{
-              gap: 10,
-              flexDirection: 'row',
-              alignItems: 'center',
-            }}
-          >
-            <ProfilePic size={'small'}></ProfilePic>
-            <ThemedText type="body">{props.chatName ?? 'Bio K1A24'}</ThemedText>
+          <View className="gap-[10px] flex-row items-center">
+            <Avatar size={'small'}></Avatar>
+            <Text variant="body">{props.chatName ?? 'Bio K1A24'}</Text>
           </View>
         </ThemedPressable>
       </View>
-      <SmallButton
-        iconSize={25}
-        onPress={() => {}}
-        iconName="dots-three-circle"
-      ></SmallButton>
+      <Button variant="normal" onPress={() => {}}>
+        <Icon name="dots-three-circle" size={25} />
+      </Button>
     </SafeAreaView>
   );
 };
-
-const styles = StyleSheet.create({
-  'main-container': {
-    paddingHorizontal: 15,
-    paddingBottom: 10,
-    borderBottomWidth: 1.5,
-    paddingTop: 20,
-    width: '100%',
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    zIndex: 9999,
-  },
-});
 
 export default ThemedChatPageHeader;

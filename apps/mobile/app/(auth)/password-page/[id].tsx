@@ -1,15 +1,14 @@
-import IcomoonIcon from '@/components/IcomoonIcon';
-import SimpleButton from '@/components/buttons/simple-button';
-import SmallButton from '@/components/buttons/small-button';
-import { ThemedText } from '@/components/themed-text';
-import ThemedTextField from '@/components/themed-text-field';
 import APPLICATION_CONSTANTS from '@/constants/strings';
 import { useSession } from '@/context/auth-context';
 import { useThemeColor } from '@/hooks/use-theme-color';
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import React, { useState } from 'react';
-import { StyleSheet, View } from 'react-native';
+import { View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { Button } from '@/components/ui/button';
+import { Text } from '@/components/ui/text';
+import { Icon } from '@/components/ui/icon';
+import { Input } from '@/components/ui/input';
 
 const UsernamePage = () => {
   const [password, setPassword] = useState('');
@@ -49,111 +48,70 @@ const UsernamePage = () => {
   };
 
   return (
-    <SafeAreaView
-      style={{ flex: 1, backgroundColor: useThemeColor({}, 'neutral-50') }}
-    >
+    <SafeAreaView className="flex-1 bg-neutral-50">
       <Stack.Screen
         options={{
           title: '',
           headerShown: true,
           headerTransparent: true,
           headerLeft: () => (
-            <SmallButton
-              onPress={handleBackButtonPress}
-              label="Zurück"
-              iconName="arrow-left"
-            ></SmallButton>
+            <Button onPress={handleBackButtonPress}>
+              <Icon name="arrow-left" />
+              <Text>Zurück</Text>
+            </Button>
           ),
         }}
       ></Stack.Screen>
-      <View style={styles['main-container']}>
-        <View style={styles['heading-container']}>
-          <IcomoonIcon
-            size={62}
-            name="password"
+      <View className="pt-[70px] px-[15px] w-full gap-[30px]">
+        <View className="gap-[10px] items-center">
+          <Icon size={62} name="password" color={neutral900Color}></Icon>
+          <Text
             color={neutral900Color}
-          ></IcomoonIcon>
-          <ThemedText
-            color={neutral900Color}
-            type="heading2"
-            style={{ textAlign: 'center' }}
+            variant="heading2"
+            className="text-center"
           >
             {APPLICATION_CONSTANTS.PASSWORD_PAGE_HEADING}
-          </ThemedText>
-          <ThemedText
-            color={neutral900Color}
-            type="body"
-            style={{ textAlign: 'center' }}
-          >
+          </Text>
+          <Text color={neutral900Color} variant="body" className="text-center">
             {APPLICATION_CONSTANTS.PASSWORD_PAGE_SUBHEADING +
               ' ' +
               userId +
               '?'}
-          </ThemedText>
+          </Text>
         </View>
-        <View style={styles['input-container']}>
-          <ThemedTextField
+        <View className="gap-[5px]">
+          <Input
             placeholder={APPLICATION_CONSTANTS.PASSWORD_PAGE_INPUT_PLACEHOLDER}
             value={password}
             onChangeText={handleInputChange}
             obscureText={true}
             heightBased={60}
-          ></ThemedTextField>
+          ></Input>
           {!isValid && (
-            <View
-              style={{
-                marginTop: 10,
-                flexDirection: 'row',
-                gap: 5,
-                alignItems: 'center',
-              }}
-            >
-              <IcomoonIcon
-                name="x-circle"
-                size={15}
-                color={errorColor}
-              ></IcomoonIcon>
-              <ThemedText color={errorColor} type="caption">
+            <View className="mt-[10px] flex-row gap-[5px] items-center">
+              <Icon name="x-circle" size={15} color={errorColor}></Icon>
+              <Text color={errorColor} variant="caption">
                 {inputError}
-              </ThemedText>
+              </Text>
             </View>
           )}
         </View>
-        <View style={styles['buttons-container']}>
-          <SimpleButton
+        <View className="gap-[10px]">
+          <Button variant="primary" size="lg" onPress={handleValidatePassword}>
+            <Text>Weiter</Text>
+            <Icon name="arrow-right" size={24} />
+          </Button>
+          <Button
+            variant="secondary"
+            size="lg"
             onPress={handleValidatePassword}
-            label="Weiter"
-            type="primary"
-            icomoonIcon="arrow-right"
-          ></SimpleButton>
-          <SimpleButton
-            onPress={handleValidatePassword}
-            label="Passwort vergessen?"
-            type="secondary"
-          ></SimpleButton>
+          >
+            <Text>Passwort vergessen?</Text>
+          </Button>
         </View>
       </View>
     </SafeAreaView>
   );
 };
-
-const styles = StyleSheet.create({
-  'heading-container': {
-    gap: 10,
-    alignItems: 'center',
-  },
-  'main-container': {
-    paddingTop: 70,
-    paddingHorizontal: 15,
-    width: '100%',
-    gap: 30,
-  },
-  'input-container': {
-    gap: 5,
-  },
-  'buttons-container': {
-    gap: 10,
-  },
-});
 
 export default UsernamePage;

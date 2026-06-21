@@ -1,7 +1,6 @@
-import { ThemedText } from '@/components/themed-text';
-import { useThemeColor } from '@/hooks/use-theme-color';
 import React from 'react';
-import { Image, StyleSheet, View } from 'react-native';
+import { Image, View } from 'react-native';
+import { Text } from '@/components/ui/text';
 
 export type ThemedAttachmentMessageProps = {
   userIsSender?: boolean;
@@ -13,49 +12,34 @@ export type ThemedAttachmentMessageProps = {
 export default function ThemedAttachmentMessage(
   props: ThemedAttachmentMessageProps,
 ) {
-  const backgroundColor = props.userIsSender
-    ? useThemeColor({}, 'primary-100')
-    : useThemeColor({}, 'neutral-100');
-  const textColor = props.userIsSender
-    ? useThemeColor({}, 'primary-900')
-    : useThemeColor({}, 'neutral-900');
-
   return (
     <View
-      style={[
-        styles['main-container'],
-        {
-          backgroundColor,
-        },
-      ]}
+      className={`flex-row items-center gap-[20px] rounded-[13px] p-[15px] ${props.userIsSender ? 'bg-primary-100' : 'bg-neutral-100'}`}
     >
       <Image
-        style={{ height: 40, width: 40 }}
+        className="h-[40px] w-[40px]"
         source={require('@/assets/images/app/emojis/page-emoji.png')}
       ></Image>
-      <View style={styles['text-container']}>
-        <ThemedText color={textColor} numberOfLines={1} type="body">
+      <View className="flex-col items-start gap-[2px]">
+        <Text
+          className={
+            props.userIsSender ? 'text-primary-900' : 'text-neutral-900'
+          }
+          numberOfLines={1}
+          variant="body"
+        >
           {props.attachmentName}
-        </ThemedText>
-        <ThemedText color={textColor} numberOfLines={1} type="caption">
+        </Text>
+        <Text
+          className={
+            props.userIsSender ? 'text-primary-900' : 'text-neutral-900'
+          }
+          numberOfLines={1}
+          variant="caption"
+        >
           {props.attachmentFileType + ' • ' + props.attachmentSize}
-        </ThemedText>
+        </Text>
       </View>
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  'main-container': {
-    borderRadius: 13,
-    padding: 15,
-    alignItems: 'center',
-    flexDirection: 'row',
-    gap: 20,
-  },
-  'text-container': {
-    flexDirection: 'column',
-    gap: 2,
-    alignItems: 'flex-start',
-  },
-});

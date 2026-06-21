@@ -1,14 +1,14 @@
-import SmallButton from '@/components/buttons/small-button';
-import ProfilePic from '@/components/profile-pic';
-import ThemedBentoBox from '@/components/themed-bento-box';
 import ThemedSearchBar from '@/components/themed-search-bar';
-import { ThemedText } from '@/components/themed-text';
 import APPLICATION_CONSTANTS from '@/constants/strings';
-import { useThemeColor } from '@/hooks/use-theme-color';
 import { router } from 'expo-router';
 import React, { useState } from 'react';
-import { Image, ScrollView, StyleSheet, View } from 'react-native';
+import { Image, ScrollView, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { Avatar } from '@/components/ui/avatar';
+import { Button } from '@/components/ui/button';
+import { Icon } from '@/components/ui/icon';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Text } from '@/components/ui/text';
 
 const MOCK_CHAT_ABOUT_PAGE_DATA: ChatAboutPageProps = {
   chatName: 'Chemie K2A24',
@@ -34,9 +34,8 @@ export type ChatAboutPageProps = {
 const ChatAboutPage = () => {
   const data = MOCK_CHAT_ABOUT_PAGE_DATA;
 
-  const neutral50Color = useThemeColor({}, 'neutral-50');
-
   const [searchBarInput, setSearchBarInput] = useState('');
+  const [activeTab, setActiveTab] = useState('images');
 
   const onSearchBarInputChanged = (input: string) => {
     setSearchBarInput(input);
@@ -49,26 +48,19 @@ const ChatAboutPage = () => {
   const onEditButtonPressed = () => {};
 
   return (
-    <View
-      style={[
-        {
-          backgroundColor: neutral50Color,
-        },
-        styles['main-container'],
-      ]}
-    >
-      <SafeAreaView style={styles['header']} edges={['top']}>
-        <SmallButton
-          iconName="arrow-left"
-          label={APPLICATION_CONSTANTS.GENERAL_PREVIOUS_PAGE}
-          onPress={onBackButtonPressed}
-        ></SmallButton>
-        <SmallButton
-          disabled
-          iconName="pencil"
-          label={APPLICATION_CONSTANTS.CHAT_ABOUT_PAGE_EDIT_LABEL}
-          onPress={onEditButtonPressed}
-        ></SmallButton>
+    <View className="flex-1 bg-neutral-50">
+      <SafeAreaView
+        className="flex-row bg-transparent pt-[20px] px-[15px] justify-between pb-[10px]"
+        edges={['top']}
+      >
+        <Button onPress={onBackButtonPressed}>
+          <Icon name="arrow-left" />
+          <Text>{APPLICATION_CONSTANTS.GENERAL_PREVIOUS_PAGE}</Text>
+        </Button>
+        <Button disabled onPress={onEditButtonPressed}>
+          <Icon name="pencil" />
+          <Text>{APPLICATION_CONSTANTS.CHAT_ABOUT_PAGE_EDIT_LABEL}</Text>
+        </Button>
       </SafeAreaView>
       <ScrollView
         contentContainerStyle={{
@@ -77,69 +69,67 @@ const ChatAboutPage = () => {
           paddingHorizontal: 15,
           gap: 30,
         }}
-        style={styles['scroll-view']}
+        className="flex-1"
       >
-        <ProfilePic size="large"></ProfilePic>
+        <Avatar size="large"></Avatar>
         <View style={{ gap: 5, alignItems: 'center' }}>
-          <ThemedText type="heading2">{data.chatName}</ThemedText>
-          <ThemedText type="caption">
+          <Text variant="heading2">{data.chatName}</Text>
+          <Text variant="caption">
             {data.chatType + ' • ' + data.userList.length + ' Mitglieder'}
-          </ThemedText>
+          </Text>
         </View>
         <ThemedSearchBar
           placeholder={APPLICATION_CONSTANTS.CHAT_ABOUT_PAGE_SEARCH_BAR_LABEL}
           value={searchBarInput}
           onInputChanged={onSearchBarInputChanged}
         ></ThemedSearchBar>
-        <ThemedBentoBox title={'Geteilte Bilder'} icomoonIcon={'panorama'}>
-          <ScrollView
-            contentContainerStyle={{
-              paddingHorizontal: 15,
-              paddingBottom: 15,
-              gap: 10,
-            }}
-            style={{}}
-            horizontal
-          >
-            {data.chatImages.map((imageUri, index) => {
-              return (
-                <Image
-                  borderRadius={10}
-                  height={100}
-                  width={100}
-                  key={index}
-                  source={{ uri: imageUri }}
-                ></Image>
-              );
-            })}
-          </ScrollView>
-        </ThemedBentoBox>
-        <ThemedBentoBox title={'Geteilte Dateien'} icomoonIcon={'file'}>
-          <ScrollView style={{}}></ScrollView>
-        </ThemedBentoBox>
-        <ThemedBentoBox title={'Mitglieder'} icomoonIcon={'users-three'}>
-          <ScrollView style={{}}></ScrollView>
-        </ThemedBentoBox>
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+          <TabsList>
+            <TabsTrigger value="images">
+              <Icon name="panorama" size={16} />
+              <Text variant="caption">Bilder</Text>
+            </TabsTrigger>
+            <TabsTrigger value="files">
+              <Icon name="file" size={16} />
+              <Text variant="caption">Dateien</Text>
+            </TabsTrigger>
+            <TabsTrigger value="members">
+              <Icon name="users-three" size={16} />
+              <Text variant="caption">Mitglieder</Text>
+            </TabsTrigger>
+          </TabsList>
+          <TabsContent value="images">
+            <ScrollView
+              contentContainerStyle={{
+                paddingHorizontal: 15,
+                paddingBottom: 15,
+                gap: 10,
+              }}
+              horizontal
+            >
+              {data.chatImages.map((imageUri, index) => {
+                return (
+                  <Image
+                    borderRadius={10}
+                    height={100}
+                    width={100}
+                    key={index}
+                    source={{ uri: imageUri }}
+                  ></Image>
+                );
+              })}
+            </ScrollView>
+          </TabsContent>
+          <TabsContent value="files">
+            <ScrollView></ScrollView>
+          </TabsContent>
+          <TabsContent value="members">
+            <ScrollView></ScrollView>
+          </TabsContent>
+        </Tabs>
       </ScrollView>
     </View>
   );
 };
-
-const styles = StyleSheet.create({
-  'main-container': {
-    flex: 1,
-  },
-  header: {
-    flexDirection: 'row',
-    backgroundColor: 'transparent',
-    paddingTop: 20,
-    paddingHorizontal: 15,
-    justifyContent: 'space-between',
-    paddingBottom: 10,
-  },
-  'scroll-view': {
-    flex: 1,
-  },
-});
 
 export default ChatAboutPage;

@@ -2,18 +2,15 @@ import ThemedMessageWrapper from '@/components/pages/chat-page/message-component
 import ThemedChatPageFooter from '@/components/pages/chat-page/themed-chat-page-footer';
 import ThemedChatPageHeader from '@/components/pages/chat-page/themed-chat-page-header';
 import ThemedAcademiBackground from '@/components/themed-academi-background';
-import { ThemedText } from '@/components/themed-text';
 import { useSession } from '@/context/auth-context';
 import { useChatThread } from '@/hooks/use-chat-thread';
-import { useThemeColor } from '@/hooks/use-theme-color';
 import { formatChatTimestamp } from '@/lib/format';
 import { router, useLocalSearchParams } from 'expo-router';
 import React, { useRef, useState } from 'react';
-import { FlatList, StyleSheet, View } from 'react-native';
+import { FlatList, View } from 'react-native';
+import { Text } from '@/components/ui/text';
 
 const ChatPage = () => {
-  const neutral50Color = useThemeColor({}, 'neutral-50');
-
   const { id } = useLocalSearchParams<{ id: string }>();
   const { session } = useSession();
   const { peer, messages, mlsError, sendMessage } = useChatThread(id);
@@ -35,14 +32,7 @@ const ChatPage = () => {
   };
 
   return (
-    <View
-      style={[
-        styles['main-container'],
-        {
-          backgroundColor: neutral50Color,
-        },
-      ]}
-    >
+    <View className="flex-1 justify-between flex-col bg-neutral-50">
       {/* Header for the chat page including a back button, chat preview and more button */}
 
       <ThemedChatPageHeader
@@ -52,13 +42,13 @@ const ChatPage = () => {
 
       {mlsError ? (
         <View style={{ paddingHorizontal: 15, paddingVertical: 8 }}>
-          <ThemedText type="caption">{mlsError}</ThemedText>
+          <Text variant="caption">{mlsError}</Text>
         </View>
       ) : null}
 
       {/* Container for the actual message list */}
 
-      <View style={[{}, styles['message-list-container']]}>
+      <View className="flex-1">
         <FlatList
           onScrollBeginDrag={() => {
             isScrollingRef.current = true;
@@ -83,7 +73,7 @@ const ChatPage = () => {
               setFooterCurrentDisplay('none');
             }
           }}
-          style={styles['message-list']}
+          className="z-[9999] flex-1 py-[10px] px-[5px]"
           data={[...messages].reverse()}
           keyExtractor={(message) => message.id}
           scrollEventThrottle={16}
@@ -102,7 +92,7 @@ const ChatPage = () => {
             ></ThemedMessageWrapper>
           )}
         ></FlatList>
-        <View style={styles['message-list-background']}>
+        <View className="absolute bottom-0 top-0 left-0 right-0">
           <ThemedAcademiBackground></ThemedAcademiBackground>
         </View>
       </View>
@@ -117,29 +107,5 @@ const ChatPage = () => {
     </View>
   );
 };
-
-const styles = StyleSheet.create({
-  'main-container': {
-    flex: 1,
-    justifyContent: 'space-between',
-    flexDirection: 'column',
-  },
-  'message-list-container': {
-    flex: 1,
-  },
-  'message-list': {
-    zIndex: 9999,
-    flex: 1,
-    paddingVertical: 10,
-    paddingHorizontal: 5,
-  },
-  'message-list-background': {
-    position: 'absolute',
-    bottom: 0,
-    top: 0,
-    left: 0,
-    right: 0,
-  },
-});
 
 export default ChatPage;

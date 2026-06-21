@@ -1,6 +1,5 @@
-// used to create icons from the icomoon icon set; icons used are phospor icons
-
 import createIconSetFromIcoMoon from '@expo/vector-icons/createIconSetFromIcoMoon';
+import { cssInterop } from 'nativewind';
 
 import icoMoonConfig from '../assets/icomoon/selection.json';
 
@@ -9,5 +8,7 @@ const IcomoonIcon = createIconSetFromIcoMoon(
   'Icomoon',
   'icomoon.ttf',
 );
+
+cssInterop(IcomoonIcon, { className: 'style' });
 
 export default IcomoonIcon;

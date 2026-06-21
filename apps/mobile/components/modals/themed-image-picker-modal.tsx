@@ -1,9 +1,9 @@
 import { useThemeColor } from '@/hooks/use-theme-color';
 import React from 'react';
 import { StyleSheet, View } from 'react-native';
-import ProfilePic from '../profile-pic';
 import ThemedGridView from '../themed-grid-view';
 import ThemedModal from './themed-modal';
+import { Avatar } from '@/components/ui/avatar';
 
 export const IMAGE_URIS = [
   'https://i.ibb.co/7JspsbLL/Bio.png',
@@ -25,22 +25,22 @@ export type ThemedImagePickerModalProps = {
 const ThemedImagePickerModal = (props: ThemedImagePickerModalProps) => {
   const profilePicArray: React.ReactNode[] = [
     ...IMAGE_URIS.map((uri) => (
-      <ProfilePic
+      <Avatar
         key={uri}
         onPress={() => onAvatarPressed(uri)}
-        avatarType="group"
+        variant="group"
         size="large"
         source={uri}
-      ></ProfilePic>
+      ></Avatar>
     )),
-    <ProfilePic
+    <Avatar
       key="no-image"
       onPress={() => onAvatarPressed(undefined)}
-      avatarType="group"
+      variant="group"
       size="large"
       source={undefined}
       icomoonIcon="prohibit"
-    ></ProfilePic>,
+    ></Avatar>,
   ];
 
   const onAvatarPressed = (uri: string | undefined) => {

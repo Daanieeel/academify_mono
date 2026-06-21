@@ -1,7 +1,6 @@
-import { ThemedText } from '@/components/themed-text';
-import { useThemeColor } from '@/hooks/use-theme-color';
 import React from 'react';
-import { Image, ImageSourcePropType, StyleSheet, View } from 'react-native';
+import { Image, ImageSourcePropType, View } from 'react-native';
+import { Text } from '@/components/ui/text';
 
 export type ThemedAttachementButtonProps = {
   label: string;
@@ -9,37 +8,15 @@ export type ThemedAttachementButtonProps = {
 };
 
 const ThemedAttachmentButton = (props: ThemedAttachementButtonProps) => {
-  const neutral200Color = useThemeColor({}, 'neutral-200');
-
   return (
-    <View
-      style={[
-        {
-          backgroundColor: neutral200Color,
-        },
-        styles['main-container'],
-      ]}
-    >
-      <Image source={props.emojiPath} style={styles['emoji']}></Image>
-      <ThemedText type="caption">{props.label}</ThemedText>
+    <View className="bg-neutral-200 rounded-[9999px] px-[12px] h-[35px] flex-row items-center gap-[10px]">
+      <Image
+        source={props.emojiPath}
+        className="h-[20px] w-[20px] object-contain"
+      ></Image>
+      <Text variant="caption">{props.label}</Text>
     </View>
   );
 };
-
-const styles = StyleSheet.create({
-  'main-container': {
-    borderRadius: 9999,
-    paddingHorizontal: 12,
-    height: 35,
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 10,
-  },
-  emoji: {
-    height: 20,
-    width: 20,
-    objectFit: 'contain',
-  },
-});
 
 export default ThemedAttachmentButton;

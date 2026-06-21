@@ -1,8 +1,5 @@
-import IcomoonIcon from '@/components/IcomoonIcon';
-import { ThemedText } from '@/components/themed-text';
-import { useThemeColor } from '@/hooks/use-theme-color';
 import React from 'react';
-import { StyleSheet, View } from 'react-native';
+import { View } from 'react-native';
 import ThemedAttachmentMessage, {
   ThemedAttachmentMessageProps,
 } from './themed-attachment-message';
@@ -12,6 +9,8 @@ import ThemedImageMessage, {
 import ThemedTextMessage, {
   ThemedTextMessageProps,
 } from './themed-text-message';
+import { Icon } from '@/components/ui/icon';
+import { Text } from '@/components/ui/text';
 
 export type ThemedMessageWrapperProps = {
   messageId: string;
@@ -25,24 +24,12 @@ export type ThemedMessageWrapperProps = {
 };
 
 const ThemedMessageWrapper = ({ ...props }: ThemedMessageWrapperProps) => {
-  const messageBackground = props.userIsSender
-    ? useThemeColor({}, 'primary-400')
-    : useThemeColor({}, 'neutral-50');
-
   return (
     <View
-      style={[
-        {
-          maxWidth: '80%',
-          minWidth: props.imageContent ? '80%' : undefined,
-          alignSelf: props.userIsSender ? 'flex-end' : 'flex-start',
-          backgroundColor: messageBackground,
-        },
-        styles['main-container'],
-      ]}
+      className={`max-w-[80%] pb-[10px] flex-col rounded-[18px] gap-[0px] ${props.imageContent ? 'min-w-[80%]' : ''} ${props.userIsSender ? 'self-end bg-primary-400' : 'self-start bg-neutral-50'}`}
     >
       {props.imageContent && (
-        <View style={styles['image-wrapper']}>
+        <View className="pt-[5px] px-[5px]">
           <ThemedImageMessage
             userIsSender
             {...props.imageContent}
@@ -50,7 +37,7 @@ const ThemedMessageWrapper = ({ ...props }: ThemedMessageWrapperProps) => {
         </View>
       )}
       {props.attachmentContents && (
-        <View style={styles['attachment-wrapper']}>
+        <View className="px-[5px] pt-[5px]">
           {props.attachmentContents.map((attachmentProps, index) => (
             <ThemedAttachmentMessage
               key={index}
@@ -60,55 +47,22 @@ const ThemedMessageWrapper = ({ ...props }: ThemedMessageWrapperProps) => {
         </View>
       )}
       {props.textContent && (
-        <View style={styles['text-wrapper']}>
+        <View className="pt-[15px] px-[15px]">
           <ThemedTextMessage {...props.textContent}></ThemedTextMessage>
         </View>
       )}
       <View
-        style={[
-          {
-            alignSelf: props.userIsSender ? 'flex-end' : 'flex-start',
-            gap: 5,
-          },
-          styles['info-container'],
-        ]}
+        className={`flex-row items-center pt-[15px] px-[15px] gap-[5px] ${props.userIsSender ? 'self-end' : 'self-start'}`}
       >
-        <ThemedText type="caption">
+        <Text variant="caption">
           {props.senderName + ' • ' + props.sendDate}
-        </ThemedText>
+        </Text>
         {props.messageStatus === 'loading' ? (
-          <IcomoonIcon size={15} name="spinner"></IcomoonIcon>
+          <Icon size={15} name="spinner"></Icon>
         ) : undefined}
       </View>
     </View>
   );
 };
-
-const styles = StyleSheet.create({
-  'main-container': {
-    paddingBottom: 10,
-    flexDirection: 'column',
-    borderRadius: 18,
-    gap: 0,
-  },
-  'info-container': {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingTop: 15,
-    paddingHorizontal: 15,
-  },
-  'text-wrapper': {
-    paddingTop: 15,
-    paddingHorizontal: 15,
-  },
-  'image-wrapper': {
-    paddingTop: 5,
-    paddingHorizontal: 5,
-  },
-  'attachment-wrapper': {
-    paddingHorizontal: 5,
-    paddingTop: 5,
-  },
-});
 
 export default ThemedMessageWrapper;

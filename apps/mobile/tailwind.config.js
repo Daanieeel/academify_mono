@@ -3,7 +3,7 @@ const typography = require('./themes/typography');
 
 module.exports = {
   // NOTE: Update this to include the paths to all files that contain Nativewind classes.
-  content: ['./app/**/*.{js,jsx,ts,tsx}', './comps/**/*.{js,jsx,ts,tsx}'],
+  content: ['./app/**/*.{js,jsx,ts,tsx}', './components/**/*.{js,jsx,ts,tsx}'],
   presets: [require('nativewind/preset')],
   theme: {
     colors: {
@@ -75,6 +75,8 @@ module.exports = {
     },
     extend: {
       colors: {
+        transparent: 'transparent',
+        current: 'currentColor',
         'untis-orange': 'var(--color-untis-orange)',
       },
       fontFamily: {

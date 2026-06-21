@@ -2,15 +2,22 @@
 
 import { FeedbackType, useHaptic } from '@/hooks/use-haptics';
 import React, { useRef } from 'react';
-import { Animated, Pressable, PressableProps } from 'react-native';
+import {
+  Animated,
+  Pressable,
+  PressableProps,
+  StyleProp,
+  ViewStyle,
+} from 'react-native';
 
-export type ThemedPressableProps = PressableProps & {
+export type ThemedPressableProps = Omit<PressableProps, 'style'> & {
   children?: React.ReactNode;
   onPress: () => void;
   scaleFactor?: number;
   feedBackType?: FeedbackType;
   animationEnabled?: boolean;
   disabled?: boolean;
+  style?: StyleProp<ViewStyle>;
 };
 
 const ThemedPressable = ({
@@ -18,6 +25,8 @@ const ThemedPressable = ({
   feedBackType = 'selection',
   scaleFactor = 0.96,
   animationEnabled = true,
+  className,
+  style,
   ...props
 }: ThemedPressableProps) => {
   const selectionHaptic = useHaptic(feedBackType);
@@ -56,16 +65,20 @@ const ThemedPressable = ({
 
   return (
     <Pressable
-      style={{
-        opacity: disabled ? 0.6 : 1,
-      }}
       disabled={disabled}
       {...props}
       onPress={handleOnPress}
       onPressIn={handlePressIn}
       onPressOut={handlePressOut}
     >
-      <Animated.View style={[{ transform: [{ scale: scaleAnim }] }]}>
+      <Animated.View
+        className={className}
+        style={[
+          style,
+          { opacity: disabled ? 0.6 : 1 },
+          { transform: [{ scale: scaleAnim }] },
+        ]}
+      >
         {props.children}
       </Animated.View>
     </Pressable>

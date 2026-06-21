@@ -1,32 +1,20 @@
-import { useThemeColor } from '@/hooks/use-theme-color';
 import React from 'react';
 import { View } from 'react-native';
-import { ThemedText } from './themed-text';
+import { Text } from '@/components/ui/text';
 
 const ThemedAcademiBackground = () => {
-  const neutral200Color = useThemeColor({}, 'neutral-200');
-
   return (
-    <View
-      style={{
-        position: 'absolute',
-        top: -100,
-        right: -100,
-        zIndex: 0,
-        gap: 25,
-        transform: [{ rotate: '-15deg' }],
-      }}
-    >
+    <View className="absolute top-[-100px] right-[-100px] z-0 gap-[25px] -rotate-[15deg]">
       {Array.from({ length: 30 }).map((_, index) => (
-        <View key={index} style={{ flexDirection: 'row', gap: 25 }}>
+        <View key={index} className="flex-row gap-[25px]">
           {Array.from({ length: 30 }).map((_, innerIndex) => (
-            <ThemedText
+            <Text
               key={innerIndex}
-              color={neutral200Color}
-              type="heading2"
+              className="text-neutral-200"
+              variant="heading2"
             >
               academi
-            </ThemedText>
+            </Text>
           ))}
         </View>
       ))}

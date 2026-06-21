@@ -1,8 +1,9 @@
+import { Input } from '@/components/ui/input';
+
 // The footer for the chat page including a textfield and buttons for attachments as well as the send button
 
-import { useThemeColor } from '@/hooks/use-theme-color';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { Keyboard, StyleSheet, TextInput, View } from 'react-native';
+import { Keyboard, TextInput, View } from 'react-native';
 import Animated, {
   Easing,
   useAnimatedStyle,
@@ -11,12 +12,12 @@ import Animated, {
   withTiming,
 } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { Icon } from '@/components/ui/icon';
+import { Text } from '@/components/ui/text';
 
-import SmallButton from '@/components/buttons/small-button';
-import ThemedRoundButton from '@/components/buttons/themed-round-button';
-import IcomoonIcon from '@/components/IcomoonIcon';
+import { Button } from '@/components/ui/button';
+import { RoundButton } from '@/components/ui/round-button';
 import ThemedPressable from '@/components/themed-pressable';
-import ThemedTextField from '@/components/themed-text-field';
 
 const ATTACHMENT_BUTTON_HEIGHT = 280;
 
@@ -31,8 +32,6 @@ const ThemedChatPageFooter = ({
   setCurrentDisplay,
   onSend,
 }: ThemedChatPageFooterProps) => {
-  const neutral50Color = useThemeColor({}, 'neutral-50');
-  const neutral900Color = useThemeColor({}, 'neutral-900');
   const safeAreaBottom = useSafeAreaInsets().bottom;
 
   const inputRef = useRef<TextInput>(null);
@@ -111,9 +110,9 @@ const ThemedChatPageFooter = ({
     }
   };
 
-  const animatedPaddingStyle = useAnimatedStyle(() => {
+  const animatedBottomSpacerStyle = useAnimatedStyle(() => {
     return {
-      paddingBottom: bottomPadding.value,
+      height: bottomPadding.value,
     };
   });
 
@@ -125,47 +124,27 @@ const ThemedChatPageFooter = ({
   });
 
   return (
-    <Animated.View
-      style={[
-        styles['main-container'],
-        animatedPaddingStyle,
-        {
-          backgroundColor: neutral50Color,
-          borderColor: neutral900Color,
-        },
-      ]}
-    >
+    <View className="px-[15px] z-[9999] border-t-[1.5px] pt-[10px] flex-col gap-[10px] bg-neutral-50 border-neutral-900">
       {/* View for the plus button, textfield and send button */}
 
-      <View
-        style={{
-          flexDirection: 'row',
-          alignItems: 'center',
-        }}
-      >
+      <View className="flex-row items-center">
         {/* Plus Button to show attachments */}
 
         <ThemedPressable
           feedBackType="medium"
-          style={{
-            paddingRight: 15,
-          }}
+          className="pr-[15px]"
           onPress={onShowAttachmentButtonsPressed}
         >
-          <IcomoonIcon
+          <Icon
             name={currentDisplay === 'attachments' ? 'keyboard' : 'plus'}
             size={25}
-          ></IcomoonIcon>
+          ></Icon>
         </ThemedPressable>
 
         {/* Actual input field */}
 
-        <View
-          style={{
-            flex: 1,
-          }}
-        >
-          <ThemedTextField
+        <View className="flex-1">
+          <Input
             onPress={onTextFieldPress}
             ref={inputRef}
             multiline
@@ -173,32 +152,29 @@ const ThemedChatPageFooter = ({
             onChangeText={setInput}
             value={input}
             placeholder="Nachricht eingeben"
-          ></ThemedTextField>
+          ></Input>
         </View>
 
         {/* Send button when text field is not empty*/}
 
         {input !== '' ? (
-          <Animated.View
-            style={[
-              sendButtonStyle,
-              {
-                paddingLeft: 15,
-              },
-            ]}
-          >
-            <SmallButton
-              onPress={() => {
-                const text = input.trim();
-                if (text === '') {return;}
-                setInput('');
-                onSend?.(text);
-              }}
-              iconName="paper-plane-right"
-              type="inverted"
-              iconSize={22}
-            ></SmallButton>
-          </Animated.View>
+          <View className="pl-[15px]">
+            <Animated.View style={sendButtonStyle}>
+              <Button
+                variant="inverted"
+                onPress={() => {
+                  const text = input.trim();
+                  if (text === '') {
+                    return;
+                  }
+                  setInput('');
+                  onSend?.(text);
+                }}
+              >
+                <Icon name="paper-plane-right" size={22} />
+              </Button>
+            </Animated.View>
+          </View>
         ) : undefined}
       </View>
 
@@ -206,52 +182,36 @@ const ThemedChatPageFooter = ({
 
       {currentDisplay === 'attachments' ? (
         <View
-          style={{
-            position: 'absolute',
-            right: 0,
-            left: 0,
-            bottom: 0,
-            height: ATTACHMENT_BUTTON_HEIGHT,
-            alignItems: 'center',
-            justifyContent: 'center',
-          }}
+          className="absolute right-0 left-0 bottom-0 items-center justify-center"
+          style={{ height: ATTACHMENT_BUTTON_HEIGHT }}
         >
-          <View
-            style={{
-              width: '80%',
-              justifyContent: 'space-between',
-              flexDirection: 'row',
-              gap: 30,
-              alignItems: 'center',
-              flexWrap: 'wrap',
-            }}
-          >
-            <ThemedRoundButton
+          <View className="w-[80%] justify-between flex-row gap-[30px] items-center flex-wrap">
+            <RoundButton
               label={'Bild'}
               icomoonIcon={'image'}
               onPress={() => {}}
             />
-            <ThemedRoundButton
+            <RoundButton
               label={'Bild'}
               icomoonIcon={'image'}
               onPress={() => {}}
             />
-            <ThemedRoundButton
+            <RoundButton
               label={'Kamera'}
               icomoonIcon={'camera'}
               onPress={() => {}}
             />
-            <ThemedRoundButton
+            <RoundButton
               label={'Kamera'}
               icomoonIcon={'camera'}
               onPress={() => {}}
             />
-            <ThemedRoundButton
+            <RoundButton
               label={'Umfrage'}
               icomoonIcon={'poll'}
               onPress={() => {}}
             />
-            <ThemedRoundButton
+            <RoundButton
               label={'Bild'}
               icomoonIcon={'image'}
               onPress={() => {}}
@@ -259,19 +219,11 @@ const ThemedChatPageFooter = ({
           </View>
         </View>
       ) : undefined}
-    </Animated.View>
+
+      {/* Spacer that grows with the keyboard/safe-area inset */}
+      <Animated.View style={animatedBottomSpacerStyle} />
+    </View>
   );
 };
-
-const styles = StyleSheet.create({
-  'main-container': {
-    paddingHorizontal: 15,
-    zIndex: 9999,
-    borderTopWidth: 1.5,
-    paddingTop: 10,
-    flexDirection: 'column',
-    gap: 10,
-  },
-});
 
 export default ThemedChatPageFooter;
