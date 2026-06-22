@@ -1,5 +1,4 @@
 import ThemedListPreviewItem from '@/components/modals/themed-picker-modal/themed-list-preview-item';
-import ThemedSearchBar from '@/components/themed-search-bar';
 import APPLICATION_CONSTANTS from '@/constants/strings';
 import { api, type ChatDetail } from '@/lib/api-client';
 import { router, useLocalSearchParams } from 'expo-router';
@@ -17,8 +16,6 @@ const ChatAboutPage = () => {
   const [chatDetail, setChatDetail] = useState<ChatDetail | undefined>(
     undefined,
   );
-
-  const [searchBarInput, setSearchBarInput] = useState('');
   const [activeTab, setActiveTab] = useState('images');
 
   useEffect(() => {
@@ -27,10 +24,6 @@ const ChatAboutPage = () => {
     }
     api.getChatDetail(id).then(setChatDetail).catch(console.error);
   }, [id]);
-
-  const onSearchBarInputChanged = (input: string) => {
-    setSearchBarInput(input);
-  };
 
   const onBackButtonPressed = () => {
     router.back();
@@ -70,11 +63,6 @@ const ChatAboutPage = () => {
           <Text variant="heading2">{peer?.display_name ?? 'Chat'}</Text>
           <Text variant="caption">Direktnachricht</Text>
         </View>
-        <ThemedSearchBar
-          placeholder={APPLICATION_CONSTANTS.CHAT_ABOUT_PAGE_SEARCH_BAR_LABEL}
-          value={searchBarInput}
-          onInputChanged={onSearchBarInputChanged}
-        ></ThemedSearchBar>
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
           <TabsList>
             <TabsTrigger value="images">

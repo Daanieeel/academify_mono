@@ -203,6 +203,14 @@ export default function TabLayout() {
           />
         )}
       </NativeTabs.Trigger>
+
+      <NativeTabs.Trigger
+        name="search"
+        role="search"
+        contentStyle={{ backgroundColor: neutral50Color }}
+      >
+        <NativeTabs.Trigger.Label>Suche</NativeTabs.Trigger.Label>
+      </NativeTabs.Trigger>
     </NativeTabs>
   );
 }

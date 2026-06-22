@@ -23,7 +23,23 @@ const APPLICATION_CONSTANTS = {
   PROFILE_EDIT_PAGE_HEADING: 'Alles noch aktuell?',
   PROFILE_EDIT_PAGE_SUBHEADING: 'Überprüfe dein Profil.',
 
-  CHATS_PAGE_SEARCH_BAR_PLACEHOLDER: 'Suche nach Chats starten',
+  SEARCH_PAGE_TITLE: 'Suche',
+  SEARCH_BAR_PLACEHOLDER: 'Suche...',
+  SEARCH_EMPTY_STATE: 'Tippe um zu suchen',
+  SEARCH_NO_RESULTS: 'Keine Ergebnisse',
+  SEARCH_SHOW_MORE: 'Mehr anzeigen',
+  SEARCH_FILTER_ALL: 'Alle',
+  SEARCH_FILTER_CONTACTS: 'Kontakte',
+  SEARCH_FILTER_CHATS: 'Chats',
+  SEARCH_FILTER_BLACKBOARDS: 'Blackboards',
+  SEARCH_FILTER_CLUBS: 'Clubs',
+  SEARCH_FILTER_SETTINGS: 'Einstellungen',
+  SEARCH_CATEGORY_CONTACTS: 'Kontakte',
+  SEARCH_CATEGORY_CHATS: 'Chats',
+  SEARCH_CATEGORY_BLACKBOARDS: 'Blackboards',
+  SEARCH_CATEGORY_CLUBS: 'Clubs',
+  SEARCH_CATEGORY_SETTINGS: 'Einstellungen',
+
   CHATS_PAGE_HEADER: 'Chats',
   CHATS_PAGE_NEW_CHAT_BUTTON_LABEL: 'Neuer Chat',
   CHATS_PAGE_NO_CHATS_AVAILABLE_HEADING: 'Keine Chats',
@@ -31,7 +47,6 @@ const APPLICATION_CONSTANTS = {
     'Wenn Du die Möglichkeit hast, erstelle Einen mit dem Button unten',
 
   CHAT_ABOUT_PAGE_EDIT_LABEL: 'Bearbeiten',
-  CHAT_ABOUT_PAGE_SEARCH_BAR_LABEL: 'Im Chatverlauf suchen...',
 
   CREATE_CHAT_MODAL_SLIDER_OPTION_1: 'Gruppenchat',
   CREATE_CHAT_MODAL_SLIDER_OPTION_2: 'Einzelchat',

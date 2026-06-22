@@ -6,6 +6,7 @@ import { chatsRoutes } from './routes/chats';
 import { messagesRoutes } from './routes/messages';
 import { mlsRoutes } from './routes/mls';
 import { reportsRoutes } from './routes/reports';
+import { searchRoutes } from './routes/search';
 import { syncRoutes } from './routes/sync';
 import { wsRoutes } from './ws';
 
@@ -17,6 +18,7 @@ export const app = new Elysia()
   .use(syncRoutes)
   .use(mlsRoutes)
   .use(reportsRoutes)
+  .use(searchRoutes)
   .use(wsRoutes);
 
 if (import.meta.main) {

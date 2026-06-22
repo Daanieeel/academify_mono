@@ -8,7 +8,6 @@ import ThemedChatPreview, {
 import ThemedErrorBackground from '@/components/themed-error-background';
 import ThemedHeader from '@/components/themed-header';
 import ThemedPressable from '@/components/themed-pressable';
-import ThemedSearchBar from '@/components/themed-search-bar';
 import APPLICATION_CONSTANTS from '@/constants/strings';
 import { useChats } from '@/hooks/use-chats';
 import { formatChatTimestamp } from '@/lib/format';
@@ -17,8 +16,6 @@ import { router, Stack } from 'expo-router';
 import React, { useEffect, useState, useMemo } from 'react';
 import { Pressable, View } from 'react-native';
 import Animated, {
-  Extrapolation,
-  interpolate,
   useAnimatedScrollHandler,
   useAnimatedStyle,
   useSharedValue,
@@ -32,9 +29,6 @@ import { Button } from '@/components/ui/button';
 import { Icon } from '@/components/ui/icon';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Text } from '@/components/ui/text';
-
-const HEADER_MAX_HEIGHT = 150;
-const HEADER_MIN_HEIGHT = 75;
 
 function toPreviewProps(chat: ChatListEntry): ThemedChatPreviewProps {
   return {
@@ -58,8 +52,6 @@ const Chats = () => {
 
   const scrollY = useSharedValue(0);
   const { chats, loading } = useChats();
-
-  const [searchText, setSearchText] = useState('');
   const [dismissedChatIds, setDismissedChatIds] = useState<string[]>([]);
   const [modalShown, setModalShown] = useState(false); // Modal for create a new chat
   const [chatModalMode, setChatModalMode] = useState<'single' | 'group'>(
@@ -93,18 +85,8 @@ const Chats = () => {
   });
 
   const headerStyle = useAnimatedStyle(() => {
-    const height = interpolate(
-      scrollY.value,
-      [0, HEADER_MAX_HEIGHT - HEADER_MIN_HEIGHT],
-      [HEADER_MAX_HEIGHT, HEADER_MIN_HEIGHT],
-      Extrapolation.CLAMP,
-    );
-    return { height };
+    return {};
   });
-
-  const onSearchBarInputChanged = (input: string) => {
-    setSearchText(input);
-  };
 
   const onNewChatTogglePressed = () => {
     setNewChatMenuOpen((prev) => !prev);
@@ -132,8 +114,12 @@ const Chats = () => {
     return filtered.sort((a, b) => {
       const aTemp = !a.last_message_at;
       const bTemp = !b.last_message_at;
-      if (aTemp && !bTemp) {return -1;}
-      if (!aTemp && bTemp) {return 1;}
+      if (aTemp && !bTemp) {
+        return -1;
+      }
+      if (!aTemp && bTemp) {
+        return 1;
+      }
       return 0;
     });
   }, [chats, dismissedChatIds]);
@@ -162,15 +148,6 @@ const Chats = () => {
           <View className="overflow-hidden">
             <ThemedHeader
               headerTitle={APPLICATION_CONSTANTS.CHATS_PAGE_HEADER}
-              headerSearchBar={
-                <ThemedSearchBar
-                  placeholder={
-                    APPLICATION_CONSTANTS.CHATS_PAGE_SEARCH_BAR_PLACEHOLDER
-                  }
-                  value={searchText}
-                  onInputChanged={onSearchBarInputChanged}
-                ></ThemedSearchBar>
-              }
             ></ThemedHeader>
           </View>
         </Animated.View>

@@ -7,7 +7,6 @@ import ThemedSettingsItem, {
 } from '@/components/pages/settings/themed-settings-item';
 import ThemedHeader from '@/components/themed-header';
 import ThemedPressable from '@/components/themed-pressable';
-import ThemedSearchBar from '@/components/themed-search-bar';
 import { useSession } from '@/context/auth-context';
 import { api, type MeResponse } from '@/lib/api-client';
 import { formatRoleIcon, formatRoleLabel } from '@/lib/format';
@@ -50,7 +49,6 @@ const settingsItems: ThemedSettingsItemProp[] = [
 ];
 
 const Settings = () => {
-  const [searchBarValue, setSearchBarValue] = useState('');
   const [me, setMe] = useState<MeResponse | undefined>(undefined);
   const [avatarPickerShown, setAvatarPickerShown] = useState(false);
   const { signOut } = useSession();
@@ -99,18 +97,9 @@ const Settings = () => {
 
   return (
     <View className="flex-1 bg-neutral-50">
-      <SafeAreaView>
+      <SafeAreaView edges={['top']}>
         <Stack.Screen options={{ headerShown: false }}></Stack.Screen>
-        <ThemedHeader
-          headerTitle={'Einstellungen'}
-          headerSearchBar={
-            <ThemedSearchBar
-              placeholder="Nach Einstellung suchen.."
-              value={searchBarValue}
-              onInputChanged={setSearchBarValue}
-            ></ThemedSearchBar>
-          }
-        ></ThemedHeader>
+        <ThemedHeader headerTitle={'Einstellungen'}></ThemedHeader>
       </SafeAreaView>
 
       <ScrollView

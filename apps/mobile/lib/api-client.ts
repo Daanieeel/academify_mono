@@ -83,6 +83,55 @@ export type MessageDto = {
   deleted: boolean;
 };
 
+export type SearchCategory<T> = {
+  items: T[];
+  has_more: boolean;
+};
+
+export type SearchContactDto = {
+  user_id: string;
+  display_name: string;
+  role:
+    | 'student'
+    | 'teacher'
+    | 'admin'
+    | 'compliance_officer'
+    | 'headmaster'
+    | null;
+  class_name: string | null;
+  avatar_background_color: string | null;
+  avatar_emoji: string | null;
+};
+
+export type SearchChatDto = {
+  chat_id: string;
+  type: string;
+  peer: { user_id: string; display_name: string };
+  last_message_at: string | null;
+};
+
+export type SearchBlackboardDto = {
+  id: string;
+  title: string;
+  body: string;
+  author_user_id: string;
+  created_at: string;
+};
+
+export type SearchClubDto = {
+  id: string;
+  name: string;
+  description: string | null;
+  created_at: string;
+};
+
+export type SearchResultsDto = {
+  contacts?: SearchCategory<SearchContactDto>;
+  chats?: SearchCategory<SearchChatDto>;
+  blackboards?: SearchCategory<SearchBlackboardDto>;
+  clubs?: SearchCategory<SearchClubDto>;
+};
+
 export const api = {
   getMe: async (): Promise<MeResponse> => (await request('/me')).json(),
 
@@ -257,6 +306,30 @@ export const api = {
       );
     }
     return response.json();
+  },
+
+  search: async (query: string, limit?: number): Promise<SearchResultsDto> => {
+    const params = new URLSearchParams({ q: query });
+    if (limit) {
+      params.set('limit', String(limit));
+    }
+    return (await request(`/search?${params.toString()}`)).json();
+  },
+
+  searchCategory: async (
+    query: string,
+    category: 'contacts' | 'chats' | 'blackboards' | 'clubs',
+    limit?: number,
+    offset?: number,
+  ): Promise<SearchResultsDto> => {
+    const params = new URLSearchParams({ q: query, category });
+    if (limit) {
+      params.set('limit', String(limit));
+    }
+    if (offset !== undefined) {
+      params.set('offset', String(offset));
+    }
+    return (await request(`/search?${params.toString()}`)).json();
   },
 };
 
