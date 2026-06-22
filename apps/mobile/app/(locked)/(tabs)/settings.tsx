@@ -17,12 +17,6 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 const settingsItems: ThemedSettingsItemProp[] = [
   {
-    label: 'Dark Mode',
-    icomoonIcon: 'moon-stars',
-    type: 'switch',
-    onPressAction: 'dark-mode-press-action',
-  },
-  {
     label: 'Benachrichtigungen',
     icomoonIcon: 'bell',
     type: 'switch',
@@ -80,17 +74,12 @@ const Settings = () => {
     router.replace('/(auth)/landing-page/landing-page');
   };
 
-  const onDarkModePressed = () => {
-    console.log('From Settings Page: Dark mode trigger pressed');
-  };
-
   const defaultPressedAction = () => {
     console.log('From Settings Page: default action tapped');
   };
 
   const settingsActionHandler: Record<string, () => void> = {
     'log-out-press-action': onLogOutPressed,
-    'dark-mode-press-action': onDarkModePressed,
     'show-help-press-action': defaultPressedAction,
     default: defaultPressedAction,
   };

@@ -14,12 +14,6 @@ import { type ThemedSettingsItemProp } from '@/components/pages/settings/themed-
 // Copied from settings.tsx for client-side search
 const settingsItems: ThemedSettingsItemProp[] = [
   {
-    label: 'Dark Mode',
-    icomoonIcon: 'moon-stars',
-    type: 'switch',
-    onPressAction: 'dark-mode-press-action',
-  },
-  {
     label: 'Benachrichtigungen',
     icomoonIcon: 'bell',
     type: 'switch',
