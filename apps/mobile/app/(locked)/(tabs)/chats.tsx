@@ -14,7 +14,7 @@ import { formatChatTimestamp } from '@/lib/format';
 import { api, type ChatListEntry } from '@/lib/api-client';
 import { router, Stack } from 'expo-router';
 import React, { useEffect, useState, useMemo } from 'react';
-import { Pressable, View } from 'react-native';
+import { Platform, Pressable, View } from 'react-native';
 import Animated, {
   useAnimatedScrollHandler,
   useAnimatedStyle,
@@ -48,7 +48,8 @@ function toPreviewProps(chat: ChatListEntry): ThemedChatPreviewProps {
 
 const Chats = () => {
   const safeArea = useSafeAreaInsets();
-  const bottomInset = safeArea.bottom > 0 ? 83 : 56;
+  const bottomInset =
+    Platform.OS === 'ios' ? (safeArea.bottom > 0 ? 83 : 56) : 0;
 
   const scrollY = useSharedValue(0);
   const { chats, loading } = useChats();
