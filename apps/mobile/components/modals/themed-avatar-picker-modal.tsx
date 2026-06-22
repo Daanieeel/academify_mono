@@ -9,8 +9,9 @@ import {
   serializeAvatarGradient,
 } from '@/lib/avatar';
 import { LinearGradient } from 'expo-linear-gradient';
-import React, { useRef, useState } from 'react';
-import { Keyboard, ScrollView, TextInput, View } from 'react-native';
+import React, { useState } from 'react';
+import { ScrollView, View } from 'react-native';
+import EmojiPicker from 'rn-emoji-keyboard';
 import ThemedModal from './themed-modal';
 import ThemedSelectable from './themed-picker-modal/themed-selectable';
 
@@ -79,15 +80,15 @@ const ThemedAvatarPickerModal = (props: ThemedAvatarPickerModalProps) => {
   const [showAllColors, setShowAllColors] = useState(false);
   const [emojiError, setEmojiError] = useState(false);
   const [saving, setSaving] = useState(false);
-  const emojiInputRef = useRef<TextInput>(null);
+  const [isEmojiPickerOpen, setIsEmojiPickerOpen] = useState(false);
 
   const onEmojiButtonPressed = () => {
     setEmojiError(false);
-    emojiInputRef.current?.focus();
+    setIsEmojiPickerOpen(true);
   };
 
-  const onEmojiTyped = (text: string) => {
-    const picked = text.trim();
+  const onEmojiSelected = (emojiObject: { emoji: string }) => {
+    const picked = emojiObject.emoji;
     if (!picked) {
       return;
     }
@@ -97,7 +98,6 @@ const ThemedAvatarPickerModal = (props: ThemedAvatarPickerModalProps) => {
     }
     setEmoji(picked);
     setEmojiError(false);
-    Keyboard.dismiss();
   };
 
   const onFinishPressed = async () => {
@@ -132,13 +132,11 @@ const ThemedAvatarPickerModal = (props: ThemedAvatarPickerModalProps) => {
         ></Avatar>
       </View>
 
-      {/* Hidden field — focusing it opens the system emoji keyboard, the only
-          way to reach the full OS emoji set without a bundled picker lib. */}
-      <TextInput
-        ref={emojiInputRef}
-        value=""
-        onChangeText={onEmojiTyped}
-        style={{ position: 'absolute', opacity: 0, height: 0, width: 0 }}
+      <EmojiPicker
+        open={isEmojiPickerOpen}
+        onClose={() => setIsEmojiPickerOpen(false)}
+        onEmojiSelected={onEmojiSelected}
+        allowMultipleSelections={false}
       />
 
       <ScrollView contentContainerStyle={{ paddingBottom: 120 }}>

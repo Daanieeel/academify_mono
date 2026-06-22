@@ -9,7 +9,6 @@ import { Button } from '@/components/ui/button';
 import { Icon } from '@/components/ui/icon';
 import { Text } from '@/components/ui/text';
 import { Avatar } from '@/components/ui/avatar';
-import { useThemeColor } from '@/hooks/use-theme-color';
 
 export type ThemedChatPageHeaderProps = {
   onChatAboutPressed: () => void;
@@ -20,8 +19,6 @@ const ThemedChatPageHeader = (props: ThemedChatPageHeaderProps) => {
   const onBackButtonPressed = () => {
     router.back();
   };
-
-  const bgGradientStart = useThemeColor({}, 'neutral-50');
 
   return (
     <SafeAreaView

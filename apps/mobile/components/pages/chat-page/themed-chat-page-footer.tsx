@@ -15,7 +15,6 @@ import Animated, {
 } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Icon } from '@/components/ui/icon';
-import { Text } from '@/components/ui/text';
 
 import { Button } from '@/components/ui/button';
 import { RoundButton } from '@/components/ui/round-button';
