@@ -151,12 +151,12 @@ export default function SearchIndex() {
       filteredSettings.length > 0);
 
   return (
-    <View className="flex-1 bg-neutral-50">
+    <>
       <Stack.Screen
         options={{
           headerTitle: APPLICATION_CONSTANTS.SEARCH_PAGE_TITLE,
           headerShadowVisible: false,
-          headerStyle: { backgroundColor: '#F9FAFB' }, // neutral-50
+          headerStyle: { backgroundColor: '#F9FAFB' },
           headerSearchBarOptions: {
             placeholder: APPLICATION_CONSTANTS.SEARCH_BAR_PLACEHOLDER,
             onChangeText: (e) => setQuery(e.nativeEvent.text),
@@ -165,7 +165,6 @@ export default function SearchIndex() {
           },
         }}
       />
-
       <SearchResultsModal
         visible={modalVisible}
         query={debouncedQuery}
@@ -175,53 +174,76 @@ export default function SearchIndex() {
         onResultPress={handleResultPress}
         settingsItems={settingsItems}
       />
-
-      <View className="flex-1">
+      <ScrollView
+        className="flex-1 bg-neutral-50"
+        contentInsetAdjustmentBehavior="automatic"
+        keyboardShouldPersistTaps="handled"
+        keyboardDismissMode="on-drag"
+        stickyHeaderIndices={[0]}
+      >
         {/* Filter Chips */}
-        <View className="py-[10px]">
+        <View className="py-[10px] bg-neutral-50 z-10">
           <ScrollView
             horizontal
             showsHorizontalScrollIndicator={false}
             contentContainerStyle={{ paddingHorizontal: 15, gap: 10 }}
           >
             {[
-              { id: 'all', label: APPLICATION_CONSTANTS.SEARCH_FILTER_ALL },
+              {
+                id: 'all',
+                label: APPLICATION_CONSTANTS.SEARCH_FILTER_ALL,
+                icon: 'list',
+              },
               {
                 id: 'contacts',
                 label: APPLICATION_CONSTANTS.SEARCH_FILTER_CONTACTS,
+                icon: 'users',
               },
-              { id: 'chats', label: APPLICATION_CONSTANTS.SEARCH_FILTER_CHATS },
+              {
+                id: 'chats',
+                label: APPLICATION_CONSTANTS.SEARCH_FILTER_CHATS,
+                icon: 'chat-circle',
+              },
               {
                 id: 'blackboards',
                 label: APPLICATION_CONSTANTS.SEARCH_FILTER_BLACKBOARDS,
+                icon: 'megaphone-simple',
               },
-              { id: 'clubs', label: APPLICATION_CONSTANTS.SEARCH_FILTER_CLUBS },
+              {
+                id: 'clubs',
+                label: APPLICATION_CONSTANTS.SEARCH_FILTER_CLUBS,
+                icon: 'users-three',
+              },
               {
                 id: 'settings',
                 label: APPLICATION_CONSTANTS.SEARCH_FILTER_SETTINGS,
+                icon: 'gear',
               },
             ].map((filter) => (
               <Button
                 key={filter.id}
-                variant={activeFilter === filter.id ? 'primary' : 'inverted'}
+                variant={activeFilter === filter.id ? 'primary' : 'normal'}
                 onPress={() => setActiveFilter(filter.id as FilterType)}
                 className="rounded-full px-[15px] py-[8px]"
               >
-                <Text
-                  className={
-                    activeFilter === filter.id
-                      ? 'text-white'
-                      : 'text-neutral-900'
-                  }
-                >
-                  {filter.label}
-                </Text>
+                {filter.icon ? (
+                  <Icon
+                    name={filter.icon as any}
+                    size={16}
+                    className={
+                      activeFilter === filter.id
+                        ? 'text-white'
+                        : 'text-neutral-900'
+                    }
+                  />
+                ) : null}
+                <Text>{filter.label}</Text>
               </Button>
             ))}
           </ScrollView>
         </View>
 
-        <ScrollView contentContainerStyle={{ paddingBottom: 50 }}>
+        <View className="pb-[50px]">
           {!query ? (
             <View className="items-center justify-center pt-[100px]">
               <Icon
@@ -371,8 +393,8 @@ export default function SearchIndex() {
               ) : null}
             </View>
           )}
-        </ScrollView>
-      </View>
-    </View>
+        </View>
+      </ScrollView>
+    </>
   );
 }

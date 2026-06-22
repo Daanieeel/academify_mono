@@ -138,7 +138,9 @@ const SearchResultItem = ({ type, data, onPress }: SearchResultItemProps) => {
     const setting = data as ThemedSettingsItemProp;
     return (
       <ThemedPressable onPress={onPress}>
-        <ThemedSettingsItem {...setting} />
+        <View className="mb-[10px]">
+          <ThemedSettingsItem {...setting} />
+        </View>
       </ThemedPressable>
     );
   }

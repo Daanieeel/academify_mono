@@ -95,7 +95,7 @@ const ThemedChatPreview = ({
             ? 'Noch keine Nachrichten'
             : lastMessageEmoji +
               (lastMessageEmoji ? ' ' : '') +
-              props.lastMessage}
+              (props.lastMessage ?? 'Noch keine Nachrichten')}
         </Text>
       </View>
     </View>
