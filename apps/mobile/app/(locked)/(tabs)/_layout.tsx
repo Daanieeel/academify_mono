@@ -4,7 +4,13 @@ import { api } from '@/lib/api-client';
 import { parseAvatarGradient } from '@/lib/avatar';
 import { LinearGradient } from 'expo-linear-gradient';
 import React, { useEffect, useRef, useState } from 'react';
-import { PixelRatio, Platform, Text, View } from 'react-native';
+import {
+  DeviceEventEmitter,
+  PixelRatio,
+  Platform,
+  Text,
+  View,
+} from 'react-native';
 import { captureRef } from 'react-native-view-shot';
 
 // Displayed size = the captured PNG's point size (the slot draws bitmap
@@ -39,6 +45,13 @@ export default function TabLayout() {
   const captureTargetRef = useRef<View>(null);
 
   useEffect(() => {
+    const sub = DeviceEventEmitter.addListener(
+      'avatar_updated_uri',
+      (uri: string) => {
+        setTabIconUri(uri);
+      },
+    );
+
     api
       .getMe()
       .then((me) => {
@@ -68,6 +81,8 @@ export default function TabLayout() {
         }, 50);
       })
       .catch(() => setReady(true));
+
+    return () => sub.remove();
   }, []);
 
   const getCustomIcon = (iconName: string) => {

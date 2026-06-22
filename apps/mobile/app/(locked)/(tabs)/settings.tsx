@@ -11,9 +11,21 @@ import { useSession } from '@/context/auth-context';
 import { api, type MeResponse } from '@/lib/api-client';
 import { formatRoleIcon, formatRoleLabel } from '@/lib/format';
 import { Stack, useRouter } from 'expo-router';
-import React, { useEffect, useState } from 'react';
-import { ScrollView, View } from 'react-native';
+import React, { useEffect, useState, useRef } from 'react';
+import {
+  ScrollView,
+  View,
+  DeviceEventEmitter,
+  PixelRatio,
+  Text as RNText,
+} from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { captureRef } from 'react-native-view-shot';
+import { LinearGradient } from 'expo-linear-gradient';
+import { parseAvatarGradient } from '@/lib/avatar';
+
+const TAB_ICON_PT = 9;
+const PIXEL_RATIO = PixelRatio.get();
 
 const settingsItems: ThemedSettingsItemProp[] = [
   {
@@ -45,6 +57,7 @@ const settingsItems: ThemedSettingsItemProp[] = [
 const Settings = () => {
   const [me, setMe] = useState<MeResponse | undefined>(undefined);
   const [avatarPickerShown, setAvatarPickerShown] = useState(false);
+  const captureTargetRef = useRef<View>(null);
   const { signOut } = useSession();
   const router = useRouter();
 
@@ -86,6 +99,38 @@ const Settings = () => {
 
   return (
     <View className="flex-1 bg-neutral-50">
+      <View
+        style={{ position: 'absolute', top: 0, left: 0, opacity: 0.01 }}
+        pointerEvents="none"
+      >
+        <LinearGradient
+          ref={captureTargetRef as any}
+          collapsable={false}
+          colors={
+            parseAvatarGradient(me?.avatar_background_color) ?? ['#000', '#000']
+          }
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 1 }}
+          style={{
+            height: TAB_ICON_PT,
+            width: TAB_ICON_PT,
+            borderRadius: TAB_ICON_PT / 2,
+            alignItems: 'center',
+            justifyContent: 'center',
+          }}
+        >
+          <RNText
+            style={{
+              fontSize: TAB_ICON_PT * 0.6,
+              transform: [{ translateY: -0.12 }, { translateX: 0.3 }],
+              fontFamily: 'MartianGrotesk-StdRg',
+            }}
+          >
+            {me?.avatar_emoji}
+          </RNText>
+        </LinearGradient>
+      </View>
+
       <SafeAreaView edges={['top']}>
         <Stack.Screen options={{ headerShown: false }}></Stack.Screen>
         <ThemedHeader headerTitle={'Einstellungen'}></ThemedHeader>
@@ -112,7 +157,7 @@ const Settings = () => {
           onRequestClose={() => setAvatarPickerShown(false)}
           currentBackgroundColor={me?.avatar_background_color}
           currentEmoji={me?.avatar_emoji}
-          onSaved={({ backgroundColor, emoji }) =>
+          onSaved={({ backgroundColor, emoji }) => {
             setMe((prev) =>
               prev
                 ? {
@@ -121,8 +166,24 @@ const Settings = () => {
                     avatar_emoji: emoji,
                   }
                 : prev,
-            )
-          }
+            );
+            setTimeout(() => {
+              if (!captureTargetRef.current) {
+                return;
+              }
+              captureRef(captureTargetRef, {
+                format: 'png',
+                quality: 1,
+                result: 'data-uri',
+                width: TAB_ICON_PT * PIXEL_RATIO,
+                height: TAB_ICON_PT * PIXEL_RATIO,
+              })
+                .then((uri) =>
+                  DeviceEventEmitter.emit('avatar_updated_uri', uri),
+                )
+                .catch(console.error);
+            }, 50);
+          }}
         ></ThemedAvatarPickerModal>
 
         <Separator className="my-[20px] mx-[20px]"></Separator>

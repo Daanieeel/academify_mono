@@ -124,11 +124,11 @@ const ThemedAvatarPickerModal = (props: ThemedAvatarPickerModalProps) => {
     setSaving(true);
     try {
       await api.updateMyAvatar({ backgroundColor, emoji });
-      props.onSaved({ backgroundColor, emoji });
-      props.onRequestClose();
     } catch (error) {
       console.error('failed to save avatar:', error);
     } finally {
+      props.onSaved({ backgroundColor, emoji });
+      props.onRequestClose();
       setSaving(false);
     }
   };
