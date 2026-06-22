@@ -10,7 +10,12 @@ import {
 } from '@/lib/avatar';
 import { LinearGradient } from 'expo-linear-gradient';
 import React, { useState } from 'react';
-import { ScrollView, View } from 'react-native';
+import {
+  ScrollView,
+  View,
+  Text as RNText,
+  useWindowDimensions,
+} from 'react-native';
 import EmojiPicker from 'rn-emoji-keyboard';
 import ThemedModal from './themed-modal';
 import ThemedSelectable from './themed-picker-modal/themed-selectable';
@@ -53,6 +58,10 @@ export const AVATAR_PRESETS: { gradient: Gradient; emoji: string }[] = [
   { gradient: ['#F58C8C', '#B91C1C'], emoji: '🦊' },
   { gradient: ['#FCD34D', '#B45309'], emoji: '🦄' },
   { gradient: ['#51B6CF', '#075985'], emoji: '🌟' },
+  { gradient: ['#C8E6B9', '#4B8E2B'], emoji: '🐢' },
+  { gradient: ['#FAB8B8', '#7F1D1D'], emoji: '🐙' },
+  { gradient: ['#FDE68A', '#5BAB34'], emoji: '🍋' },
+  { gradient: ['#B8B4A5', '#575246'], emoji: '🐨' },
 ];
 
 function gradientsEqual(a: Gradient, b: Gradient): boolean {
@@ -77,10 +86,15 @@ const ThemedAvatarPickerModal = (props: ThemedAvatarPickerModalProps) => {
   const [emoji, setEmoji] = useState(
     props.currentEmoji ?? AVATAR_PRESETS[0]!.emoji,
   );
-  const [showAllColors, setShowAllColors] = useState(false);
   const [emojiError, setEmojiError] = useState(false);
   const [saving, setSaving] = useState(false);
   const [isEmojiPickerOpen, setIsEmojiPickerOpen] = useState(false);
+  const { width: windowWidth } = useWindowDimensions();
+
+  // On iPad, a pageSheet modal is not full screen width. We clamp it to a reasonable max.
+  const containerWidth = Math.min(windowWidth, 700);
+  // Account for: 30px screen padding + 20px gaps (4x5px) + 20px borders (5x4px from ThemedSelectable)
+  const itemWidth = Math.floor((containerWidth - 30 - 20 - 20) / 5);
 
   const onEmojiButtonPressed = () => {
     setEmojiError(false);
@@ -146,7 +160,7 @@ const ThemedAvatarPickerModal = (props: ThemedAvatarPickerModalProps) => {
         >
           Vorschläge
         </Text>
-        <View className="flex-row flex-wrap gap-[10px] px-[15px]">
+        <View className="flex-row flex-wrap gap-[5px] px-[15px]">
           {AVATAR_PRESETS.map((preset) => (
             <ThemedSelectable
               key={`${preset.gradient[0]}-${preset.emoji}`}
@@ -164,35 +178,31 @@ const ThemedAvatarPickerModal = (props: ThemedAvatarPickerModalProps) => {
                 start={{ x: 0, y: 0 }}
                 end={{ x: 1, y: 1 }}
                 style={{
-                  height: 56,
-                  width: 56,
-                  borderRadius: 28,
+                  height: itemWidth,
+                  width: itemWidth,
+                  borderRadius: 18,
                   alignItems: 'center',
                   justifyContent: 'center',
                 }}
               >
-                <Text style={{ fontSize: 28 }}>{preset.emoji}</Text>
+                <RNText
+                  style={{
+                    fontSize: itemWidth * 0.5,
+                    lineHeight: itemWidth * 0.6,
+                  }}
+                >
+                  {preset.emoji}
+                </RNText>
               </LinearGradient>
             </ThemedSelectable>
           ))}
         </View>
 
-        <View className="flex-row gap-[10px] px-[15px] pt-[20px]">
-          <View className="flex-1">
-            <Button variant="normal" onPress={onEmojiButtonPressed}>
-              <Icon name="smiley" size={18} />
-              <Text>Emoji</Text>
-            </Button>
-          </View>
-          <View className="flex-1">
-            <Button
-              variant="normal"
-              onPress={() => setShowAllColors((prev) => !prev)}
-            >
-              <Icon name="palette" size={18} />
-              <Text>Farbe</Text>
-            </Button>
-          </View>
+        <View className="px-[15px] pt-[20px]">
+          <Button variant="normal" onPress={onEmojiButtonPressed}>
+            <Icon name="smiley" size={18} />
+            <Text>Emoji auswählen</Text>
+          </Button>
         </View>
 
         {emojiError && (
@@ -201,32 +211,32 @@ const ThemedAvatarPickerModal = (props: ThemedAvatarPickerModalProps) => {
           </Text>
         )}
 
-        {showAllColors && (
-          <>
-            <Text
-              className="px-[15px] pb-[10px] pt-[20px] text-neutral-600"
-              variant="caption"
+        <Text
+          className="px-[15px] pb-[10px] pt-[20px] text-neutral-600"
+          variant="caption"
+        >
+          Farbverlauf
+        </Text>
+        <View className="flex-row flex-wrap gap-[5px] px-[15px]">
+          {AVATAR_GRADIENTS.map((option) => (
+            <ThemedSelectable
+              key={`${option[0]}-${option[1]}`}
+              selected={gradientsEqual(option, gradient)}
+              onPress={() => setGradient(option)}
             >
-              Farbverlauf
-            </Text>
-            <View className="flex-row flex-wrap gap-[10px] px-[15px]">
-              {AVATAR_GRADIENTS.map((option) => (
-                <ThemedSelectable
-                  key={`${option[0]}-${option[1]}`}
-                  selected={gradientsEqual(option, gradient)}
-                  onPress={() => setGradient(option)}
-                >
-                  <LinearGradient
-                    colors={option}
-                    start={{ x: 0, y: 0 }}
-                    end={{ x: 1, y: 1 }}
-                    style={{ height: 48, width: 48, borderRadius: 24 }}
-                  ></LinearGradient>
-                </ThemedSelectable>
-              ))}
-            </View>
-          </>
-        )}
+              <LinearGradient
+                colors={option}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 1 }}
+                style={{
+                  height: itemWidth,
+                  width: itemWidth,
+                  borderRadius: 18,
+                }}
+              ></LinearGradient>
+            </ThemedSelectable>
+          ))}
+        </View>
       </ScrollView>
 
       <View className="absolute bottom-[30px] left-[15px] right-[15px]">
