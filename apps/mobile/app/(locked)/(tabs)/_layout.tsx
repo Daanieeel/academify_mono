@@ -143,6 +143,7 @@ export default function TabLayout() {
   return (
     <NativeTabs
       tintColor={primary900Color}
+      labelVisibilityMode="labeled"
       labelStyle={{
         color: neutral900Color,
       }}
@@ -188,7 +189,7 @@ export default function TabLayout() {
         contentStyle={{ backgroundColor: neutral50Color }}
       >
         <NativeTabs.Trigger.Label>Optionen</NativeTabs.Trigger.Label>
-        {tabIconUri ? (
+        {tabIconUri && Platform.OS === 'ios' ? (
           <NativeTabs.Trigger.Icon
             src={{ uri: tabIconUri, scale: PIXEL_RATIO }}
             renderingMode="original"
@@ -210,6 +211,13 @@ export default function TabLayout() {
         contentStyle={{ backgroundColor: neutral50Color }}
       >
         <NativeTabs.Trigger.Label>Suche</NativeTabs.Trigger.Label>
+        <NativeTabs.Trigger.Icon
+          sf={{
+            default: 'magnifyingglass',
+            selected: 'magnifyingglass',
+          }}
+          md="search"
+        />
       </NativeTabs.Trigger>
     </NativeTabs>
   );
