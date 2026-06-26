@@ -165,7 +165,11 @@ export default function TabLayout() {
     >
       <NativeTabs.Trigger
         name="chats"
-        contentStyle={{ backgroundColor: neutral50Color }}
+        contentStyle={
+          Platform.OS === 'android'
+            ? { backgroundColor: neutral50Color }
+            : undefined
+        }
       >
         <NativeTabs.Trigger.Label>Chats</NativeTabs.Trigger.Label>
         <NativeTabs.Trigger.Icon
@@ -177,7 +181,11 @@ export default function TabLayout() {
 
       <NativeTabs.Trigger
         name="explore"
-        contentStyle={{ backgroundColor: neutral50Color }}
+        contentStyle={
+          Platform.OS === 'android'
+            ? { backgroundColor: neutral50Color }
+            : undefined
+        }
       >
         <NativeTabs.Trigger.Label>Entdecken</NativeTabs.Trigger.Label>
         <NativeTabs.Trigger.Icon
@@ -189,7 +197,11 @@ export default function TabLayout() {
 
       <NativeTabs.Trigger
         name="blackboards"
-        contentStyle={{ backgroundColor: neutral50Color }}
+        contentStyle={
+          Platform.OS === 'android'
+            ? { backgroundColor: neutral50Color }
+            : undefined
+        }
       >
         <NativeTabs.Trigger.Label>Blackboards</NativeTabs.Trigger.Label>
         <NativeTabs.Trigger.Icon
@@ -201,7 +213,11 @@ export default function TabLayout() {
 
       <NativeTabs.Trigger
         name="settings"
-        contentStyle={{ backgroundColor: neutral50Color }}
+        contentStyle={
+          Platform.OS === 'android'
+            ? { backgroundColor: neutral50Color }
+            : undefined
+        }
       >
         <NativeTabs.Trigger.Label>Optionen</NativeTabs.Trigger.Label>
         {tabIconUri && Platform.OS === 'ios' ? (
@@ -223,7 +239,11 @@ export default function TabLayout() {
       <NativeTabs.Trigger
         name="search"
         role="search"
-        contentStyle={{ backgroundColor: neutral50Color }}
+        contentStyle={
+          Platform.OS === 'android'
+            ? { backgroundColor: neutral50Color }
+            : undefined
+        }
       >
         <NativeTabs.Trigger.Label>Suche</NativeTabs.Trigger.Label>
         <NativeTabs.Trigger.Icon
