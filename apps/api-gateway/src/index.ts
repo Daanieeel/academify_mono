@@ -9,6 +9,7 @@ import { mlsRoutes } from './modules/mls';
 import { reportsRoutes } from './modules/reports';
 import { searchRoutes } from './modules/search';
 import { syncRoutes } from './modules/sync';
+import { institutionsRoutes } from './modules/institutions';
 import { wsRoutes } from './modules/ws';
 
 export const app = new Elysia()
@@ -21,6 +22,7 @@ export const app = new Elysia()
   .use(mlsRoutes)
   .use(reportsRoutes)
   .use(searchRoutes)
+  .use(institutionsRoutes)
   .use(wsRoutes);
 
 if (import.meta.main) {
