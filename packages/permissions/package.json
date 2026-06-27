@@ -1,0 +1,27 @@
+{
+  "name": "@repo/permissions",
+  "private": true,
+  "type": "module",
+  "module": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "scripts": {
+    "dev": "echo \"Permissions package has no dev server\"",
+    "build": "tsc -b",
+    "test": "bun test",
+    "lint": "bunx oxlint -c ../config/oxlint/base.json --import-plugin --promise-plugin --deny-warnings .",
+    "typecheck": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "@types/bun": "catalog:",
+    "typescript": "catalog:"
+  },
+  "peerDependencies": {
+    "typescript": "^6"
+  }
+}

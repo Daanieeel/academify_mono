@@ -1,4 +1,5 @@
 import { Elysia } from 'elysia';
+import { PermissionError } from '@repo/permissions';
 
 export class AppError extends Error {
   public statusCode: number;
@@ -28,6 +29,16 @@ export const errorPlugin = new Elysia({ name: 'error-plugin' }).onError(
           code: error.code,
           message: error.message,
           details: error.details,
+        },
+      };
+    }
+
+    if (error instanceof PermissionError) {
+      set.status = 403;
+      return {
+        error: {
+          code: error.code,
+          message: error.message,
         },
       };
     }

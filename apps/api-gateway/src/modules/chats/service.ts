@@ -12,7 +12,13 @@ import {
   user,
   userCursorState,
   userEventStream,
+  institutions,
 } from '@repo/database';
+import {
+  PolicyEngine,
+  PermissionError,
+  type InstitutionSettings,
+} from '@repo/permissions';
 import { AppError } from '../../plugins/error';
 
 // School context: avatar emoji must stay wholesome. Server-side source of
@@ -74,6 +80,7 @@ export class ChatsService {
 
     let role: string | null = null;
     let className: string | null = null;
+    let settings: InstitutionSettings | null = null;
     if (institutionId) {
       const [roleRow] = await db
         .select({ role: roleBindings.role })
@@ -98,7 +105,17 @@ export class ChatsService {
           ),
         );
       className = classRow?.className ?? null;
+
+      const [instRow] = await db
+        .select({ settings: institutions.settings })
+        .from(institutions)
+        .where(eq(institutions.id, institutionId));
+      settings = (instRow?.settings as InstitutionSettings) ?? null;
     }
+
+    const roleName = role ?? 'student';
+    const permissions = PolicyEngine.computePermissions(roleName, settings);
+    const features = PolicyEngine.computeFeatures(settings);
 
     return {
       user_id: userId,
@@ -108,6 +125,8 @@ export class ChatsService {
       class_name: className,
       avatar_background_color: profile.avatarBackgroundColor,
       avatar_emoji: profile.avatarEmoji,
+      permissions,
+      features,
     };
   }
 
@@ -375,6 +394,35 @@ export class ChatsService {
         400,
         'CANNOT_CHAT_SELF',
         'cannot start a chat with yourself',
+      );
+    }
+
+    const [callerRoleRow] = await db
+      .select({ role: roleBindings.role })
+      .from(roleBindings)
+      .where(
+        and(
+          eq(roleBindings.userId, userId),
+          eq(roleBindings.institutionId, institutionId),
+        ),
+      );
+    const callerRole = callerRoleRow?.role ?? 'student';
+
+    const [peerRoleRow] = await db
+      .select({ role: roleBindings.role })
+      .from(roleBindings)
+      .where(
+        and(
+          eq(roleBindings.userId, peerUserId),
+          eq(roleBindings.institutionId, institutionId),
+        ),
+      );
+    const peerRole = peerRoleRow?.role ?? 'student';
+
+    if (!PolicyEngine.canInitiateChat(callerRole, peerRole)) {
+      throw new PermissionError(
+        'ERR_CHAT_NOT_ALLOWED',
+        'you are not allowed to start a chat with this user',
       );
     }
 

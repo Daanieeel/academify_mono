@@ -15,7 +15,8 @@
     "packages/auth",
     "packages/env",
     "packages/client-core",
-    "packages/config"
+    "packages/config",
+    "packages/permissions"
   ],
   "catalog": {
     "@types/bun": "^1.3.14",

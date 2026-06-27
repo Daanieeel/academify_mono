@@ -6,6 +6,7 @@ import {
   timestamp,
   uniqueIndex,
   uuid,
+  jsonb,
 } from 'drizzle-orm/pg-core';
 
 import { user } from './auth';
@@ -40,6 +41,7 @@ export const institutions = pgTable('institutions', {
     .notNull()
     .default('hosted'),
   status: text('status').notNull().default('active'),
+  settings: jsonb('settings').default({}),
   createdAt: timestamp('created_at').defaultNow().notNull(),
 });
 

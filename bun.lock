@@ -22,6 +22,7 @@
         "@repo/crypto": "workspace:*",
         "@repo/database": "workspace:*",
         "@repo/env": "workspace:*",
+        "@repo/permissions": "workspace:*",
         "@repo/redis": "workspace:*",
         "@repo/sync-protocol": "workspace:*",
         "@sinclair/typebox": "^0.34.41",
@@ -231,6 +232,16 @@
       "devDependencies": {
         "@types/bun": "catalog:",
         "typescript": "catalog:",
+      },
+    },
+    "packages/permissions": {
+      "name": "@repo/permissions",
+      "devDependencies": {
+        "@types/bun": "catalog:",
+        "typescript": "catalog:",
+      },
+      "peerDependencies": {
+        "typescript": "^6",
       },
     },
     "packages/redis": {
@@ -930,6 +941,8 @@
     "@repo/env": ["@repo/env@workspace:packages/env"],
 
     "@repo/mls": ["@repo/mls@workspace:packages/mls"],
+
+    "@repo/permissions": ["@repo/permissions@workspace:packages/permissions"],
 
     "@repo/redis": ["@repo/redis@workspace:packages/redis"],
 

@@ -19,6 +19,7 @@
     "@repo/database": "workspace:*",
     "@repo/env": "workspace:*",
     "@repo/redis": "workspace:*",
+    "@repo/permissions": "workspace:*",
     "@repo/sync-protocol": "workspace:*",
     "@sinclair/typebox": "^0.34.41",
     "bullmq": "catalog:",
