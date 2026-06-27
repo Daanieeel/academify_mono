@@ -419,7 +419,13 @@ export class ChatsService {
       );
     const peerRole = peerRoleRow?.role ?? 'student';
 
-    if (!PolicyEngine.canInitiateChat(callerRole, peerRole)) {
+    const [instRow] = await db
+      .select({ settings: institutions.settings })
+      .from(institutions)
+      .where(eq(institutions.id, institutionId));
+    const settings = (instRow?.settings as InstitutionSettings) ?? null;
+
+    if (!PolicyEngine.canInitiateChat(callerRole, peerRole, settings)) {
       throw new PermissionError(
         'ERR_CHAT_NOT_ALLOWED',
         'you are not allowed to start a chat with this user',

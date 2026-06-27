@@ -30,28 +30,22 @@ export class PolicyEngine {
     } as Record<PermissionKey, boolean>;
   }
 
+  static hasPermission(
+    role: string,
+    permission: PermissionKey,
+    settings?: InstitutionSettings | null,
+  ): boolean {
+    const permissions = this.computePermissions(role, settings);
+    return permissions[permission] ?? false;
+  }
+
   // Define who can initiate a DM with whom
-  static canInitiateChat(actorRole: string, targetRole: string): boolean {
-    if (actorRole === 'student') {
-      // Students can only initiate chats with teachers or admins, not other students
-      return (
-        targetRole === 'teacher' ||
-        targetRole === 'admin' ||
-        targetRole === 'headmaster'
-      );
-    }
-    if (
-      actorRole === 'teacher' ||
-      actorRole === 'admin' ||
-      actorRole === 'headmaster'
-    ) {
-      // Staff can initiate with anyone
-      return true;
-    }
-    // Compliance officers don't chat
-    if (actorRole === 'compliance_officer') {
-      return false;
-    }
-    return false;
+  static canInitiateChat(
+    actorRole: string,
+    targetRole: string,
+    settings?: InstitutionSettings | null,
+  ): boolean {
+    const permissionKey = `chat:initiate:${targetRole}` as PermissionKey;
+    return this.hasPermission(actorRole, permissionKey, settings);
   }
 }

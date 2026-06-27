@@ -14,9 +14,10 @@ export const messagesRoutes = new Elysia()
   )
   .post(
     '/messages',
-    ({ body, userId }) => {
+    ({ body, userId, institutionId }) => {
       return MessagesService.sendMessage(
         userId,
+        institutionId,
         body.message_id,
         body.chat_id,
         body.sender_device_id,
