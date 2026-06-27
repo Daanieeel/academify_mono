@@ -1,5 +1,4 @@
 import { and, desc, eq, ilike, inArray, ne, or } from 'drizzle-orm';
-import { Elysia, t } from 'elysia';
 import {
   blackboardPosts,
   chatMembers,
@@ -12,21 +11,26 @@ import {
   roleBindings,
   user,
 } from '@repo/database';
+import { AppError } from '../../plugins/error';
 
-import { authMiddleware } from '../auth-middleware';
-
-export const searchRoutes = new Elysia().use(authMiddleware).get(
-  '/search',
-  async ({ query, userId, institutionId, status }) => {
+export class SearchService {
+  static async search(
+    userId: string,
+    institutionId: string | null,
+    q: string,
+    limit: number = 5,
+    offset: number = 0,
+    requestedCategory?: string,
+  ) {
     if (!institutionId) {
-      return status(403, { error: 'no institution profile for this user' });
+      throw new AppError(
+        403,
+        'NO_INSTITUTION_PROFILE',
+        'no institution profile for this user',
+      );
     }
 
-    const q = `%${query.q}%`;
-    const limit = query.limit ?? 5;
-    const offset = query.offset ?? 0;
-    const requestedCategory = query.category;
-
+    const searchStr = `%${q}%`;
     const results: any = {};
 
     // 1. Search Contacts
@@ -46,8 +50,8 @@ export const searchRoutes = new Elysia().use(authMiddleware).get(
             eq(profiles.institutionId, institutionId),
             ne(profiles.userId, userId),
             or(
-              ilike(profiles.displayNameCiphertext, q),
-              ilike(user.username, q),
+              ilike(profiles.displayNameCiphertext, searchStr),
+              ilike(user.username, searchStr),
             ),
           ),
         )
@@ -141,8 +145,8 @@ export const searchRoutes = new Elysia().use(authMiddleware).get(
               eq(chatMembers.state, 'active'),
               ne(chatMembers.userId, userId),
               or(
-                ilike(profiles.displayNameCiphertext, q),
-                ilike(user.username, q),
+                ilike(profiles.displayNameCiphertext, searchStr),
+                ilike(user.username, searchStr),
               ),
             ),
           )
@@ -189,7 +193,10 @@ export const searchRoutes = new Elysia().use(authMiddleware).get(
         .where(
           and(
             eq(blackboardPosts.institutionId, institutionId),
-            or(ilike(blackboardPosts.title, q), ilike(blackboardPosts.body, q)),
+            or(
+              ilike(blackboardPosts.title, searchStr),
+              ilike(blackboardPosts.body, searchStr),
+            ),
           ),
         )
         .orderBy(desc(blackboardPosts.createdAt))
@@ -225,7 +232,10 @@ export const searchRoutes = new Elysia().use(authMiddleware).get(
         .where(
           and(
             eq(clubs.institutionId, institutionId),
-            or(ilike(clubs.name, q), ilike(clubs.description, q)),
+            or(
+              ilike(clubs.name, searchStr),
+              ilike(clubs.description, searchStr),
+            ),
           ),
         )
         .orderBy(desc(clubs.createdAt))
@@ -247,20 +257,5 @@ export const searchRoutes = new Elysia().use(authMiddleware).get(
     }
 
     return results;
-  },
-  {
-    query: t.Object({
-      q: t.String({ minLength: 1 }),
-      limit: t.Optional(t.Numeric({ default: 5, maximum: 50 })),
-      offset: t.Optional(t.Numeric({ default: 0 })),
-      category: t.Optional(
-        t.Enum({
-          contacts: 'contacts',
-          chats: 'chats',
-          blackboards: 'blackboards',
-          clubs: 'clubs',
-        }),
-      ),
-    }),
-  },
-);
+  }
+}

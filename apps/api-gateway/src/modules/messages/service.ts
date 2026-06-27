@@ -1,0 +1,84 @@
+import { and, eq } from 'drizzle-orm';
+import { chatMembers, db, messages } from '@repo/database';
+import { jobPayloadSchema } from '@repo/sync-protocol';
+
+import { AppError } from '../../plugins/error';
+import { enqueueJob } from '../../queue';
+
+export class MessagesService {
+  static async getMessage(userId: string, messageId: string) {
+    const [message] = await db
+      .select()
+      .from(messages)
+      .where(eq(messages.id, messageId));
+
+    if (!message) {
+      throw new AppError(404, 'MESSAGE_NOT_FOUND', 'message not found');
+    }
+
+    const [membership] = await db
+      .select({ userId: chatMembers.userId })
+      .from(chatMembers)
+      .where(
+        and(
+          eq(chatMembers.chatId, message.chatId),
+          eq(chatMembers.userId, userId),
+        ),
+      );
+
+    if (!membership) {
+      throw new AppError(403, 'NOT_CHAT_MEMBER', 'not a member of this chat');
+    }
+
+    return {
+      message_id: message.id,
+      chat_id: message.chatId,
+      sender_user_id: message.senderUserId,
+      sender_device_id: message.senderDeviceId,
+      mls_epoch: message.mlsEpoch,
+      ciphertext: message.ciphertext.toString('base64url'),
+      content_type: message.contentType,
+      deleted: message.deletedAt !== null,
+    };
+  }
+
+  static async sendMessage(
+    userId: string,
+    messageId: string,
+    chatId: string,
+    senderDeviceId: string,
+    mlsEpoch: number,
+    ciphertext: string,
+    contentType: string,
+  ) {
+    const [membership] = await db
+      .select({ userId: chatMembers.userId })
+      .from(chatMembers)
+      .where(
+        and(
+          eq(chatMembers.chatId, chatId),
+          eq(chatMembers.userId, userId),
+          eq(chatMembers.state, 'active'),
+        ),
+      );
+
+    if (!membership) {
+      throw new AppError(403, 'NOT_CHAT_MEMBER', 'not a member of this chat');
+    }
+
+    const payload = jobPayloadSchema.parse({
+      command: 'SEND_MESSAGE',
+      message_id: messageId,
+      chat_id: chatId,
+      sender_user_id: userId,
+      sender_device_id: senderDeviceId,
+      mls_epoch: mlsEpoch,
+      ciphertext: ciphertext,
+      content_type: contentType,
+    });
+
+    await enqueueJob(payload);
+
+    return { accepted: true, message_id: messageId };
+  }
+}

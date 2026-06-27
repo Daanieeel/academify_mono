@@ -59,3 +59,5 @@ packages/mls/src/wasm/
 
 # rust
 **/target/
+
+.skills

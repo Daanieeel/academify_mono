@@ -1,49 +1,35 @@
 import { asc, eq, sql } from 'drizzle-orm';
-import { Elysia } from 'elysia';
 import { auditLog, db, userCursorState, userEventStream } from '@repo/database';
 import {
   computeNextSyncWindow,
   createSyncResponseDto,
-  parseAckRequestDto,
-  parseSyncRequestDto,
   type UserEventEnvelope,
 } from '@repo/sync-protocol';
 
-import { authMiddleware } from '../auth-middleware';
+export class SyncService {
+  private static toEnvelope(
+    row: typeof userEventStream.$inferSelect,
+  ): UserEventEnvelope {
+    return {
+      version: '1.0.0',
+      event_id: row.eventId,
+      user_id: row.userId,
+      cursor: row.cursor.toString(),
+      event_type: row.eventType as UserEventEnvelope['event_type'],
+      entity_id: row.entityId,
+      created_at: row.createdAt.toISOString(),
+      payload_metadata:
+        row.payloadMetadata as UserEventEnvelope['payload_metadata'],
+    };
+  }
 
-function toEnvelope(
-  row: typeof userEventStream.$inferSelect,
-): UserEventEnvelope {
-  return {
-    version: '1.0.0',
-    event_id: row.eventId,
-    user_id: row.userId,
-    cursor: row.cursor.toString(),
-    event_type: row.eventType as UserEventEnvelope['event_type'],
-    entity_id: row.entityId,
-    created_at: row.createdAt.toISOString(),
-    payload_metadata:
-      row.payloadMetadata as UserEventEnvelope['payload_metadata'],
-  };
-}
+  static async sync(
+    userId: string,
+    afterCursor: string | undefined,
+    limit: number | undefined,
+  ) {
+    const window = computeNextSyncWindow(afterCursor ?? '0', limit);
 
-export const syncRoutes = new Elysia()
-  .use(authMiddleware)
-  .post('/sync', async ({ body, userId, status }) => {
-    let request;
-    try {
-      request = parseSyncRequestDto(body);
-    } catch {
-      return status(400, { error: 'invalid /sync request' });
-    }
-
-    const window = computeNextSyncWindow(
-      request.after_cursor ?? '0',
-      request.limit,
-    );
-
-    // Index-backed via the (user_id, cursor) unique index (Phase 1 schema);
-    // fetch one extra row to compute has_more without a second count query.
     const rows = await db
       .select()
       .from(userEventStream)
@@ -61,20 +47,18 @@ export const syncRoutes = new Elysia()
         : window.after_cursor;
 
     return createSyncResponseDto({
-      events: page.map(toEnvelope),
+      events: page.map(SyncService.toEnvelope),
       next_cursor: nextCursor,
       has_more: hasMore,
     });
-  })
-  .post('/ack', async ({ body, userId, institutionId, status }) => {
-    let request;
-    try {
-      request = parseAckRequestDto(body);
-    } catch {
-      return status(400, { error: 'invalid /ack request' });
-    }
+  }
 
-    const incoming = BigInt(request.last_ack_cursor);
+  static async ack(
+    userId: string,
+    institutionId: string | null,
+    lastAckCursor: string,
+  ) {
+    const incoming = BigInt(lastAckCursor);
 
     const result = await db.transaction(async (tx) => {
       const [current] = await tx
@@ -83,8 +67,6 @@ export const syncRoutes = new Elysia()
         .where(eq(userCursorState.userId, userId));
       const currentAck = current?.lastAckCursor ?? 0n;
 
-      // Monotonic-only: reject anything that would move the ack backward.
-      // Repeating the same value is treated as idempotent success, not stale.
       if (incoming < currentAck) {
         return { accepted: false, acknowledged_cursor: currentAck };
       }
@@ -122,4 +104,5 @@ export const syncRoutes = new Elysia()
       accepted: result.accepted,
       acknowledged_cursor: result.acknowledged_cursor.toString(),
     };
-  });
+  }
+}
