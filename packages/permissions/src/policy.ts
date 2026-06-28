@@ -4,6 +4,13 @@ import { type PermissionKey, DEFAULT_ROLE_PERMISSIONS } from './permissions';
 export interface InstitutionSettings {
   features?: Partial<Record<FeatureKey, boolean>>;
   permissions?: Record<string, Partial<Record<PermissionKey, boolean>>>;
+  customRoles?: Record<
+    string,
+    {
+      baseRole: string;
+      displayName: string;
+    }
+  >;
 }
 
 export class PolicyEngine {
@@ -20,14 +27,19 @@ export class PolicyEngine {
     role: string,
     settings?: InstitutionSettings | null,
   ): Record<PermissionKey, boolean> {
+    // Resolve base role for inheritance if it's a custom role
+    const customDef = settings?.customRoles?.[role];
+    const baseRoleName = customDef ? customDef.baseRole : role;
+
     const basePermissions =
-      DEFAULT_ROLE_PERMISSIONS[role] || DEFAULT_ROLE_PERMISSIONS['student'];
+      DEFAULT_ROLE_PERMISSIONS[baseRoleName] ||
+      DEFAULT_ROLE_PERMISSIONS['student'];
     const overrides = settings?.permissions?.[role] || {};
 
     return {
       ...basePermissions,
       ...overrides,
-    } as Record<PermissionKey, boolean>;
+    };
   }
 
   static hasPermission(

@@ -11,4 +11,13 @@ export const UpdateInstitutionSettingsSchema = t.Object({
       ),
     ),
   ),
+  customRoles: t.Optional(
+    t.Record(
+      t.String(),
+      t.Object({
+        baseRole: t.String(),
+        displayName: t.String(),
+      }),
+    ),
+  ),
 });

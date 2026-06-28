@@ -9,6 +9,7 @@ export class InstitutionsService {
     institutionId: string,
     features?: Record<string, boolean>,
     permissions?: Record<string, Record<string, boolean>>,
+    customRoles?: Record<string, { baseRole: string; displayName: string }>,
   ) {
     const [roleRow] = await db
       .select({ role: roleBindings.role })
@@ -44,6 +45,7 @@ export class InstitutionsService {
     const newSettings: InstitutionSettings = {
       features: { ...currentSettings.features, ...features },
       permissions: { ...currentSettings.permissions },
+      customRoles: { ...currentSettings.customRoles, ...customRoles },
     };
 
     if (permissions) {

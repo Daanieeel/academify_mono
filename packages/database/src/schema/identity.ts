@@ -16,14 +16,6 @@ export const deploymentModeEnum = pgEnum('deployment_mode', [
   'self_hosted',
 ]);
 
-export const roleEnum = pgEnum('role', [
-  'student',
-  'teacher',
-  'admin',
-  'compliance_officer',
-  'headmaster',
-]);
-
 export const provisioningSourceEnum = pgEnum('provisioning_source', [
   'csv',
   'invite',
@@ -74,7 +66,7 @@ export const roleBindings = pgTable(
     institutionId: uuid('institution_id')
       .notNull()
       .references(() => institutions.id),
-    role: roleEnum('role').notNull(),
+    role: text('role').notNull(),
     // Optional scope id (e.g. a class/club id) for scoped bindings; not an FK
     // since the scoped entity type varies by role.
     scope: text('scope'),
@@ -99,7 +91,7 @@ export const invites = pgTable('invites', {
   // Not an FK to `classes` to avoid a schema-file import cycle (org.ts already
   // references institutions); enforced at the application layer for now.
   classId: uuid('class_id'),
-  role: roleEnum('role').notNull(),
+  role: text('role').notNull(),
   expiresAt: timestamp('expires_at').notNull(),
   consumedAt: timestamp('consumed_at'),
   createdBy: text('created_by')

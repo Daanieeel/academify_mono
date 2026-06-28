@@ -11,6 +11,7 @@ export const institutionsRoutes = new Elysia().use(authMiddleware).patch(
       params.id,
       body.features,
       body.permissions,
+      body.customRoles,
     );
   },
   {
