@@ -1,16 +1,16 @@
 import { type FeatureKey, DEFAULT_FEATURES } from './features';
 import { type PermissionKey, DEFAULT_ROLE_PERMISSIONS } from './permissions';
 
+export interface RoleDefinition {
+  displayName?: string;
+  rank?: number; // Higher number = more important
+  inherits?: string[];
+  permissions?: Partial<Record<PermissionKey, boolean>>;
+}
+
 export interface InstitutionSettings {
   features?: Partial<Record<FeatureKey, boolean>>;
-  permissions?: Record<string, Partial<Record<PermissionKey, boolean>>>;
-  customRoles?: Record<
-    string,
-    {
-      baseRole: string;
-      displayName: string;
-    }
-  >;
+  roles?: Record<string, RoleDefinition>;
 }
 
 export class PolicyEngine {
@@ -23,41 +23,84 @@ export class PolicyEngine {
     };
   }
 
-  static computePermissions(
+  private static computeSingleRoleRecursively(
     role: string,
     settings?: InstitutionSettings | null,
+    visited = new Set<string>(),
   ): Record<PermissionKey, boolean> {
-    // Resolve base role for inheritance if it's a custom role
-    const customDef = settings?.customRoles?.[role];
-    const baseRoleName = customDef ? customDef.baseRole : role;
+    // Avoid circular dependencies
+    if (visited.has(role)) {
+      return {} as Record<PermissionKey, boolean>;
+    }
+    visited.add(role);
 
-    const basePermissions =
-      DEFAULT_ROLE_PERMISSIONS[baseRoleName] ||
-      DEFAULT_ROLE_PERMISSIONS['student'];
-    const overrides = settings?.permissions?.[role] || {};
+    const roleDef = settings?.roles?.[role];
+    const systemDefaults = DEFAULT_ROLE_PERMISSIONS[role] || {};
+
+    let inheritedPerms: Partial<Record<PermissionKey, boolean>> = {};
+    if (roleDef?.inherits) {
+      for (const parent of roleDef.inherits) {
+        const parentPerms = this.computeSingleRoleRecursively(
+          parent,
+          settings,
+          visited,
+        );
+        inheritedPerms = { ...inheritedPerms, ...parentPerms };
+      }
+    }
 
     return {
-      ...basePermissions,
-      ...overrides,
-    };
+      ...systemDefaults,
+      ...inheritedPerms,
+      ...roleDef?.permissions,
+    } as Record<PermissionKey, boolean>;
+  }
+
+  static computePermissions(
+    roles: string[],
+    settings?: InstitutionSettings | null,
+  ): Record<PermissionKey, boolean> {
+    if (!roles || roles.length === 0) {
+      return DEFAULT_ROLE_PERMISSIONS['student']; // Fallback
+    }
+
+    // Sort roles by rank ascending (lowest rank first).
+    // That way, higher rank roles are applied last, overwriting earlier ones.
+    const sortedRoles = [...roles].sort((a, b) => {
+      const rankA = settings?.roles?.[a]?.rank ?? 0;
+      const rankB = settings?.roles?.[b]?.rank ?? 0;
+      return rankA - rankB;
+    });
+
+    let finalPerms = {} as Record<PermissionKey, boolean>;
+    for (const role of sortedRoles) {
+      const rolePerms = this.computeSingleRoleRecursively(role, settings);
+      finalPerms = { ...finalPerms, ...rolePerms };
+    }
+
+    return finalPerms;
   }
 
   static hasPermission(
-    role: string,
+    roles: string[],
     permission: PermissionKey,
     settings?: InstitutionSettings | null,
   ): boolean {
-    const permissions = this.computePermissions(role, settings);
+    const permissions = this.computePermissions(roles, settings);
     return permissions[permission] ?? false;
   }
 
-  // Define who can initiate a DM with whom
   static canInitiateChat(
-    actorRole: string,
-    targetRole: string,
+    actorRoles: string[],
+    targetRoles: string[],
     settings?: InstitutionSettings | null,
   ): boolean {
-    const permissionKey = `chat:initiate:${targetRole}` as PermissionKey;
-    return this.hasPermission(actorRole, permissionKey, settings);
+    for (const targetRole of targetRoles) {
+      const permissionKey = `chat:initiate:${targetRole}` as PermissionKey;
+      if (this.hasPermission(actorRoles, permissionKey, settings)) {
+        return true;
+      }
+    }
+    return false;
   }
 }

@@ -1,15 +1,19 @@
 import { eq, and } from 'drizzle-orm';
 import { db, institutions, roleBindings } from '@repo/database';
 import { AppError } from '../../plugins/error';
-import { type InstitutionSettings } from '@repo/permissions';
+import {
+  type InstitutionSettings,
+  type RoleDefinition,
+  INSTITUTION_PRESETS,
+} from '@repo/permissions';
 
 export class InstitutionsService {
   static async updateSettings(
     userId: string,
     institutionId: string,
     features?: Record<string, boolean>,
-    permissions?: Record<string, Record<string, boolean>>,
-    customRoles?: Record<string, { baseRole: string; displayName: string }>,
+    roles?: Record<string, RoleDefinition>,
+    applyPreset?: string,
   ) {
     const [roleRow] = await db
       .select({ role: roleBindings.role })
@@ -44,17 +48,14 @@ export class InstitutionsService {
     // Merge new settings with existing settings
     const newSettings: InstitutionSettings = {
       features: { ...currentSettings.features, ...features },
-      permissions: { ...currentSettings.permissions },
-      customRoles: { ...currentSettings.customRoles, ...customRoles },
+      roles: { ...currentSettings.roles, ...roles },
     };
 
-    if (permissions) {
-      for (const [roleName, rolePerms] of Object.entries(permissions)) {
-        newSettings.permissions![roleName] = {
-          ...newSettings.permissions![roleName],
-          ...rolePerms,
-        };
-      }
+    if (applyPreset && INSTITUTION_PRESETS[applyPreset]) {
+      newSettings.roles = {
+        ...newSettings.roles,
+        ...INSTITUTION_PRESETS[applyPreset],
+      };
     }
 
     const [updated] = await db

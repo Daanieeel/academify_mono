@@ -2,22 +2,16 @@ import { t } from 'elysia';
 
 export const UpdateInstitutionSettingsSchema = t.Object({
   features: t.Optional(t.Record(t.String(), t.Boolean())),
-  permissions: t.Optional(
-    t.Record(
-      t.String(), // role
-      t.Record(
-        t.String(), // permission
-        t.Boolean(),
-      ),
-    ),
-  ),
-  customRoles: t.Optional(
+  roles: t.Optional(
     t.Record(
       t.String(),
       t.Object({
-        baseRole: t.String(),
-        displayName: t.String(),
+        displayName: t.Optional(t.String()),
+        rank: t.Optional(t.Number()),
+        inherits: t.Optional(t.Array(t.String())),
+        permissions: t.Optional(t.Record(t.String(), t.Boolean())),
       }),
     ),
   ),
+  applyPreset: t.Optional(t.String()),
 });

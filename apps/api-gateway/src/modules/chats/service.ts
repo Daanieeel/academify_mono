@@ -78,11 +78,11 @@ export class ChatsService {
       throw new AppError(404, 'USER_NOT_FOUND', 'user not found');
     }
 
-    let role: string | null = null;
+    let roles: string[] = [];
     let className: string | null = null;
     let settings: InstitutionSettings | null = null;
     if (institutionId) {
-      const [roleRow] = await db
+      const roleRows = await db
         .select({ role: roleBindings.role })
         .from(roleBindings)
         .where(
@@ -91,7 +91,7 @@ export class ChatsService {
             eq(roleBindings.institutionId, institutionId),
           ),
         );
-      role = roleRow?.role ?? null;
+      roles = roleRows.map((r) => r.role);
 
       const [classRow] = await db
         .select({ className: classes.name })
@@ -113,15 +113,16 @@ export class ChatsService {
       settings = (instRow?.settings as InstitutionSettings) ?? null;
     }
 
-    const roleName = role ?? 'student';
-    const permissions = PolicyEngine.computePermissions(roleName, settings);
+    const roleNames = roles.length > 0 ? roles : ['student'];
+    const permissions = PolicyEngine.computePermissions(roleNames, settings);
     const features = PolicyEngine.computeFeatures(settings);
 
     return {
       user_id: userId,
       username: profile.username,
       display_name: profile.displayName ?? profile.username,
-      role,
+      roles, // Expose multiple roles
+      role: roles[0] ?? null, // Backwards compatibility
       class_name: className,
       avatar_background_color: profile.avatarBackgroundColor,
       avatar_emoji: profile.avatarEmoji,
@@ -397,7 +398,7 @@ export class ChatsService {
       );
     }
 
-    const [callerRoleRow] = await db
+    const callerRoleRows = await db
       .select({ role: roleBindings.role })
       .from(roleBindings)
       .where(
@@ -406,9 +407,12 @@ export class ChatsService {
           eq(roleBindings.institutionId, institutionId),
         ),
       );
-    const callerRole = callerRoleRow?.role ?? 'student';
+    const callerRoles =
+      callerRoleRows.length > 0
+        ? callerRoleRows.map((r) => r.role)
+        : ['student'];
 
-    const [peerRoleRow] = await db
+    const peerRoleRows = await db
       .select({ role: roleBindings.role })
       .from(roleBindings)
       .where(
@@ -417,7 +421,8 @@ export class ChatsService {
           eq(roleBindings.institutionId, institutionId),
         ),
       );
-    const peerRole = peerRoleRow?.role ?? 'student';
+    const peerRoles =
+      peerRoleRows.length > 0 ? peerRoleRows.map((r) => r.role) : ['student'];
 
     const [instRow] = await db
       .select({ settings: institutions.settings })
@@ -425,7 +430,7 @@ export class ChatsService {
       .where(eq(institutions.id, institutionId));
     const settings = (instRow?.settings as InstitutionSettings) ?? null;
 
-    if (!PolicyEngine.canInitiateChat(callerRole, peerRole, settings)) {
+    if (!PolicyEngine.canInitiateChat(callerRoles, peerRoles, settings)) {
       throw new PermissionError(
         'ERR_CHAT_NOT_ALLOWED',
         'you are not allowed to start a chat with this user',

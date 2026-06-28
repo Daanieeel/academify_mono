@@ -87,7 +87,7 @@ export class MessagesService {
       throw new AppError(403, 'NOT_CHAT_MEMBER', 'not a member of this chat');
     }
 
-    const [roleRow] = await db
+    const roleRows = await db
       .select({ role: roleBindings.role })
       .from(roleBindings)
       .where(
@@ -96,7 +96,8 @@ export class MessagesService {
           eq(roleBindings.institutionId, institutionId),
         ),
       );
-    const role = roleRow?.role ?? 'student';
+    const roles =
+      roleRows.length > 0 ? roleRows.map((r) => r.role) : ['student'];
 
     const [instRow] = await db
       .select({ settings: institutions.settings })
@@ -104,7 +105,9 @@ export class MessagesService {
       .where(eq(institutions.id, institutionId));
     const settings = (instRow?.settings as InstitutionSettings) ?? null;
 
-    if (!PolicyEngine.hasPermission(role, PERMISSIONS.SEND_MESSAGE, settings)) {
+    if (
+      !PolicyEngine.hasPermission(roles, PERMISSIONS.SEND_MESSAGE, settings)
+    ) {
       throw new PermissionError(
         'ERR_PERMISSION_DENIED',
         'you are not allowed to send messages',
