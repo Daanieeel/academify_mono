@@ -10,14 +10,11 @@ import { Image, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 const LandingPage = () => {
-  const handleLoginButtonPress = () => {
-    console.warn('Login button pressed');
-    router.push('/(auth)/username-page');
-  };
-
-  const handleUntisLoginButtonPress = () => {};
-
   const router = useRouter();
+
+  const handleFindInstitutionPress = () => {
+    router.push('/(auth)/institution-picker');
+  };
 
   return (
     <SafeAreaView className="flex-1 bg-neutral-50">
@@ -49,22 +46,13 @@ const LandingPage = () => {
           </View>
         </View>
         <View className="shrink gap-[10px]">
-          <Button variant="primary" size="lg" onPress={handleLoginButtonPress}>
-            <Text>{APPLICATION_CONSTANTS.LANDING_BUTTON_1}</Text>
-            <Icon name="arrow-right" size={24} />
-          </Button>
           <Button
-            variant="secondary"
+            variant="primary"
             size="lg"
-            onPress={handleUntisLoginButtonPress}
+            onPress={handleFindInstitutionPress}
           >
-            <Image
-              className="h-[26px] w-[26px]"
-              source={require('@/assets/images/app/untis-3x.png')}
-            />
-            <Text color={useThemeColor({}, 'untis-orange')}>
-              {APPLICATION_CONSTANTS.LANDING_BUTTON_2}
-            </Text>
+            <Text>Schule finden</Text>
+            <Icon name="magnifying-glass" size={24} />
           </Button>
         </View>
       </View>

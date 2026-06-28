@@ -1,7 +1,7 @@
 import { useThemeColor } from '@/hooks/use-theme-color';
-import { Stack, useRouter } from 'expo-router';
+import { Stack, useRouter, useLocalSearchParams } from 'expo-router';
 import React, { useState } from 'react';
-import { View } from 'react-native';
+import { View, Image } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Button } from '@/components/ui/button';
 import { Text } from '@/components/ui/text';
@@ -9,6 +9,10 @@ import { Icon } from '@/components/ui/icon';
 import { Input } from '@/components/ui/input';
 
 const UsernamePage = () => {
+  const params = useLocalSearchParams();
+  const backendUrl = params.backendUrl as string;
+  const institutionName = params.institutionName as string;
+
   const [text, setText] = useState('');
   const [inputError, setInputError] = useState('');
   const [isValid, setIsValid] = useState(true);
@@ -16,6 +20,7 @@ const UsernamePage = () => {
   const router = useRouter();
   const errorColor = useThemeColor({}, 'red-500');
   const neutral900Color = useThemeColor({}, 'neutral-900');
+  const primaryColor = useThemeColor({}, 'primary-500');
 
   const handleBackButtonPress = () => {
     router.back();
@@ -27,8 +32,13 @@ const UsernamePage = () => {
       setInputError('Du hast nichts in das Feld eingegeben');
       return false;
     } else {
+      // In the future, better-auth client will use `backendUrl` here
       router.push(`/(auth)/password-page/${text}`);
     }
+  };
+
+  const handleUntisLoginButtonPress = () => {
+    // Implement Untis login here using backendUrl
   };
 
   const handleInputChange = (input: string) => {
@@ -56,6 +66,16 @@ const UsernamePage = () => {
         }}
       ></Stack.Screen>
       <View className="pt-[70px] px-[15px] w-full gap-[20px]">
+        {institutionName && (
+          <View className="items-center mb-[10px]">
+            <View className="px-4 py-1.5 rounded-full bg-blue-100 border border-blue-200">
+              <Text className="text-blue-600 font-bold text-xs uppercase tracking-widest">
+                {institutionName}
+              </Text>
+            </View>
+          </View>
+        )}
+
         <View className="gap-[10px] items-center">
           <Icon size={62} name="user-focus" color={neutral900Color}></Icon>
           <Text
@@ -69,6 +89,7 @@ const UsernamePage = () => {
             Benutzernamen oder Mail eingeben
           </Text>
         </View>
+
         <Input
           placeholder="Benutzername oder E-Mail"
           value={text}
@@ -77,6 +98,7 @@ const UsernamePage = () => {
           autoCorrect={false}
           spellCheck={false}
         ></Input>
+
         {!isValid && (
           <View className="mt-[10px] flex-row gap-[5px] items-center">
             <Icon name="x-circle" size={15} color={errorColor}></Icon>
@@ -85,6 +107,7 @@ const UsernamePage = () => {
             </Text>
           </View>
         )}
+
         <Button
           variant="primary"
           size="lg"
@@ -92,6 +115,28 @@ const UsernamePage = () => {
         >
           <Text>Weiter</Text>
           <Icon name="arrow-right" size={24} />
+        </Button>
+
+        <View className="flex-row items-center my-[15px]">
+          <View className="flex-1 h-[1px] bg-neutral-200" />
+          <Text className="mx-4 text-neutral-500 font-medium text-sm">
+            ODER
+          </Text>
+          <View className="flex-1 h-[1px] bg-neutral-200" />
+        </View>
+
+        <Button
+          variant="secondary"
+          size="lg"
+          onPress={handleUntisLoginButtonPress}
+        >
+          <Image
+            className="h-[26px] w-[26px]"
+            source={require('@/assets/images/app/untis-3x.png')}
+          />
+          <Text color={useThemeColor({}, 'untis-orange')}>
+            Mit Untis anmelden
+          </Text>
         </Button>
       </View>
     </SafeAreaView>

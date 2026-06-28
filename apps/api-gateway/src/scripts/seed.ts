@@ -1,4 +1,4 @@
-import { eq } from 'drizzle-orm';
+import { eq, sql } from 'drizzle-orm';
 import { auth } from '@repo/auth';
 import { generateComplianceKeyPair } from '@repo/crypto';
 import {
@@ -91,6 +91,19 @@ async function main() {
     .select()
     .from(institutions)
     .where(eq(institutions.slug, INSTITUTION_SLUG));
+
+  // Seed the registry so the mobile app can discover this school
+  await db.execute(sql`
+    INSERT INTO institution_registry (id, slug, display_name, region, backend_url)
+    VALUES (
+      gen_random_uuid(),
+      ${INSTITUTION_SLUG},
+      'Demo School',
+      'Nordrhein-Westfalen',
+      'http://localhost:3001'
+    )
+    ON CONFLICT (slug) DO UPDATE SET backend_url = 'http://localhost:3001';
+  `);
 
   if (existing) {
     console.log(`"${INSTITUTION_SLUG}" already seeded — skipping creation.`);
