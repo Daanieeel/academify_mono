@@ -3,6 +3,7 @@ import { auditLog, db, userCursorState, userEventStream } from '@repo/database';
 import {
   computeNextSyncWindow,
   createSyncResponseDto,
+  PROTOCOL_VERSION,
   type UserEventEnvelope,
 } from '@repo/sync-protocol';
 
@@ -11,7 +12,7 @@ export class SyncService {
     row: typeof userEventStream.$inferSelect,
   ): UserEventEnvelope {
     return {
-      version: '1.0.0',
+      version: PROTOCOL_VERSION,
       event_id: row.eventId,
       user_id: row.userId,
       cursor: row.cursor.toString(),
@@ -100,7 +101,7 @@ export class SyncService {
     });
 
     return {
-      version: '1.0.0' as const,
+      version: PROTOCOL_VERSION,
       accepted: result.accepted,
       acknowledged_cursor: result.acknowledged_cursor.toString(),
     };

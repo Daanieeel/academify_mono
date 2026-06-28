@@ -5,11 +5,11 @@ import { WsService, type Socket } from './service';
 
 export const wsRoutes = new Elysia().use(authMiddleware).ws('/ws', {
   open(ws) {
-    const userId = (ws.data as { userId: string }).userId;
+    const userId = ws.data.userId;
     WsService.addConnection(userId, ws as unknown as Socket);
   },
   async message(ws, raw) {
-    const userId = (ws.data as { userId: string }).userId;
+    const userId = ws.data.userId;
     const parsed = parseWsMessage(
       typeof raw === 'string' ? JSON.parse(raw) : raw,
     );
@@ -25,7 +25,7 @@ export const wsRoutes = new Elysia().use(authMiddleware).ws('/ws', {
     );
   },
   close(ws) {
-    const userId = (ws.data as { userId: string }).userId;
+    const userId = ws.data.userId;
     WsService.removeConnection(userId, ws as unknown as Socket);
   },
 });

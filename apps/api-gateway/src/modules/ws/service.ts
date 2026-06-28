@@ -6,6 +6,7 @@ import { db, userEventStream } from '@repo/database';
 import {
   createLiveEventNotify,
   createServerSyncRequired,
+  PROTOCOL_VERSION,
   type UserEventEnvelope,
 } from '@repo/sync-protocol';
 
@@ -17,7 +18,9 @@ export class WsService {
   private static subscriber: Redis | null = null;
 
   static init() {
-    if (WsService.subscriber) {return;}
+    if (WsService.subscriber) {
+      return;
+    }
 
     WsService.subscriber = new Redis(getRedisConnectionOptions());
     void WsService.subscriber.subscribe(channelNames.syncBroadcast);
@@ -30,7 +33,7 @@ export class WsService {
     row: typeof userEventStream.$inferSelect,
   ): UserEventEnvelope {
     return {
-      version: '1.0.0',
+      version: PROTOCOL_VERSION,
       event_id: row.eventId,
       user_id: row.userId,
       cursor: row.cursor.toString(),
