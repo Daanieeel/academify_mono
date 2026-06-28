@@ -94,15 +94,17 @@ async function main() {
 
   // Seed the registry so the mobile app can discover this school
   await db.execute(sql`
-    INSERT INTO institution_registry (id, slug, display_name, region, backend_url)
+    INSERT INTO institution_registry (id, slug, display_name, type, region, country, backend_url)
     VALUES (
       gen_random_uuid(),
       ${INSTITUTION_SLUG},
       'Demo School',
+      'Gymnasium',
       'Nordrhein-Westfalen',
+      'Deutschland',
       'http://localhost:3001'
     )
-    ON CONFLICT (slug) DO UPDATE SET backend_url = 'http://localhost:3001';
+    ON CONFLICT (slug) DO UPDATE SET backend_url = 'http://localhost:3001', type = 'Gymnasium', region = 'Nordrhein-Westfalen', country = 'Deutschland';
   `);
 
   if (existing) {

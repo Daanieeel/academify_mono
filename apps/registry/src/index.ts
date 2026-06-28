@@ -16,7 +16,9 @@ export const app = new Elysia()
         .select({
           slug: institutionRegistry.slug,
           display_name: institutionRegistry.displayName,
+          type: institutionRegistry.type,
           region: institutionRegistry.region,
+          country: institutionRegistry.country,
         })
         .from(institutionRegistry)
         .where(

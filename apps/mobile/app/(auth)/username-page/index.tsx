@@ -8,19 +8,35 @@ import { Text } from '@/components/ui/text';
 import { Icon } from '@/components/ui/icon';
 import { Input } from '@/components/ui/input';
 
+import { resolveInstitution } from '@/lib/registry';
+
 const UsernamePage = () => {
   const params = useLocalSearchParams();
-  const backendUrl = params.backendUrl as string;
+  const [backendUrl, setBackendUrl] = useState(
+    (params.backendUrl as string) || '',
+  );
   const institutionName = params.institutionName as string;
+  const institutionId = params.institutionId as string;
 
   const [text, setText] = useState('');
   const [inputError, setInputError] = useState('');
   const [isValid, setIsValid] = useState(true);
+  const [isResolving, setIsResolving] = useState(false);
 
   const router = useRouter();
   const errorColor = useThemeColor({}, 'red-500');
   const neutral900Color = useThemeColor({}, 'neutral-900');
   const primaryColor = useThemeColor({}, 'primary-500');
+
+  React.useEffect(() => {
+    if (!backendUrl && institutionId) {
+      setIsResolving(true);
+      resolveInstitution(institutionId)
+        .then((resolution) => setBackendUrl(resolution.backend_url))
+        .catch(console.error)
+        .finally(() => setIsResolving(false));
+    }
+  }, [backendUrl, institutionId]);
 
   const handleBackButtonPress = () => {
     router.back();

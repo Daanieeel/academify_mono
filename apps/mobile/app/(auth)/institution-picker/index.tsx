@@ -40,43 +40,31 @@ const InstitutionPicker = () => {
     return () => clearTimeout(timer);
   }, [query]);
 
-  const handleSelect = async (inst: Institution) => {
-    setIsLoading(true);
-    setError(null);
-    try {
-      const resolution = await resolveInstitution(inst.slug);
-
-      // Navigate to username page after success
-      router.push({
-        pathname: '/(auth)/username-page',
-        params: {
-          backendUrl: resolution.backend_url,
-          institutionId: resolution.slug,
-          institutionName: inst.display_name,
-        },
-      });
-    } catch (err) {
-      setError('Could not connect to this institution.');
-    } finally {
-      setIsLoading(false);
-    }
+  const handleSelect = (inst: Institution) => {
+    // Navigate immediately to remove lag
+    router.push({
+      pathname: '/(auth)/username-page',
+      params: {
+        institutionId: inst.slug,
+        institutionName: inst.display_name,
+      },
+    });
   };
 
   const renderItem = useCallback(
     ({ item }: { item: Institution }) => (
       <TouchableOpacity
         onPress={() => handleSelect(item)}
-        className="flex-row items-center justify-between p-4 bg-white dark:bg-neutral-800 rounded-xl mb-3 shadow-sm border border-neutral-100 dark:border-neutral-700"
+        className="flex-row items-center justify-between p-4 bg-neutral-100 dark:bg-neutral-800 rounded-xl mb-3 shadow-sm border border-[#4a3b32] dark:border-[#5a4b42]"
       >
         <View className="flex-1 pr-4">
           <Text className="font-semibold text-lg text-neutral-900 dark:text-neutral-100">
             {item.display_name}
           </Text>
-          {item.region && (
-            <Text className="text-xs text-neutral-500 uppercase tracking-wider mt-1">
-              {item.region}
-            </Text>
-          )}
+          <Text className="text-xs text-neutral-500 uppercase tracking-wider mt-1">
+            {item.type ? `${item.type} • ` : ''}
+            {item.region || item.country || ''}
+          </Text>
         </View>
         <Icon name="caret-right" size={20} className="text-neutral-400" />
       </TouchableOpacity>
@@ -99,8 +87,8 @@ const InstitutionPicker = () => {
           Bitte gib den Namen deiner Schule oder Einrichtung ein.
         </Text>
 
-        <View className="relative mb-6">
-          <View className="absolute left-4 top-4 z-10">
+        <View className="mb-4 relative justify-center">
+          <View className="absolute left-4 z-10">
             <Icon
               name="magnifying-glass"
               size={20}
@@ -108,17 +96,21 @@ const InstitutionPicker = () => {
             />
           </View>
           <TextInput
-            className="w-full pl-12 pr-12 py-4 bg-white dark:bg-neutral-800 border-2 border-neutral-200 dark:border-neutral-700 rounded-xl text-lg font-medium text-neutral-900 dark:text-neutral-100"
-            placeholder="z.B. Goethe-Gymnasium..."
+            className="w-full bg-white dark:bg-neutral-800 rounded-xl px-12 py-3.5 text-lg border border-neutral-200 dark:border-neutral-700 text-neutral-900 dark:text-neutral-100"
+            placeholder="Schule suchen..."
             placeholderTextColor="#9ca3af"
             value={query}
             onChangeText={setQuery}
-            autoFocus
+            autoCapitalize="none"
+            autoCorrect={false}
           />
-          {isLoading && (
-            <View className="absolute right-4 top-4 z-10">
-              <ActivityIndicator size="small" color="#3b82f6" />
-            </View>
+          {query.length > 0 && (
+            <TouchableOpacity
+              className="absolute right-4 z-10"
+              onPress={() => setQuery('')}
+            >
+              <Icon name="x-circle" size={20} className="text-neutral-400" />
+            </TouchableOpacity>
           )}
         </View>
 

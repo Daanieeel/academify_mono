@@ -3,7 +3,9 @@ import { Platform } from 'react-native';
 export interface Institution {
   slug: string;
   display_name: string;
+  type: string | null;
   region: string | null;
+  country: string | null;
 }
 
 export interface Resolution {
@@ -31,10 +33,14 @@ export async function searchInstitutions(
   const registryUrl = getBaseUrl();
 
   const url = new URL('/institutions', registryUrl);
-  if (query) {url.searchParams.set('search', query);}
+  if (query) {
+    url.searchParams.set('search', query);
+  }
 
   const res = await fetch(url.toString());
-  if (!res.ok) {throw new Error('Failed to fetch institutions');}
+  if (!res.ok) {
+    throw new Error('Failed to fetch institutions');
+  }
   const data = await res.json();
   return data.institutions;
 }
@@ -43,6 +49,8 @@ export async function resolveInstitution(slug: string): Promise<Resolution> {
   const registryUrl = getBaseUrl();
 
   const res = await fetch(`${registryUrl}/institutions/${slug}/resolve`);
-  if (!res.ok) {throw new Error('Failed to resolve institution');}
+  if (!res.ok) {
+    throw new Error('Failed to resolve institution');
+  }
   return res.json();
 }

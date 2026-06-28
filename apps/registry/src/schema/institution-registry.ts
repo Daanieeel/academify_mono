@@ -21,7 +21,9 @@ export const institutionRegistry = pgTable('institution_registry', {
   id: uuid('id').defaultRandom().primaryKey(),
   slug: text('slug').notNull().unique(),
   displayName: text('display_name').notNull(),
-  region: text('region'),
+  type: text('type'), // e.g., 'Gymnasium', 'Gesamtschule'
+  region: text('region'), // e.g., 'Nordrhein-Westfalen'
+  country: text('country'), // e.g., 'Deutschland'
   deploymentMode: deploymentModeEnum('deployment_mode')
     .notNull()
     .default('hosted'),
