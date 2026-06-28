@@ -29,8 +29,8 @@
   },
   "scripts": {
     "build": "turbo run build",
-    "dev": "turbo run dev --filter=@app/api-gateway --filter=@app/worker",
-    "dev:all": "turbo run dev --filter=@app/api-gateway --filter=@app/worker --filter=@app/web",
+    "dev": "turbo run dev --filter=@app/api-gateway --filter=@app/worker --filter=@app/registry",
+    "dev:all": "turbo run dev --filter=@app/api-gateway --filter=@app/worker --filter=@app/web --filter=@app/registry",
     "prepare": "husky",
     "setup:env": "bun run scripts/setup-env.ts",
     "format": "bunx oxfmt --config packages/config/oxfmt/base.json .",

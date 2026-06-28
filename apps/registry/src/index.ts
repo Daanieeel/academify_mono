@@ -59,6 +59,6 @@ export const app = new Elysia()
 if (import.meta.main) {
   app.listen(env.DIRECTORY_PORT);
   console.log(
-    `Directory listening on ${app.server?.hostname}:${app.server?.port}`,
+    `Registry listening on ${app.server?.hostname}:${app.server?.port}`,
   );
 }
