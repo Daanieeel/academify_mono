@@ -22,7 +22,7 @@ export const provisioningSourceEnum = pgEnum('provisioning_source', [
 ]);
 
 // Local tenant record (data plane). The global routing record lives in the
-// control-plane `institution_registry` (apps/directory), kept deliberately
+// control-plane `institution_registry` (apps/registry), kept deliberately
 // separate so self-hosting is a deployment change, not a schema change.
 export const institutions = pgTable('institutions', {
   id: uuid('id').defaultRandom().primaryKey(),

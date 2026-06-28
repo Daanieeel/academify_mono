@@ -44,7 +44,7 @@ cp packages/database/.env.example packages/database/.env
 cp packages/redis/.env.example packages/redis/.env
 cp apps/worker/.env.example apps/worker/.env
 cp apps/api-gateway/.env.example apps/api-gateway/.env
-cp apps/directory/.env.example apps/directory/.env
+cp apps/registry/.env.example apps/registry/.env
 cp apps/mobile/.env.example apps/mobile/.env
 ```
 
@@ -123,9 +123,9 @@ Template: `apps/worker/.env.example`.
 - `DATABASE_URL`
 - `REDIS_HOST`, `REDIS_PORT`, `REDIS_USERNAME` (optional), `REDIS_PASSWORD` (optional)
 
-### apps/directory
+### apps/registry
 
-Template: `apps/directory/.env.example`. This is the **control plane** (ADR-0009) — a separate service with its own migration history; it does not import `@repo/database`, even though it points at the same local Postgres instance for setup convenience.
+Template: `apps/registry/.env.example`. This is the **control plane** (ADR-0009) — a separate service with its own migration history; it does not import `@repo/database`, even though it points at the same local Postgres instance for setup convenience.
 
 - `DATABASE_URL` — its own `institution_registry` table, not the per-tenant `institutions` table.
 - `DIRECTORY_PORT` (default `3002` if missing)
@@ -165,10 +165,10 @@ bunx drizzle-kit migrate
 cd ../..
 ```
 
-`apps/directory` has its own, separate migration history:
+`apps/registry` has its own, separate migration history:
 
 ```bash
-cd apps/directory
+cd apps/registry
 bunx drizzle-kit generate
 bunx drizzle-kit migrate
 cd ../..
@@ -236,7 +236,7 @@ rather than silently showing plaintext. This is expected for now, not a bug.
 ### Directory (control plane)
 
 ```bash
-cd apps/directory
+cd apps/registry
 bun run dev
 ```
 

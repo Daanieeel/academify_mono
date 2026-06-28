@@ -36,23 +36,6 @@
         "typescript": "catalog:",
       },
     },
-    "apps/directory": {
-      "name": "@app/directory",
-      "dependencies": {
-        "@repo/env": "workspace:*",
-        "drizzle-orm": "catalog:",
-        "elysia": "catalog:",
-        "postgres": "^3.4.9",
-      },
-      "devDependencies": {
-        "@types/bun": "catalog:",
-        "drizzle-kit": "^0.31.10",
-        "typescript": "catalog:",
-      },
-      "peerDependencies": {
-        "typescript": "^6",
-      },
-    },
     "apps/mobile": {
       "name": "@app/mobile",
       "version": "1.0.0",
@@ -116,6 +99,23 @@
         "@types/react": "~19.2.10",
         "babel-preset-expo": "~55.0.8",
         "typescript": "catalog:",
+      },
+    },
+    "apps/registry": {
+      "name": "@app/registry",
+      "dependencies": {
+        "@repo/env": "workspace:*",
+        "drizzle-orm": "catalog:",
+        "elysia": "catalog:",
+        "postgres": "^3.4.9",
+      },
+      "devDependencies": {
+        "@types/bun": "catalog:",
+        "drizzle-kit": "^0.31.10",
+        "typescript": "catalog:",
+      },
+      "peerDependencies": {
+        "typescript": "^6",
       },
     },
     "apps/web": {
@@ -292,9 +292,9 @@
 
     "@app/api-gateway": ["@app/api-gateway@workspace:apps/api-gateway"],
 
-    "@app/directory": ["@app/directory@workspace:apps/directory"],
-
     "@app/mobile": ["@app/mobile@workspace:apps/mobile"],
+
+    "@app/registry": ["@app/registry@workspace:apps/registry"],
 
     "@app/web": ["@app/web@workspace:apps/web"],
 

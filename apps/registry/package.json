@@ -1,5 +1,5 @@
 {
-  "name": "@app/directory",
+  "name": "@app/registry",
   "private": true,
   "type": "module",
   "module": "dist/index.js",

@@ -6,7 +6,7 @@
     "apps/mobile",
     "apps/api-gateway",
     "apps/worker",
-    "apps/directory",
+    "apps/registry",
     "packages/database",
     "packages/mls",
     "packages/crypto",

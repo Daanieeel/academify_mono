@@ -15,15 +15,15 @@ Academify is public-facing and multi-school: a user picks their school before lo
 Split tenancy into two deliberately separate things:
 
 - **Data plane** — each backend's own `institutions` table (`packages/database`), the local tenant record every other table in that backend is scoped by `institution_id` to.
-- **Control plane** — a new `apps/directory` service, with its **own** Drizzle schema/migration history (`institution_registry`), that the public website talks to *before* a user ever reaches a specific backend. It exposes two unauthenticated, no-PII endpoints: `GET /institutions?search=` (school picker) and `GET /institutions/:slug/resolve` (returns `backend_url` + `deployment_mode`).
+- **Control plane** — a new `apps/registry` service, with its **own** Drizzle schema/migration history (`institution_registry`), that the public website talks to *before* a user ever reaches a specific backend. It exposes two unauthenticated, no-PII endpoints: `GET /institutions?search=` (school picker) and `GET /institutions/:slug/resolve` (returns `backend_url` + `deployment_mode`).
 
-`apps/directory` does not import `@repo/database` and has no code-level relationship to any backend's schema — the only contract between them is the resolved `backend_url`. For the MVP every registry row resolves to the single local `api-gateway`; a `self_hosted` row resolving to a different backend is a data change to the registry, not a code change anywhere.
+`apps/registry` does not import `@repo/database` and has no code-level relationship to any backend's schema — the only contract between them is the resolved `backend_url`. For the MVP every registry row resolves to the single local `api-gateway`; a `self_hosted` row resolving to a different backend is a data change to the registry, not a code change anywhere.
 
 ## Consequences
 
 - Positive: self-hosting becomes "add a registry row pointing elsewhere," not a rewrite. Control-plane code has zero coupling to per-tenant backend code.
 - Negative: a second small service to deploy/operate; one more network hop in the public client's bootstrap flow (select school → resolve → connect).
-- Neutral (local dev only): `apps/directory` currently points at the same local Postgres instance as the main backend for setup convenience, sharing the `drizzle`/`__drizzle_migrations` bookkeeping schema even though `institution_registry` and `institutions` are otherwise unrelated tables. A real deployment should put the control plane on its own database — nothing in the code assumes otherwise, this is purely a local-dev shortcut.
+- Neutral (local dev only): `apps/registry` currently points at the same local Postgres instance as the main backend for setup convenience, sharing the `drizzle`/`__drizzle_migrations` bookkeeping schema even though `institution_registry` and `institutions` are otherwise unrelated tables. A real deployment should put the control plane on its own database — nothing in the code assumes otherwise, this is purely a local-dev shortcut.
 
 ## Options considered
 
@@ -32,11 +32,11 @@ Split tenancy into two deliberately separate things:
 
 ## Rollout
 
-1. `apps/directory`: Elysia app, own `drizzle.config.ts`/migrations, `GET /institutions`, `GET /institutions/:slug/resolve`.
+1. `apps/registry`: Elysia app, own `drizzle.config.ts`/migrations, `GET /institutions`, `GET /institutions/:slug/resolve`.
 2. `packages/client-core`'s `SyncClient` already takes `backendUrl` as config — a real client flow is: directory search → resolve → construct `SyncClient({ backendUrl: resolved.backend_url, ... })`.
 3. Deferred: anything that actually provisions a `self_hosted` row, per-tenant secrets/key custody for self-hosted deployments, and moving the control-plane DB off the shared local Postgres in non-dev environments.
 
 ## References
 
-- `apps/directory/src/index.ts`
-- `apps/directory/src/schema/institution-registry.ts`
+- `apps/registry/src/index.ts`
+- `apps/registry/src/schema/institution-registry.ts`

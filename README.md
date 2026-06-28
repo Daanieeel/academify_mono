@@ -196,7 +196,7 @@ Internal tracking list, not customer-facing copy. Status values: **Implemented**
 - Bulk account creation via CSV upload (admin dashboard) — Planned (schema: `provisioning_batches`)
 - Account creation via invite link — Planned (schema: `invites`; endpoints `POST /admin/invites`, `POST /invites/:token/redeem` not yet built)
 - Role model: student / teacher / admin / compliance_officer / headmaster (`role_bindings`) — Implemented (read path: admin/headmaster check in report review; write path via direct DB insert only, no admin UI/endpoint yet)
-- Public school directory / picker before login — Implemented, API-only (`apps/directory`: `GET /institutions?search=`, no-auth/no-PII, tested); no web UI for the picker yet
+- Public school directory / picker before login — Implemented, API-only (`apps/registry`: `GET /institutions?search=`, no-auth/no-PII, tested); no web UI for the picker yet
 - Hosted vs. self-hosted deployment per institution, routed via control-plane resolve API — Implemented for the "hosted" path (`GET /institutions/:slug/resolve` returns `backend_url`); every row resolves to the single local backend for now — nothing yet provisions an actual `self_hosted` row
 
 ### Organizational structure

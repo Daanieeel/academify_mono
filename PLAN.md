@@ -296,7 +296,7 @@ coexist later, without committing to multi-deployment now.
   created_at). Public endpoints: GET /institutions?search= (school picker — only safe public
   fields) and GET /institutions/:slug/resolve → returns the backend_url + connection metadata
   the client should connect to. No auth, no PII.
-- New apps/directory (scaffold): our public website + resolution API that owns
+- New apps/registry (scaffold): our public website + resolution API that owns
   institution_registry. For MVP it resolves every school to the single local backend
   (api-gateway); the contract is shaped so a self_hosted school later resolves to its own
   backend_url.
@@ -348,7 +348,7 @@ Critical files
   - apps/api-gateway/src/\* — auth, /sync, /ack, /ws, MLS DS, /reports
   - packages/client-core/\* — reference state machine + e2e harness (takes backend_url from
     directory resolution)
-  - apps/directory/\* — control-plane scaffold: public school picker + institution_registry
+  - apps/registry/\* — control-plane scaffold: public school picker + institution_registry
   * resolve API
   - docs/adr/0005-_.md, docs/adr/0006-_.md, README.md, docs/local-development.md
 
