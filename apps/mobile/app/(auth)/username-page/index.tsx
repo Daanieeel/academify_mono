@@ -8,7 +8,7 @@ import { Text } from '@/components/ui/text';
 import { Icon } from '@/components/ui/icon';
 import { Input } from '@/components/ui/input';
 
-import { resolveInstitution } from '@/lib/registry';
+import { registryClient } from '@/lib/registry';
 
 const UsernamePage = () => {
   const params = useLocalSearchParams();
@@ -31,8 +31,14 @@ const UsernamePage = () => {
   React.useEffect(() => {
     if (!backendUrl && institutionId) {
       setIsResolving(true);
-      resolveInstitution(institutionId)
-        .then((resolution) => setBackendUrl(resolution.backend_url))
+      registryClient.institutions[institutionId].resolve
+        .get()
+        .then(({ data, error }) => {
+          if (error) {throw error;}
+          if (data && 'backend_url' in data) {
+            setBackendUrl((data as any).backend_url);
+          }
+        })
         .catch(console.error)
         .finally(() => setIsResolving(false));
     }

@@ -58,6 +58,8 @@ export const app = new Elysia()
     { params: t.Object({ slug: t.String({ minLength: 1 }) }) },
   );
 
+export type App = typeof app;
+
 if (import.meta.main) {
   app.listen(env.DIRECTORY_PORT);
   console.log(

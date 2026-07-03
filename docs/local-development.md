@@ -39,13 +39,7 @@ bun install
 2. Create local env files from templates (root, for docker-compose, plus each app/package that connects to Postgres/Redis):
 
 ```bash
-cp .env.example .env
-cp packages/database/.env.example packages/database/.env
-cp packages/redis/.env.example packages/redis/.env
-cp apps/worker/.env.example apps/worker/.env
-cp apps/api-gateway/.env.example apps/api-gateway/.env
-cp apps/registry/.env.example apps/registry/.env
-cp apps/mobile/.env.example apps/mobile/.env
+bun run setup:env
 ```
 
 3. Start local infra (Postgres + Redis):

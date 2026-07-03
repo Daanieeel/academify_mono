@@ -64,7 +64,9 @@ export function useChatThread(chatId: string) {
     let cancelled = false;
 
     (async () => {
-      const detail = await api.getChatDetail(chatId);
+      const { data: detail, error: detailError } =
+        await api.chats[chatId].get();
+      if (detailError) {throw detailError;}
       if (cancelled) {
         return;
       }
@@ -77,11 +79,14 @@ export function useChatThread(chatId: string) {
 
       if (detail.group_exists) {
         setCurrentEpoch(detail.current_epoch ?? 1);
-        const welcome = await api.getMlsWelcome(chatId);
+        const { data: welcome, error: welcomeError } =
+          await api.mls.groups[chatId].welcome.get();
+        if (welcomeError && (welcomeError as any).status !== 404)
+          {throw welcomeError;}
         if (cancelled) {
           return;
         }
-        if (welcome) {
+        if (welcome && !welcomeError) {
           await mlsBridge.joinFromWelcome(
             chatId,
             base64UrlToBytes(welcome.welcome_bytes),
@@ -97,7 +102,10 @@ export function useChatThread(chatId: string) {
         }
       }
 
-      const page = await api.getChatMessages(chatId, { limit: 100 });
+      const { data: page, error: pageError } = await api.chats[
+        chatId
+      ].messages.get({ $query: { limit: 100 } });
+      if (pageError) {throw pageError;}
       if (cancelled) {
         return;
       }
@@ -170,10 +178,15 @@ export function useChatThread(chatId: string) {
       let epoch = currentEpoch;
 
       if (!groupEstablished) {
-        const detail = await api.getChatDetail(chatId);
+        const { data: detail, error: detailError } =
+          await api.chats[chatId].get();
+        if (detailError) {throw detailError;}
         if (detail.group_exists) {
-          const welcome = await api.getMlsWelcome(chatId);
-          if (!welcome) {
+          const { data: welcome, error: welcomeError } =
+            await api.mls.groups[chatId].welcome.get();
+          if (welcomeError && (welcomeError as any).status !== 404)
+            {throw welcomeError;}
+          if (!welcome || welcomeError) {
             throw new Error(
               'Verschlüsselung für diesen Chat ist auf diesem Gerät nicht verfügbar.',
             );
@@ -184,8 +197,11 @@ export function useChatThread(chatId: string) {
           );
           epoch = detail.current_epoch ?? 1;
         } else {
-          const peerKeyPackage = await api.consumeKeyPackage(peer.user_id);
-          if (!peerKeyPackage) {
+          const { data: peerKeyPackage, error: peerError } = await api.mls[
+            'key-packages'
+          ].consume.post({ user_id: peer.user_id });
+          if (peerError && (peerError as any).status !== 404) {throw peerError;}
+          if (!peerKeyPackage || peerError) {
             throw new Error(
               `${peer.display_name} hat die Verschlüsselung noch nicht eingerichtet.`,
             );
@@ -195,7 +211,7 @@ export function useChatThread(chatId: string) {
             chatId,
             base64UrlToBytes(peerKeyPackage.key_package_bytes),
           );
-          await api.createMlsGroup({
+          const { error: groupError } = await api.mls.groups.post({
             chat_id: chatId,
             mls_group_id: bytesToBase64Url(
               ExpoCrypto.getRandomValues(new Uint8Array(16)),
@@ -203,13 +219,17 @@ export function useChatThread(chatId: string) {
             cipher_suite: CIPHER_SUITE,
             device_id: deviceId,
           });
-          await api.addMlsGroupMember(chatId, {
+          if (groupError) {throw groupError;}
+          const { error: memberError } = await api.mls.groups[
+            chatId
+          ].members.post({
             new_member_user_id: peer.user_id,
             new_member_device_id: peerKeyPackage.device_id,
             leaf_index: 1,
             new_epoch: 1,
             welcome_bytes: bytesToBase64Url(welcomeBytes),
           });
+          if (memberError) {throw memberError;}
           epoch = 1;
         }
         setCurrentEpoch(epoch);
@@ -235,7 +255,7 @@ export function useChatThread(chatId: string) {
       });
       setPlaintextById((prev) => ({ ...prev, [messageId]: text }));
 
-      await api.sendMessage({
+      const { error: sendError } = await api.messages.post({
         message_id: messageId,
         chat_id: chatId,
         sender_device_id: deviceId,
@@ -243,6 +263,7 @@ export function useChatThread(chatId: string) {
         ciphertext: ciphertextBase64Url,
         content_type: 'text/plain',
       });
+      if (sendError) {throw sendError;}
     },
     [
       session,

@@ -1,44 +1,38 @@
 import { Icon } from '@/components/ui/icon';
 import { Text } from '@/components/ui/text';
 import { Stack, useRouter } from 'expo-router';
-import React, { useEffect, useState, useCallback } from 'react';
-import {
-  View,
-  TextInput,
-  TouchableOpacity,
-  ActivityIndicator,
-  FlatList,
-} from 'react-native';
+import React, { useState, useCallback } from 'react';
+import { View, TextInput, TouchableOpacity, FlatList } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import {
-  searchInstitutions,
-  resolveInstitution,
-  type Institution,
-} from '@/lib/registry';
+import { registryClient } from '@/lib/registry';
+import { useQuery } from '@tanstack/react-query';
+import { useDebounce } from 'use-debounce';
 
-const InstitutionPicker = () => {
+type Institution = NonNullable<
+  Awaited<ReturnType<typeof registryClient.institutions.get>>['data']
+>['institutions'][0];
+
+export default function InstitutionPicker() {
   const router = useRouter();
   const [query, setQuery] = useState('');
-  const [institutions, setInstitutions] = useState<Institution[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [debouncedQuery] = useDebounce(query, 300);
 
-  useEffect(() => {
-    const timer = setTimeout(async () => {
-      try {
-        setIsLoading(true);
-        setError(null);
-        const results = await searchInstitutions(query);
-        setInstitutions(results);
-      } catch (err) {
-        setError('Failed to load institutions');
-      } finally {
-        setIsLoading(false);
-      }
-    }, 300);
+  const {
+    data: institutions = [],
+    isLoading,
+    isError,
+  } = useQuery({
+    queryKey: ['institutions', debouncedQuery],
+    queryFn: async () => {
+      const { data, error } = await registryClient.institutions.get({
+        $query: { search: debouncedQuery || undefined },
+      });
+      if (error) {throw error;}
+      return data?.institutions ?? [];
+    },
+  });
 
-    return () => clearTimeout(timer);
-  }, [query]);
+  const error = isError ? 'Failed to load institutions' : null;
 
   const handleSelect = (inst: Institution) => {
     // Navigate immediately to remove lag
@@ -140,6 +134,4 @@ const InstitutionPicker = () => {
       </View>
     </SafeAreaView>
   );
-};
-
-export default InstitutionPicker;
+}

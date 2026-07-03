@@ -1,8 +1,9 @@
 import ThemedListPreviewItem from '@/components/modals/themed-picker-modal/themed-list-preview-item';
 import APPLICATION_CONSTANTS from '@/constants/strings';
-import { api, type ChatDetail } from '@/lib/api-client';
+import { api } from '@/lib/api-client';
 import { router, useLocalSearchParams } from 'expo-router';
-import React, { useEffect, useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
+import React, { useState } from 'react';
 import { ScrollView, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Avatar } from '@/components/ui/avatar';
@@ -13,17 +14,17 @@ import { Text } from '@/components/ui/text';
 
 const ChatAboutPage = () => {
   const { id } = useLocalSearchParams<{ id: string }>();
-  const [chatDetail, setChatDetail] = useState<ChatDetail | undefined>(
-    undefined,
-  );
   const [activeTab, setActiveTab] = useState('images');
 
-  useEffect(() => {
-    if (!id) {
-      return;
-    }
-    api.getChatDetail(id).then(setChatDetail).catch(console.error);
-  }, [id]);
+  const { data: chatDetail } = useQuery({
+    queryKey: ['chat', id],
+    queryFn: async () => {
+      const { data, error } = await api.chats[id as string].get();
+      if (error) {throw error;}
+      return data;
+    },
+    enabled: !!id,
+  });
 
   const onBackButtonPressed = () => {
     router.back();

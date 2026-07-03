@@ -14,3 +14,5 @@ This version has breaking changes — APIs, conventions, and file structure may 
 <!-- END:nextjs-agent-rules -->
 
 Always use bun, not npm
+
+Pages (Next.js and Expo) must always be function components.

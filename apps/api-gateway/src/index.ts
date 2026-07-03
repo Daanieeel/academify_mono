@@ -25,6 +25,8 @@ export const app = new Elysia()
   .use(institutionsRoutes)
   .use(wsRoutes);
 
+export type App = typeof app;
+
 if (import.meta.main) {
   app.listen(env.API_GATEWAY_PORT);
   console.log(

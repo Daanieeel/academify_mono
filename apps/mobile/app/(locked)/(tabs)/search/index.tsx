@@ -4,7 +4,8 @@ import { Stack, router } from 'expo-router';
 import { Text } from '@/components/ui/text';
 import { Icon } from '@/components/ui/icon';
 import { Button } from '@/components/ui/button';
-import { api, type SearchResultsDto } from '@/lib/api-client';
+import { useQuery } from '@tanstack/react-query';
+import { api } from '@/lib/api-client';
 import APPLICATION_CONSTANTS from '@/constants/strings';
 import SearchCategorySection from '@/components/pages/search/search-category-section';
 import SearchResultItem from '@/components/pages/search/search-result-item';
@@ -51,8 +52,6 @@ export default function SearchIndex() {
   const [query, setQuery] = useState('');
   const [debouncedQuery, setDebouncedQuery] = useState('');
   const [activeFilter, setActiveFilter] = useState<FilterType>('all');
-  const [results, setResults] = useState<SearchResultsDto | null>(null);
-  const [loading, setLoading] = useState(false);
 
   // Modal state
   const [modalVisible, setModalVisible] = useState(false);
@@ -68,34 +67,18 @@ export default function SearchIndex() {
   }, [query]);
 
   // Fetch results
-  useEffect(() => {
-    if (!debouncedQuery) {
-      setResults(null);
-      return;
-    }
-
-    let isMounted = true;
-    setLoading(true);
-
-    api
-      .search(debouncedQuery, 3)
-      .then((res) => {
-        if (isMounted) {
-          setResults(res);
-          setLoading(false);
-        }
-      })
-      .catch((e) => {
-        console.error('Search error:', e);
-        if (isMounted) {
-          setLoading(false);
-        }
+  const { data: results, isLoading: loading } = useQuery({
+    queryKey: ['search', debouncedQuery],
+    queryFn: async () => {
+      if (!debouncedQuery) {return null;}
+      const { data, error } = await api.search.get({
+        $query: { q: debouncedQuery, limit: 3 },
       });
-
-    return () => {
-      isMounted = false;
-    };
-  }, [debouncedQuery]);
+      if (error) {throw error;}
+      return data;
+    },
+    enabled: !!debouncedQuery,
+  });
 
   // Client side filtering for settings
   const filteredSettings = useMemo(() => {

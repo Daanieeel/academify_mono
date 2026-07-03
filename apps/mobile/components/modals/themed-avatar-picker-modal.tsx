@@ -123,7 +123,11 @@ const ThemedAvatarPickerModal = (props: ThemedAvatarPickerModalProps) => {
     }
     setSaving(true);
     try {
-      await api.updateMyAvatar({ backgroundColor, emoji });
+      const { error } = await api.me.avatar.patch({
+        background_color: backgroundColor,
+        emoji,
+      });
+      if (error) {throw error;}
     } catch (error) {
       console.error('failed to save avatar:', error);
     } finally {

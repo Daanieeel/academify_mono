@@ -1,21 +1,22 @@
+import { useQuery } from '@tanstack/react-query';
 import { useSyncStore } from '@/context/sync-context';
-import { api, type ChatListEntry } from '@/lib/api-client';
-import { useCallback, useEffect, useState } from 'react';
+import { api } from '@/lib/api-client';
 
 export function useChats() {
   const { chatsVersion } = useSyncStore();
-  const [chats, setChats] = useState<ChatListEntry[]>([]);
-  const [loading, setLoading] = useState(true);
 
-  const refresh = useCallback(async () => {
-    const { chats: fetched } = await api.getChats();
-    setChats(fetched);
-    setLoading(false);
-  }, []);
+  const {
+    data: chats = [],
+    isLoading,
+    refetch,
+  } = useQuery({
+    queryKey: ['chats', chatsVersion],
+    queryFn: async () => {
+      const { data, error } = await api.chats.get();
+      if (error) {throw error;}
+      return data?.chats ?? [];
+    },
+  });
 
-  useEffect(() => {
-    void refresh();
-  }, [refresh, chatsVersion]);
-
-  return { chats, loading, refresh };
+  return { chats, loading: isLoading, refresh: refetch };
 }

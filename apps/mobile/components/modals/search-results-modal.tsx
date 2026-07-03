@@ -56,12 +56,15 @@ const SearchResultsModal = ({
           setLoading(true);
         }
 
-        const res = await api.searchCategory(
-          query,
-          category,
-          PAGE_SIZE,
-          currentOffset,
-        );
+        const { data: res, error } = await api.search.get({
+          $query: {
+            q: query,
+            category: category,
+            limit: PAGE_SIZE,
+            offset: currentOffset,
+          },
+        });
+        if (error) {throw error;}
 
         const categoryResults = res[category];
         if (categoryResults) {

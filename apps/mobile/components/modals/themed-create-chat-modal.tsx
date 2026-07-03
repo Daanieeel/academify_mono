@@ -15,7 +15,8 @@ import APPLICATION_CONSTANTS from '@/constants/strings';
 import { api, type Contact, type SchoolClass } from '@/lib/api-client';
 import { formatRoleIcon, formatRoleLabel } from '@/lib/format';
 import type { ThemedUserBadgeProps } from '@/components/pages/settings/themed-profile-preview';
-import React, { useEffect, useMemo, useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
+import React, { useMemo, useState } from 'react';
 import { ScrollView, View } from 'react-native';
 import ThemedPressable from '../themed-pressable';
 import ThemedAvatarPickerModal, {
@@ -143,8 +144,28 @@ const ThemedCreateChatModal = (props: ThemedCreateChatModalProps) => {
   const [avatarEmoji, setAvatarEmoji] = useState<string | undefined>(
     DEFAULT_GROUP_AVATAR.emoji,
   );
-  const [contacts, setContacts] = useState<Contact[]>([]);
-  const [schoolClasses, setSchoolClasses] = useState<SchoolClass[]>([]);
+  const { data: contactsData } = useQuery({
+    queryKey: ['contacts'],
+    queryFn: async () => {
+      const { data, error } = await api.contacts.get();
+      if (error) {throw error;}
+      return data;
+    },
+    enabled: props.visible,
+  });
+  const contacts = contactsData ?? [];
+
+  const { data: classesData } = useQuery({
+    queryKey: ['classes'],
+    queryFn: async () => {
+      const { data, error } = await api.classes.get();
+      if (error) {throw error;}
+      return data;
+    },
+    enabled: props.visible,
+  });
+  const schoolClasses = classesData ?? [];
+
   const [selectedMemberIds, setSelectedMemberIds] = useState<
     (number | string)[]
   >([]);
@@ -153,17 +174,10 @@ const ThemedCreateChatModal = (props: ThemedCreateChatModalProps) => {
   );
   const [contactSearchQuery, setContactSearchQuery] = useState('');
 
-  useEffect(() => {
-    if (!props.visible) {
-      return;
-    }
-    api.getContacts().then(setContacts).catch(console.error);
-    api.getClasses().then(setSchoolClasses).catch(console.error);
-  }, [props.visible]);
-
   const onContactPressed = async (peerUserId: string) => {
-    const { chat_id } = await api.createChat(peerUserId);
-    props.onChatCreated(chat_id);
+    const { data, error } = await api.chats.post({ peer_user_id: peerUserId });
+    if (error) {throw error;}
+    if (data) {props.onChatCreated(data.chat_id);}
   };
 
   const onRequestClosedTriggered = () => {

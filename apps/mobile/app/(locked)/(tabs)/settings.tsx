@@ -8,10 +8,11 @@ import ThemedSettingsItem, {
 import ThemedHeader from '@/components/themed-header';
 import ThemedPressable from '@/components/themed-pressable';
 import { useSession } from '@/context/auth-context';
-import { api, type MeResponse } from '@/lib/api-client';
+import { api } from '@/lib/api-client';
 import { formatRoleIcon, formatRoleLabel } from '@/lib/format';
 import { Stack, useRouter } from 'expo-router';
-import React, { useEffect, useState, useRef } from 'react';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
+import React, { useState, useRef } from 'react';
 import {
   ScrollView,
   View,
@@ -55,15 +56,15 @@ const settingsItems: ThemedSettingsItemProp[] = [
 ];
 
 const Settings = () => {
-  const [me, setMe] = useState<MeResponse | undefined>(undefined);
-  const [avatarPickerShown, setAvatarPickerShown] = useState(false);
-  const captureTargetRef = useRef<View>(null);
-  const { signOut } = useSession();
-  const router = useRouter();
-
-  useEffect(() => {
-    api.getMe().then(setMe).catch(console.error);
-  }, []);
+  const queryClient = useQueryClient();
+  const { data: me } = useQuery({
+    queryKey: ['me'],
+    queryFn: async () => {
+      const { data, error } = await api.me.get();
+      if (error) {throw error;}
+      return data;
+    },
+  });
 
   const [firstName, ...lastNameParts] = me?.display_name.split(' ') ?? [];
   const badges = [
@@ -158,7 +159,7 @@ const Settings = () => {
           currentBackgroundColor={me?.avatar_background_color}
           currentEmoji={me?.avatar_emoji}
           onSaved={({ backgroundColor, emoji }) => {
-            setMe((prev) =>
+            queryClient.setQueryData(['me'], (prev: any) =>
               prev
                 ? {
                     ...prev,

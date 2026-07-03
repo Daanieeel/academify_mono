@@ -210,7 +210,12 @@ const Chats = () => {
                             ...prev,
                             item.chat_id,
                           ]);
-                          api.deleteChat(item.chat_id).catch(console.error);
+                          api.chats[item.chat_id]
+                            .delete()
+                            .then(({ error }) => {
+                              if (error) {throw error;}
+                            })
+                            .catch(console.error);
                         }}
                       ></ThemedChatPreview>
                     </ThemedPressable>

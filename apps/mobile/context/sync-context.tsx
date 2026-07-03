@@ -60,15 +60,22 @@ async function ensureDeviceRegistered(
   // so a peer consuming them would produce a Welcome that this session cannot
   // accept (NoMatchingKeyPackage). Safe to fire-and-forget any errors here
   // since it's a best-effort cleanup — the server also guards against this.
-  await api.purgeKeyPackages().catch(() => {});
+  await api.mls['key-packages'].delete().catch(() => {});
 
-  const { device_id } = await api.registerDevice(
-    bytesToBase64Url(new Uint8Array([1])),
-  );
+  const { data: regData, error: regError } = await api.mls.devices.post({
+    identity_pubkey: bytesToBase64Url(new Uint8Array([1])),
+  });
+  if (regError) {throw regError;}
+  const device_id = regData!.device_id;
+
   for (let i = 0; i < KEY_PACKAGE_POOL_SIZE; i++) {
     const keyPackageBytes =
       await mlsBridge.generateKeyPackage(DEVICE_PARTY_KEY);
-    await api.uploadKeyPackage(device_id, bytesToBase64Url(keyPackageBytes));
+    const { error: upError } = await api.mls['key-packages'].post({
+      device_id,
+      key_package_bytes: bytesToBase64Url(keyPackageBytes),
+    });
+    if (upError) {throw upError;}
   }
   return device_id;
 }
@@ -105,7 +112,10 @@ export function SyncProvider({ children }: PropsWithChildren) {
       { backendUrl: API_URL, headers: { Cookie: authClient.getCookie() } },
       async (event) => {
         if (event.event_type === 'message.created') {
-          const message = await api.getMessage(event.entity_id);
+          const { data: message, error } =
+            await api.messages[event.entity_id].get();
+          if (error) {throw error;}
+          if (!message) {return;}
           if (cancelled) {
             return;
           }
