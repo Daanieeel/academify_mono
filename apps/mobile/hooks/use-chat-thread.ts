@@ -1,7 +1,12 @@
 import { useSession } from '@/context/auth-context';
 import { useMlsBridge } from '@/context/mls-context';
 import { useSyncStore, type RawMessage } from '@/context/sync-context';
-import { api, type MessageDto } from '@/lib/api-client';
+import { api } from '@/lib/api-client';
+
+type GetManyChatMessagesDto = NonNullable<
+  Awaited<ReturnType<(typeof api.chats)['']['messages']['get']>>
+>['data'];
+type SingleChatMessageDto = NonNullable<GetManyChatMessagesDto>['messages'][0];
 import { base64UrlToBytes, bytesToBase64Url } from '@/lib/base64';
 import * as ExpoCrypto from 'expo-crypto';
 import { useCallback, useEffect, useRef, useState } from 'react';
@@ -17,7 +22,7 @@ export type ChatMessage = {
   createdAt: string;
 };
 
-function toRawMessage(message: MessageDto): RawMessage {
+function toRawMessage(message: SingleChatMessageDto): RawMessage {
   return {
     id: message.message_id,
     chatId: message.chat_id,
@@ -66,7 +71,9 @@ export function useChatThread(chatId: string) {
     (async () => {
       const { data: detail, error: detailError } =
         await api.chats[chatId].get();
-      if (detailError) {throw detailError;}
+      if (detailError) {
+        throw detailError;
+      }
       if (cancelled) {
         return;
       }
@@ -81,8 +88,9 @@ export function useChatThread(chatId: string) {
         setCurrentEpoch(detail.current_epoch ?? 1);
         const { data: welcome, error: welcomeError } =
           await api.mls.groups[chatId].welcome.get();
-        if (welcomeError && (welcomeError as any).status !== 404)
-          {throw welcomeError;}
+        if (welcomeError && (welcomeError as any).status !== 404) {
+          throw welcomeError;
+        }
         if (cancelled) {
           return;
         }
@@ -105,7 +113,9 @@ export function useChatThread(chatId: string) {
       const { data: page, error: pageError } = await api.chats[
         chatId
       ].messages.get({ $query: { limit: 100 } });
-      if (pageError) {throw pageError;}
+      if (pageError) {
+        throw pageError;
+      }
       if (cancelled) {
         return;
       }
@@ -180,12 +190,15 @@ export function useChatThread(chatId: string) {
       if (!groupEstablished) {
         const { data: detail, error: detailError } =
           await api.chats[chatId].get();
-        if (detailError) {throw detailError;}
+        if (detailError) {
+          throw detailError;
+        }
         if (detail.group_exists) {
           const { data: welcome, error: welcomeError } =
             await api.mls.groups[chatId].welcome.get();
-          if (welcomeError && (welcomeError as any).status !== 404)
-            {throw welcomeError;}
+          if (welcomeError && (welcomeError as any).status !== 404) {
+            throw welcomeError;
+          }
           if (!welcome || welcomeError) {
             throw new Error(
               'Verschlüsselung für diesen Chat ist auf diesem Gerät nicht verfügbar.',
@@ -200,7 +213,9 @@ export function useChatThread(chatId: string) {
           const { data: peerKeyPackage, error: peerError } = await api.mls[
             'key-packages'
           ].consume.post({ user_id: peer.user_id });
-          if (peerError && (peerError as any).status !== 404) {throw peerError;}
+          if (peerError && (peerError as any).status !== 404) {
+            throw peerError;
+          }
           if (!peerKeyPackage || peerError) {
             throw new Error(
               `${peer.display_name} hat die Verschlüsselung noch nicht eingerichtet.`,
@@ -219,7 +234,9 @@ export function useChatThread(chatId: string) {
             cipher_suite: CIPHER_SUITE,
             device_id: deviceId,
           });
-          if (groupError) {throw groupError;}
+          if (groupError) {
+            throw groupError;
+          }
           const { error: memberError } = await api.mls.groups[
             chatId
           ].members.post({
@@ -229,7 +246,9 @@ export function useChatThread(chatId: string) {
             new_epoch: 1,
             welcome_bytes: bytesToBase64Url(welcomeBytes),
           });
-          if (memberError) {throw memberError;}
+          if (memberError) {
+            throw memberError;
+          }
           epoch = 1;
         }
         setCurrentEpoch(epoch);
@@ -263,7 +282,9 @@ export function useChatThread(chatId: string) {
         ciphertext: ciphertextBase64Url,
         content_type: 'text/plain',
       });
-      if (sendError) {throw sendError;}
+      if (sendError) {
+        throw sendError;
+      }
     },
     [
       session,

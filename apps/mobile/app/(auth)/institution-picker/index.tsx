@@ -8,9 +8,11 @@ import { registryClient } from '@/lib/registry';
 import { useQuery } from '@tanstack/react-query';
 import { useDebounce } from 'use-debounce';
 
-type Institution = NonNullable<
+type GetManyRegistryInstitutionsDto = NonNullable<
   Awaited<ReturnType<typeof registryClient.institutions.get>>['data']
->['institutions'][0];
+>;
+type SingleRegistryInstitutionDto =
+  GetManyRegistryInstitutionsDto['institutions'][0];
 
 export default function InstitutionPicker() {
   const router = useRouter();
@@ -27,14 +29,16 @@ export default function InstitutionPicker() {
       const { data, error } = await registryClient.institutions.get({
         $query: { search: debouncedQuery || undefined },
       });
-      if (error) {throw error;}
+      if (error) {
+        throw error;
+      }
       return data?.institutions ?? [];
     },
   });
 
   const error = isError ? 'Failed to load institutions' : null;
 
-  const handleSelect = (inst: Institution) => {
+  const handleSelect = (inst: SingleRegistryInstitutionDto) => {
     // Navigate immediately to remove lag
     router.push({
       pathname: '/(auth)/username-page',
@@ -46,7 +50,7 @@ export default function InstitutionPicker() {
   };
 
   const renderItem = useCallback(
-    ({ item }: { item: Institution }) => (
+    ({ item }: { item: SingleRegistryInstitutionDto }) => (
       <TouchableOpacity
         onPress={() => handleSelect(item)}
         className="flex-row items-center justify-between p-4 bg-neutral-100 dark:bg-neutral-800 rounded-xl mb-3 shadow-sm border border-[#4a3b32] dark:border-[#5a4b42]"

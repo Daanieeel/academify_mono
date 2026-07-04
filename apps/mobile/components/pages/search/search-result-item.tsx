@@ -13,12 +13,19 @@ import {
   formatRoleLabel,
   formatChatTimestamp,
 } from '@/lib/format';
-import type {
-  SearchContactDto,
-  SearchChatDto,
-  SearchBlackboardDto,
-  SearchClubDto,
-} from '@/lib/api-client';
+import { api } from '@/lib/api-client';
+
+type GetSingleSearchDto = NonNullable<
+  Awaited<ReturnType<typeof api.search.get>>['data']
+>;
+type SingleSearchContactDto = NonNullable<
+  GetSingleSearchDto['contacts']
+>['items'][0];
+type SingleSearchChatDto = NonNullable<GetSingleSearchDto['chats']>['items'][0];
+type SingleSearchBlackboardDto = NonNullable<
+  GetSingleSearchDto['blackboards']
+>['items'][0];
+type SingleSearchClubDto = NonNullable<GetSingleSearchDto['clubs']>['items'][0];
 
 export type SearchResultItemProps = {
   type: 'contact' | 'chat' | 'blackboard' | 'club' | 'setting';
@@ -28,7 +35,7 @@ export type SearchResultItemProps = {
 
 const SearchResultItem = ({ type, data, onPress }: SearchResultItemProps) => {
   if (type === 'contact') {
-    const contact = data as SearchContactDto;
+    const contact = data as SingleSearchContactDto;
     const badges = [];
     if (contact.role) {
       badges.push({
@@ -59,7 +66,7 @@ const SearchResultItem = ({ type, data, onPress }: SearchResultItemProps) => {
   }
 
   if (type === 'chat') {
-    const chat = data as SearchChatDto;
+    const chat = data as SingleSearchChatDto;
     return (
       <ThemedPressable onPress={onPress}>
         <ThemedChatPreview
@@ -79,7 +86,7 @@ const SearchResultItem = ({ type, data, onPress }: SearchResultItemProps) => {
   }
 
   if (type === 'blackboard') {
-    const post = data as SearchBlackboardDto;
+    const post = data as SingleSearchBlackboardDto;
     return (
       <ThemedPressable onPress={onPress}>
         <View className="py-[10px] px-[5px] flex-row gap-[15px] items-center">
@@ -108,7 +115,7 @@ const SearchResultItem = ({ type, data, onPress }: SearchResultItemProps) => {
   }
 
   if (type === 'club') {
-    const club = data as SearchClubDto;
+    const club = data as SingleSearchClubDto;
     return (
       <ThemedPressable onPress={onPress}>
         <View className="py-[10px] px-[5px] flex-row gap-[15px] items-center">

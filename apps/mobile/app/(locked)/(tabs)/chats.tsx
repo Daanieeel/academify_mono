@@ -11,7 +11,12 @@ import ThemedPressable from '@/components/themed-pressable';
 import APPLICATION_CONSTANTS from '@/constants/strings';
 import { useChats } from '@/hooks/use-chats';
 import { formatChatTimestamp } from '@/lib/format';
-import { api, type ChatListEntry } from '@/lib/api-client';
+import { api } from '@/lib/api-client';
+
+type GetManyChatsDto = NonNullable<
+  Awaited<ReturnType<typeof api.chats.get>>['data']
+>;
+type SingleChatDto = GetManyChatsDto['chats'][0];
 import { router, Stack } from 'expo-router';
 import React, { useEffect, useState, useMemo } from 'react';
 import { Platform, Pressable, View } from 'react-native';
@@ -30,7 +35,7 @@ import { Icon } from '@/components/ui/icon';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Text } from '@/components/ui/text';
 
-function toPreviewProps(chat: ChatListEntry): ThemedChatPreviewProps {
+function toPreviewProps(chat: SingleChatDto): ThemedChatPreviewProps {
   return {
     chatName: chat.peer?.display_name ?? 'Chat',
     lastMessageTime: chat.last_message_at
@@ -213,7 +218,9 @@ const Chats = () => {
                           api.chats[item.chat_id]
                             .delete()
                             .then(({ error }) => {
-                              if (error) {throw error;}
+                              if (error) {
+                                throw error;
+                              }
                             })
                             .catch(console.error);
                         }}

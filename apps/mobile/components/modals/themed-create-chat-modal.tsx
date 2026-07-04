@@ -12,7 +12,17 @@ import ThemedListPreviewItem, {
 import ThemedPickerModal from '@/components/modals/themed-picker-modal/themed-picker-modal';
 import ThemedSearchBar from '@/components/themed-search-bar';
 import APPLICATION_CONSTANTS from '@/constants/strings';
-import { api, type Contact, type SchoolClass } from '@/lib/api-client';
+import { api } from '@/lib/api-client';
+
+type GetManyContactsDto = NonNullable<
+  Awaited<ReturnType<typeof api.contacts.get>>['data']
+>;
+type SingleContactDto = GetManyContactsDto[0];
+
+type GetManyClassesDto = NonNullable<
+  Awaited<ReturnType<typeof api.classes.get>>['data']
+>;
+type SingleClassDto = GetManyClassesDto[0];
 import { formatRoleIcon, formatRoleLabel } from '@/lib/format';
 import type { ThemedUserBadgeProps } from '@/components/pages/settings/themed-profile-preview';
 import { useQuery } from '@tanstack/react-query';
@@ -29,7 +39,7 @@ const DEFAULT_GROUP_AVATAR = {
   emoji: AVATAR_PRESETS[0]!.emoji,
 };
 
-const ROLE_GROUP_ORDER: Contact['role'][] = [
+const ROLE_GROUP_ORDER: SingleContactDto['role'][] = [
   'teacher',
   'student',
   'headmaster',
@@ -38,9 +48,9 @@ const ROLE_GROUP_ORDER: Contact['role'][] = [
 ];
 
 function groupContactsByRole(
-  contacts: Contact[],
-): { key: string; label: string; contacts: Contact[] }[] {
-  const groups = new Map<string, Contact[]>();
+  contacts: SingleContactDto[],
+): { key: string; label: string; contacts: SingleContactDto[] }[] {
+  const groups = new Map<string, SingleContactDto[]>();
   for (const contact of contacts) {
     const key = contact.role ?? 'other';
     const list = groups.get(key) ?? [];
@@ -48,7 +58,11 @@ function groupContactsByRole(
     groups.set(key, list);
   }
 
-  const ordered: { key: string; label: string; contacts: Contact[] }[] = [];
+  const ordered: {
+    key: string;
+    label: string;
+    contacts: SingleContactDto[];
+  }[] = [];
   for (const role of ROLE_GROUP_ORDER) {
     const list = role ? groups.get(role) : undefined;
     if (list && list.length > 0) {
@@ -70,7 +84,7 @@ function groupContactsByRole(
   return ordered;
 }
 
-function contactBadges(contact: Contact): ThemedUserBadgeProps[] {
+function contactBadges(contact: SingleContactDto): ThemedUserBadgeProps[] {
   const badges: ThemedUserBadgeProps[] = [];
   if (contact.role) {
     badges.push({
@@ -87,7 +101,9 @@ function contactBadges(contact: Contact): ThemedUserBadgeProps[] {
   return badges;
 }
 
-function contactToListItem(contact: Contact): ThemedListPreviewItemProps {
+function contactToListItem(
+  contact: SingleContactDto,
+): ThemedListPreviewItemProps {
   return {
     userId: contact.user_id,
     heading: contact.display_name,
@@ -97,7 +113,9 @@ function contactToListItem(contact: Contact): ThemedListPreviewItemProps {
   };
 }
 
-function classToListItem(schoolClass: SchoolClass): ThemedListPreviewItemProps {
+function classToListItem(
+  schoolClass: SingleClassDto,
+): ThemedListPreviewItemProps {
   return {
     userId: schoolClass.class_id,
     heading: schoolClass.class_name,
@@ -148,7 +166,9 @@ const ThemedCreateChatModal = (props: ThemedCreateChatModalProps) => {
     queryKey: ['contacts'],
     queryFn: async () => {
       const { data, error } = await api.contacts.get();
-      if (error) {throw error;}
+      if (error) {
+        throw error;
+      }
       return data;
     },
     enabled: props.visible,
@@ -159,7 +179,9 @@ const ThemedCreateChatModal = (props: ThemedCreateChatModalProps) => {
     queryKey: ['classes'],
     queryFn: async () => {
       const { data, error } = await api.classes.get();
-      if (error) {throw error;}
+      if (error) {
+        throw error;
+      }
       return data;
     },
     enabled: props.visible,
@@ -176,8 +198,12 @@ const ThemedCreateChatModal = (props: ThemedCreateChatModalProps) => {
 
   const onContactPressed = async (peerUserId: string) => {
     const { data, error } = await api.chats.post({ peer_user_id: peerUserId });
-    if (error) {throw error;}
-    if (data) {props.onChatCreated(data.chat_id);}
+    if (error) {
+      throw error;
+    }
+    if (data) {
+      props.onChatCreated(data.chat_id);
+    }
   };
 
   const onRequestClosedTriggered = () => {
