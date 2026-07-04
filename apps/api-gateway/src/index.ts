@@ -11,6 +11,7 @@ import { searchRoutes } from './modules/search';
 import { syncRoutes } from './modules/sync';
 import { institutionsRoutes } from './modules/institutions';
 import { wsRoutes } from './modules/ws';
+import { usersRoutes } from './modules/users';
 
 export const app = new Elysia()
   .use(errorPlugin)
@@ -23,6 +24,7 @@ export const app = new Elysia()
   .use(reportsRoutes)
   .use(searchRoutes)
   .use(institutionsRoutes)
+  .use(usersRoutes)
   .use(wsRoutes);
 
 export type App = typeof app;

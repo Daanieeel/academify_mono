@@ -67,8 +67,8 @@ export class ChatsService {
       .select({
         username: user.username,
         displayName: profiles.displayNameCiphertext,
-        avatarBackgroundColor: profiles.avatarBackgroundColor,
-        avatarEmoji: profiles.avatarEmoji,
+        avatarBackgroundColor: user.avatarBackgroundColor,
+        avatarEmoji: user.avatarEmoji,
       })
       .from(user)
       .leftJoin(profiles, eq(profiles.userId, user.id))
@@ -141,15 +141,15 @@ export class ChatsService {
     }
 
     const [updated] = await db
-      .update(profiles)
+      .update(user)
       .set({
         avatarBackgroundColor: backgroundColor,
         avatarEmoji: emoji,
       })
-      .where(eq(profiles.userId, userId))
+      .where(eq(user.id, userId))
       .returning({
-        avatarBackgroundColor: profiles.avatarBackgroundColor,
-        avatarEmoji: profiles.avatarEmoji,
+        avatarBackgroundColor: user.avatarBackgroundColor,
+        avatarEmoji: user.avatarEmoji,
       });
 
     return {
@@ -172,8 +172,8 @@ export class ChatsService {
         userId: profiles.userId,
         displayName: profiles.displayNameCiphertext,
         username: user.username,
-        avatarBackgroundColor: profiles.avatarBackgroundColor,
-        avatarEmoji: profiles.avatarEmoji,
+        avatarBackgroundColor: user.avatarBackgroundColor,
+        avatarEmoji: user.avatarEmoji,
       })
       .from(profiles)
       .innerJoin(user, eq(user.id, profiles.userId))

@@ -16,3 +16,5 @@ This version has breaking changes — APIs, conventions, and file structure may 
 Always use bun, not npm
 
 Pages (Next.js and Expo) must always be function components.
+
+Always use bun instead of npm, pnpm or yarn.

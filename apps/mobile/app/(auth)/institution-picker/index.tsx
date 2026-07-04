@@ -5,7 +5,7 @@ import React, { useState, useCallback } from 'react';
 import { View, TextInput, TouchableOpacity, FlatList } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { registryClient } from '@/lib/registry';
-import { useQuery } from '@tanstack/react-query';
+import { useInfiniteQuery } from '@tanstack/react-query';
 import { useDebounce } from 'use-debounce';
 
 type GetManyRegistryInstitutionsDto = NonNullable<
@@ -20,21 +20,35 @@ export default function InstitutionPicker() {
   const [debouncedQuery] = useDebounce(query, 300);
 
   const {
-    data: institutions = [],
+    data,
     isLoading,
     isError,
-  } = useQuery({
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+  } = useInfiniteQuery({
     queryKey: ['institutions', debouncedQuery],
-    queryFn: async () => {
-      const { data, error } = await registryClient.institutions.get({
-        $query: { search: debouncedQuery || undefined },
+    initialPageParam: 0,
+    queryFn: async ({ pageParam }) => {
+      const { data: queryData, error } = await registryClient.institutions.get({
+        $query: {
+          ...(debouncedQuery ? { search: debouncedQuery } : {}),
+          offset: pageParam,
+          limit: 25,
+        },
       });
       if (error) {
         throw error;
       }
-      return data?.institutions ?? [];
+      return queryData ?? { institutions: [], has_more: false };
+    },
+    getNextPageParam: (lastPage, allPages) => {
+      if (!lastPage.has_more) {return undefined;}
+      return allPages.length * 25;
     },
   });
+
+  const institutions = data?.pages.flatMap((page) => page.institutions) ?? [];
 
   const error = isError ? 'Failed to load institutions' : null;
 
@@ -125,6 +139,12 @@ export default function InstitutionPicker() {
           keyExtractor={(item) => item.slug}
           renderItem={renderItem}
           showsVerticalScrollIndicator={false}
+          onEndReached={() => {
+            if (hasNextPage && !isFetchingNextPage) {
+              fetchNextPage();
+            }
+          }}
+          onEndReachedThreshold={0.5}
           ListEmptyComponent={() =>
             !isLoading && query ? (
               <View className="py-8 items-center">

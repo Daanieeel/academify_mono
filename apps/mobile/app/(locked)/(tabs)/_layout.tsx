@@ -52,9 +52,13 @@ export default function TabLayout() {
       },
     );
 
-    api
-      .getMe()
-      .then((me) => {
+    api.me
+      .get()
+      .then(({ data: me, error }) => {
+        if (error || !me) {
+          setReady(true);
+          return;
+        }
         if (!me.avatar_background_color || !me.avatar_emoji) {
           setReady(true);
           return;

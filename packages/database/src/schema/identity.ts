@@ -7,6 +7,7 @@ import {
   uniqueIndex,
   uuid,
   jsonb,
+  primaryKey,
 } from 'drizzle-orm/pg-core';
 
 import { user } from './auth';
@@ -39,22 +40,20 @@ export const institutions = pgTable('institutions', {
 
 // Encrypted PII lives here, separated from the auth identity (`user`) per the
 // data-protection rule: auth/session fields stay plaintext, profile PII doesn't.
-export const profiles = pgTable('profiles', {
-  userId: text('user_id')
-    .primaryKey()
-    .references(() => user.id, { onDelete: 'cascade' }),
-  institutionId: uuid('institution_id')
-    .notNull()
-    .references(() => institutions.id),
-  displayNameCiphertext: text('display_name_ciphertext').notNull(),
-  keyVersion: integer('key_version').notNull(),
-  photoRef: text('photo_ref'),
-  // Generated avatar (background color + emoji) shown until real photo
-  // upload exists. Resolution order everywhere: photoRef > these > icon
-  // fallback.
-  avatarBackgroundColor: text('avatar_background_color'),
-  avatarEmoji: text('avatar_emoji'),
-});
+export const profiles = pgTable(
+  'profiles',
+  {
+    userId: text('user_id')
+      .notNull()
+      .references(() => user.id, { onDelete: 'cascade' }),
+    institutionId: uuid('institution_id')
+      .notNull()
+      .references(() => institutions.id),
+    displayNameCiphertext: text('display_name_ciphertext').notNull(),
+    keyVersion: integer('key_version').notNull(),
+  },
+  (table) => [primaryKey({ columns: [table.userId, table.institutionId] })],
+);
 
 export const roleBindings = pgTable(
   'role_bindings',

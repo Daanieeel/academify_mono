@@ -1,4 +1,5 @@
 import ThemedProfilePreview from '@/components/pages/settings/themed-profile-preview';
+import { ThemedSchoolSwitcherModal } from '@/components/modals/themed-school-switcher-modal';
 import ThemedAvatarPickerModal from '@/components/modals/themed-avatar-picker-modal';
 import { Separator } from '@/components/ui/separator';
 
@@ -28,12 +29,12 @@ import { parseAvatarGradient } from '@/lib/avatar';
 const TAB_ICON_PT = 9;
 const PIXEL_RATIO = PixelRatio.get();
 
-const settingsItems: ThemedSettingsItemProp[] = [
+const accountSettingsItems: ThemedSettingsItemProp[] = [
   {
-    label: 'Benachrichtigungen',
-    icomoonIcon: 'bell',
-    type: 'switch',
-    onPressAction: 'notification-press-action',
+    label: 'Schule wechseln',
+    icomoonIcon: 'buildings',
+    type: 'link',
+    onPressAction: 'switch-school-press-action',
   },
   {
     label: 'Über die App',
@@ -48,25 +49,41 @@ const settingsItems: ThemedSettingsItemProp[] = [
     onPressAction: 'show-help-press-action',
   },
   {
-    label: 'Log Out',
+    label: 'Abmelden',
     icomoonIcon: 'sign-out',
     type: 'link',
     onPressAction: 'log-out-press-action',
   },
 ];
 
+const schoolSettingsItems: ThemedSettingsItemProp[] = [
+  {
+    label: 'Benachrichtigungen',
+    icomoonIcon: 'bell',
+    type: 'switch',
+    onPressAction: 'notification-press-action',
+  },
+];
+
 const Settings = () => {
+  const router = useRouter();
+  const { signOut } = useSession();
+  const captureTargetRef = useRef<View>(null);
+  const [avatarPickerShown, setAvatarPickerShown] = useState(false);
+  const [schoolSwitcherShown, setSchoolSwitcherShown] = useState(false);
   const queryClient = useQueryClient();
   const { data: me } = useQuery({
     queryKey: ['me'],
     queryFn: async () => {
       const { data, error } = await api.me.get();
-      if (error) {throw error;}
+      if (error) {
+        throw error;
+      }
       return data;
     },
   });
 
-  const [firstName, ...lastNameParts] = me?.display_name.split(' ') ?? [];
+  const [firstName, ...lastNameParts] = me?.display_name?.split(' ') ?? [];
   const badges = [
     me?.role
       ? {
@@ -94,6 +111,7 @@ const Settings = () => {
 
   const settingsActionHandler: Record<string, () => void> = {
     'log-out-press-action': onLogOutPressed,
+    'switch-school-press-action': () => setSchoolSwitcherShown(true),
     'show-help-press-action': defaultPressedAction,
     default: defaultPressedAction,
   };
@@ -187,17 +205,43 @@ const Settings = () => {
           }}
         ></ThemedAvatarPickerModal>
 
+        <ThemedSchoolSwitcherModal
+          visible={schoolSwitcherShown}
+          onRequestClose={() => setSchoolSwitcherShown(false)}
+        />
+
         <Separator className="my-[20px] mx-[20px]"></Separator>
 
-        <View className="gap-[10px]">
-          {settingsItems.map((item, key) => (
-            <ThemedPressable
-              key={key}
-              onPress={settingsActionHandler[item.onPressAction ?? 'default']}
-            >
-              <ThemedSettingsItem {...item}></ThemedSettingsItem>
-            </ThemedPressable>
-          ))}
+        <View className="mb-[20px]">
+          <RNText className="text-neutral-500 font-bold mb-[10px] ml-[5px] uppercase text-xs tracking-wider">
+            Account-Einstellungen
+          </RNText>
+          <View className="gap-[10px]">
+            {accountSettingsItems.map((item, key) => (
+              <ThemedPressable
+                key={key}
+                onPress={settingsActionHandler[item.onPressAction ?? 'default']}
+              >
+                <ThemedSettingsItem {...item}></ThemedSettingsItem>
+              </ThemedPressable>
+            ))}
+          </View>
+        </View>
+
+        <View className="mb-[20px]">
+          <RNText className="text-neutral-500 font-bold mb-[10px] ml-[5px] uppercase text-xs tracking-wider">
+            Schul-Einstellungen
+          </RNText>
+          <View className="gap-[10px]">
+            {schoolSettingsItems.map((item, key) => (
+              <ThemedPressable
+                key={key}
+                onPress={settingsActionHandler[item.onPressAction ?? 'default']}
+              >
+                <ThemedSettingsItem {...item}></ThemedSettingsItem>
+              </ThemedPressable>
+            ))}
+          </View>
         </View>
       </ScrollView>
     </View>

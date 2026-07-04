@@ -40,8 +40,8 @@ export class SearchService {
           userId: profiles.userId,
           displayName: profiles.displayNameCiphertext,
           username: user.username,
-          avatarBackgroundColor: profiles.avatarBackgroundColor,
-          avatarEmoji: profiles.avatarEmoji,
+          avatarBackgroundColor: user.avatarBackgroundColor,
+          avatarEmoji: user.avatarEmoji,
         })
         .from(profiles)
         .innerJoin(user, eq(user.id, profiles.userId))

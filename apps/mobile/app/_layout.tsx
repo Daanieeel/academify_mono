@@ -1,4 +1,5 @@
 import { SessionProvider } from '@/context/auth-context';
+import { InstitutionProvider } from '@/context/institution-context';
 import { MlsBridgeProvider } from '@/context/mls-context';
 import { SyncProvider } from '@/context/sync-context';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
@@ -15,11 +16,13 @@ export default function RootLayout() {
     <SafeAreaProvider>
       <QueryClientProvider client={queryClient}>
         <MlsBridgeProvider>
-          <SessionProvider>
-            <SyncProvider>
-              <RootNavigator></RootNavigator>
-            </SyncProvider>
-          </SessionProvider>
+          <InstitutionProvider>
+            <SessionProvider>
+              <SyncProvider>
+                <RootNavigator></RootNavigator>
+              </SyncProvider>
+            </SessionProvider>
+          </InstitutionProvider>
         </MlsBridgeProvider>
       </QueryClientProvider>
     </SafeAreaProvider>

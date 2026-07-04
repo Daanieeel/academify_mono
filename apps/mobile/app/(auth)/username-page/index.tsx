@@ -9,6 +9,9 @@ import { Icon } from '@/components/ui/icon';
 import { Input } from '@/components/ui/input';
 
 import { registryClient } from '@/lib/registry';
+import { useSession } from '@/context/auth-context';
+import { useInstitution } from '@/context/institution-context';
+import { api } from '@/lib/api-client';
 
 const UsernamePage = () => {
   const params = useLocalSearchParams();
@@ -18,15 +21,17 @@ const UsernamePage = () => {
   const institutionName = params.institutionName as string;
   const institutionId = params.institutionId as string;
 
-  const [text, setText] = useState('');
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
   const [inputError, setInputError] = useState('');
   const [isValid, setIsValid] = useState(true);
   const [isResolving, setIsResolving] = useState(false);
 
   const router = useRouter();
+  const { signIn, signOut } = useSession();
+  const { setActiveInstitutionId } = useInstitution();
   const errorColor = useThemeColor({}, 'red-500');
   const neutral900Color = useThemeColor({}, 'neutral-900');
-  const primaryColor = useThemeColor({}, 'primary-500');
 
   React.useEffect(() => {
     if (!backendUrl && institutionId) {
@@ -34,7 +39,9 @@ const UsernamePage = () => {
       registryClient.institutions[institutionId].resolve
         .get()
         .then(({ data, error }) => {
-          if (error) {throw error;}
+          if (error) {
+            throw error;
+          }
           if (data && 'backend_url' in data) {
             setBackendUrl((data as any).backend_url);
           }
@@ -48,27 +55,46 @@ const UsernamePage = () => {
     router.back();
   };
 
-  const handleContinueButtonPress = (input: string) => {
-    if (input.length < 1) {
+  const handleContinueButtonPress = async () => {
+    if (username.length < 1 || password.length < 1) {
       setIsValid(false);
-      setInputError('Du hast nichts in das Feld eingegeben');
-      return false;
-    } else {
-      // In the future, better-auth client will use `backendUrl` here
-      router.push(`/(auth)/password-page/${text}`);
+      setInputError('Bitte gib Benutzernamen und Passwort ein.');
+      return;
     }
+
+    const { error } = await signIn(username, password);
+    if (error) {
+      setIsValid(false);
+      setInputError(error);
+      return;
+    }
+
+    await setActiveInstitutionId(institutionId);
+
+    // Verify membership
+    const { error: profileError } = await api.me.get();
+    if (profileError) {
+      await signOut();
+      await setActiveInstitutionId(null);
+      setIsValid(false);
+      setInputError('Du bist kein Mitglied dieser Schule.');
+      return;
+    }
+
+    setIsValid(true);
+    router.push(`/(auth)/user-card-page/${username}`);
   };
 
   const handleUntisLoginButtonPress = () => {
     // Implement Untis login here using backendUrl
   };
 
-  const handleInputChange = (input: string) => {
+  const handleUsernameChange = (input: string) => {
     if (input.includes(' ')) {
       const withoutSpaces = input.replace(/\s/g, '');
-      setText(withoutSpaces);
+      setUsername(withoutSpaces);
     } else {
-      setText(input);
+      setUsername(input);
     }
   };
 
@@ -105,20 +131,30 @@ const UsernamePage = () => {
             variant="heading2"
             className="text-center"
           >
-            Wer bist du?
+            Anmelden
           </Text>
           <Text color={neutral900Color} variant="body" className="text-center">
-            Benutzernamen oder Mail eingeben
+            Logge dich in deinen Account ein
           </Text>
         </View>
 
         <Input
           placeholder="Benutzername oder E-Mail"
-          value={text}
-          onChangeText={handleInputChange}
+          value={username}
+          onChangeText={handleUsernameChange}
           heightBased={60}
           autoCorrect={false}
           spellCheck={false}
+          autoCapitalize="none"
+        ></Input>
+
+        <Input
+          placeholder="Passwort"
+          value={password}
+          onChangeText={setPassword}
+          heightBased={60}
+          obscureText={true}
+          autoCapitalize="none"
         ></Input>
 
         {!isValid && (
@@ -130,12 +166,8 @@ const UsernamePage = () => {
           </View>
         )}
 
-        <Button
-          variant="primary"
-          size="lg"
-          onPress={() => handleContinueButtonPress(text)}
-        >
-          <Text>Weiter</Text>
+        <Button variant="primary" size="lg" onPress={handleContinueButtonPress}>
+          <Text>Anmelden</Text>
           <Icon name="arrow-right" size={24} />
         </Button>
 

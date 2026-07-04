@@ -29,11 +29,22 @@ export const app = new Elysia()
               )
             : undefined,
         )
-        .limit(25);
+        .limit((query.limit ?? 25) + 1)
+        .offset(query.offset ?? 0);
 
-      return { institutions: rows };
+      const limit = query.limit ?? 25;
+      const has_more = rows.length > limit;
+      const institutions = rows.slice(0, limit);
+
+      return { institutions, has_more };
     },
-    { query: t.Object({ search: t.Optional(t.String()) }) },
+    {
+      query: t.Object({
+        search: t.Optional(t.String()),
+        limit: t.Optional(t.Numeric()),
+        offset: t.Optional(t.Numeric()),
+      }),
+    },
   )
   .get(
     '/institutions/:slug/resolve',
