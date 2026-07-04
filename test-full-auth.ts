@@ -1,0 +1,20 @@
+async function test() {
+  const result = await fetch(
+    'http://localhost:3001/api/auth/sign-in/username',
+    {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ username: 'admin', password: 'Demo1234!' }),
+    },
+  );
+  const loginData = await result.json();
+  const token = loginData.token;
+  console.log('Token:', token);
+
+  const result2 = await fetch('http://localhost:3001/api/auth/get-session', {
+    method: 'GET',
+    headers: { Cookie: 'better-auth.session_token=' + token },
+  });
+  console.log('Session:', await result2.json());
+}
+test();

@@ -21,6 +21,7 @@ export class AppError extends Error {
 }
 
 export const errorPlugin = new Elysia({ name: 'error-plugin' }).onError(
+  { as: 'global' },
   ({ code, error, set }) => {
     if (error instanceof AppError) {
       set.status = error.statusCode;

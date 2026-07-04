@@ -1,0 +1,13 @@
+{
+  "name": "@academify/storage",
+  "version": "1.0.0",
+  "private": true,
+  "main": "src/index.ts",
+  "dependencies": {
+    "@aws-sdk/client-s3": "^3.500.0",
+    "@aws-sdk/s3-request-presigner": "^3.500.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.0.0"
+  }
+}

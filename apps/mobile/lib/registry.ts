@@ -1,4 +1,6 @@
 import { Platform } from 'react-native';
+import { authClient } from './auth-client';
+import { currentAuthToken } from './api-client';
 import { edenTreaty } from '@elysiajs/eden';
 import type { App as RegistryApp } from '@app/registry';
 
@@ -13,4 +15,16 @@ const getBaseUrl = () => {
     : 'http://localhost:3002';
 };
 
-export const registryClient = edenTreaty<RegistryApp>(getBaseUrl());
+export const registryClient = edenTreaty<RegistryApp>(getBaseUrl(), {
+  fetcher: (url: string, init?: RequestInit) => {
+    const mergedHeaders = new Headers(init?.headers);
+    if (currentAuthToken)
+      {mergedHeaders.set('Authorization', `Bearer ${currentAuthToken}`);}
+    mergedHeaders.set('Cookie', authClient.getCookie() ?? '');
+
+    return fetch(url, {
+      ...init,
+      headers: mergedHeaders,
+    });
+  },
+} as any);

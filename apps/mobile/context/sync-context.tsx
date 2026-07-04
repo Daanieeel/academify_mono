@@ -1,7 +1,7 @@
 import { useSession } from '@/context/auth-context';
 import { useMlsBridge } from '@/context/mls-context';
 import { authClient } from '@/lib/auth-client';
-import { api, API_URL } from '@/lib/api-client';
+import { api, API_URL, currentAuthToken } from '@/lib/api-client';
 import { bytesToBase64Url } from '@/lib/base64';
 import { SyncClient } from '@repo/client-core';
 import {
@@ -65,7 +65,9 @@ async function ensureDeviceRegistered(
   const { data: regData, error: regError } = await api.mls.devices.post({
     identity_pubkey: bytesToBase64Url(new Uint8Array([1])),
   });
-  if (regError) {throw regError;}
+  if (regError) {
+    throw regError;
+  }
   const device_id = regData!.device_id;
 
   for (let i = 0; i < KEY_PACKAGE_POOL_SIZE; i++) {
@@ -75,7 +77,9 @@ async function ensureDeviceRegistered(
       device_id,
       key_package_bytes: bytesToBase64Url(keyPackageBytes),
     });
-    if (upError) {throw upError;}
+    if (upError) {
+      throw upError;
+    }
   }
   return device_id;
 }
@@ -109,13 +113,25 @@ export function SyncProvider({ children }: PropsWithChildren) {
     const cursorKey = `sync-cursor-${session.userId}`;
 
     const client = new SyncClient(
-      { backendUrl: API_URL, headers: { Cookie: authClient.getCookie() } },
+      {
+        backendUrl: API_URL,
+        headers: {
+          ...(currentAuthToken
+            ? { Authorization: `Bearer ${currentAuthToken}` }
+            : {}),
+          Cookie: authClient.getCookie() ?? '',
+        },
+      },
       async (event) => {
         if (event.event_type === 'message.created') {
           const { data: message, error } =
             await api.messages[event.entity_id].get();
-          if (error) {throw error;}
-          if (!message) {return;}
+          if (error) {
+            throw error;
+          }
+          if (!message) {
+            return;
+          }
           if (cancelled) {
             return;
           }

@@ -1,5 +1,6 @@
 import { Elysia } from 'elysia';
 import { auth } from '@repo/auth';
+import { initializeBuckets } from '@academify/storage';
 
 import { env } from './env';
 import { errorPlugin } from './plugins/error';
@@ -30,6 +31,10 @@ export const app = new Elysia()
 export type App = typeof app;
 
 if (import.meta.main) {
+  if (process.env.NODE_ENV !== 'production') {
+    initializeBuckets().catch(console.error);
+  }
+
   app.listen(env.API_GATEWAY_PORT);
   console.log(
     `API Gateway listening on ${app.server?.hostname}:${app.server?.port}`,

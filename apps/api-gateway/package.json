@@ -14,18 +14,22 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
+    "@academify/storage": "workspace:*",
     "@repo/auth": "workspace:*",
     "@repo/crypto": "workspace:*",
     "@repo/database": "workspace:*",
     "@repo/env": "workspace:*",
-    "@repo/redis": "workspace:*",
     "@repo/permissions": "workspace:*",
+    "@repo/redis": "workspace:*",
     "@repo/sync-protocol": "workspace:*",
     "@sinclair/typebox": "^0.34.41",
+    "@types/uuid": "^11.0.0",
     "bullmq": "catalog:",
     "drizzle-orm": "catalog:",
     "elysia": "catalog:",
-    "ioredis": "catalog:"
+    "ioredis": "catalog:",
+    "uuid": "^14.0.1",
+    "xvatar-sdk": "^2.1.0"
   },
   "devDependencies": {
     "@types/bun": "catalog:",

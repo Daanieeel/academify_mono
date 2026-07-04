@@ -12,6 +12,13 @@ import {
   user,
   account,
 } from '@repo/database';
+import { generateAvatar } from 'xvatar-sdk';
+import {
+  s3Client,
+  PUBLIC_BUCKET_NAME,
+  initializeBuckets,
+} from '@academify/storage';
+import { PutObjectCommand } from '@aws-sdk/client-s3';
 
 // Standalone dev-data seeder — not a test (no cleanup). Re-running it is
 // cheap: if the demo institution already exists we assume it's already
@@ -28,6 +35,24 @@ const STUDENTS: SeedUser[] = [
   { username: 'bob', displayName: 'Bob Nguyen' },
   { username: 'clara', displayName: 'Clara Becker' },
   { username: 'david', displayName: 'David Hoffmann' },
+];
+
+const STREET_NAMES = [
+  'Hauptstraße',
+  'Schulstraße',
+  'Bahnhofstraße',
+  'Lindenallee',
+  'Berliner Straße',
+  'Gartenstraße',
+  'Schillerstraße',
+  'Goethestraße',
+  'Ringstraße',
+  'Waldstraße',
+  'Mozartstraße',
+  'Beethovenplatz',
+  'Kastanienweg',
+  'Amselweg',
+  'Friedrichstraße',
 ];
 
 const REALISTIC_SCHOOLS = [
@@ -265,6 +290,32 @@ function makeSlug(name: string, region: string) {
   return `${name.toLowerCase().replace(/[^a-z0-9]+/g, '-')}-${region.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`;
 }
 
+async function uploadImageFromUrl(
+  url: string,
+  key: string,
+  contentType: string,
+) {
+  try {
+    const response = await fetch(url);
+    if (!response.ok) {return null;}
+    const arrayBuffer = await response.arrayBuffer();
+
+    await s3Client.send(
+      new PutObjectCommand({
+        Bucket: PUBLIC_BUCKET_NAME,
+        Key: key,
+        Body: Buffer.from(arrayBuffer),
+        ContentType: contentType,
+      }),
+    );
+    // Since we're in dev, MinIO uses this URL pattern without S3_PUBLIC_URL set
+    return `http://localhost:9000/${PUBLIC_BUCKET_NAME}/${key}`;
+  } catch (e) {
+    console.error(`Failed to upload ${url} to S3:`, e);
+    return null;
+  }
+}
+
 async function main() {
   console.log('Clearing database...');
   await db.execute(sql`
@@ -277,14 +328,43 @@ async function main() {
     END $$;
   `);
 
+  console.log('Ensuring S3 buckets exist...');
+  await initializeBuckets();
+
   console.log('Seeding 50 registry institutions...');
+  let i = 0;
   for (const school of REALISTIC_SCHOOLS) {
     const slug =
       school === MAIN_SCHOOL
         ? INSTITUTION_SLUG
         : makeSlug(school.name, school.region);
+
+    console.log(`Processing assets for ${slug}...`);
+    const avatarSourceUrl = generateAvatar({
+      username: slug,
+      size: 300,
+      format: 'png',
+      userLogo: true,
+      rounded: 0,
+    });
+    const bannerSourceUrl = `https://picsum.photos/seed/${slug}/1200/400`;
+
+    const avatarUrl =
+      (await uploadImageFromUrl(
+        avatarSourceUrl,
+        `avatars/${slug}.png`,
+        'image/png',
+      )) || '';
+
+    const bannerUrl =
+      (await uploadImageFromUrl(
+        bannerSourceUrl,
+        `banners/${slug}.jpg`,
+        'image/jpeg',
+      )) || '';
+
     await db.execute(sql`
-      INSERT INTO institution_registry (id, slug, display_name, type, region, country, backend_url)
+      INSERT INTO institution_registry (id, slug, display_name, type, region, country, backend_url, avatar_url, banner_url, address)
       VALUES (
         gen_random_uuid(),
         ${slug},
@@ -292,14 +372,24 @@ async function main() {
         ${school.type},
         ${school.region},
         'Deutschland',
-        'http://localhost:3001'
+        'http://localhost:3001',
+        ${avatarUrl},
+        ${bannerUrl},
+        ${`${STREET_NAMES[i % STREET_NAMES.length]} ${Math.floor(Math.random() * 150) + 1}, ${Math.floor(Math.random() * 90000) + 10000} ${school.region}`}
       )
     `);
+    i++;
   }
 
   const [institution] = await db
     .insert(institutions)
-    .values({ slug: INSTITUTION_SLUG, displayName: MAIN_SCHOOL.name })
+    .values({
+      slug: INSTITUTION_SLUG,
+      displayName: MAIN_SCHOOL.name,
+      avatarUrl: `http://localhost:9000/${PUBLIC_BUCKET_NAME}/avatars/${INSTITUTION_SLUG}.png`,
+      bannerUrl: `http://localhost:9000/${PUBLIC_BUCKET_NAME}/banners/${INSTITUTION_SLUG}.jpg`,
+      address: `Musterstraße 1, 12345 ${MAIN_SCHOOL.region}`,
+    })
     .returning();
   const institutionId = institution!.id;
 

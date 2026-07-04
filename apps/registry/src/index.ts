@@ -1,4 +1,4 @@
-import { eq, ilike, or } from 'drizzle-orm';
+import { eq, ilike, or, and } from 'drizzle-orm';
 import { Elysia, t } from 'elysia';
 
 import { db } from './db';
@@ -19,15 +19,24 @@ export const app = new Elysia()
           type: institutionRegistry.type,
           region: institutionRegistry.region,
           country: institutionRegistry.country,
+          avatar_url: institutionRegistry.avatarUrl,
+          banner_url: institutionRegistry.bannerUrl,
+          address: institutionRegistry.address,
+          telephone: institutionRegistry.telephone,
+          description: institutionRegistry.description,
         })
         .from(institutionRegistry)
         .where(
-          query.search
-            ? or(
-                ilike(institutionRegistry.displayName, `%${query.search}%`),
-                ilike(institutionRegistry.slug, `%${query.search}%`),
-              )
-            : undefined,
+          and(
+            query.type ? eq(institutionRegistry.type, query.type) : undefined,
+            query.search
+              ? or(
+                  ilike(institutionRegistry.displayName, `%${query.search}%`),
+                  ilike(institutionRegistry.slug, `%${query.search}%`),
+                  ilike(institutionRegistry.address, `%${query.search}%`),
+                )
+              : undefined,
+          ),
         )
         .limit((query.limit ?? 25) + 1)
         .offset(query.offset ?? 0);
@@ -41,6 +50,7 @@ export const app = new Elysia()
     {
       query: t.Object({
         search: t.Optional(t.String()),
+        type: t.Optional(t.String()),
         limit: t.Optional(t.Numeric()),
         offset: t.Optional(t.Numeric()),
       }),
@@ -56,6 +66,11 @@ export const app = new Elysia()
           deployment_mode: institutionRegistry.deploymentMode,
           backend_url: institutionRegistry.backendUrl,
           status: institutionRegistry.status,
+          avatar_url: institutionRegistry.avatarUrl,
+          banner_url: institutionRegistry.bannerUrl,
+          address: institutionRegistry.address,
+          telephone: institutionRegistry.telephone,
+          description: institutionRegistry.description,
         })
         .from(institutionRegistry)
         .where(eq(institutionRegistry.slug, params.slug));

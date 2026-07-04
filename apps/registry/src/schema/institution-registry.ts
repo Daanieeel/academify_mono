@@ -24,6 +24,11 @@ export const institutionRegistry = pgTable('institution_registry', {
   type: text('type'), // e.g., 'Gymnasium', 'Gesamtschule'
   region: text('region'), // e.g., 'Nordrhein-Westfalen'
   country: text('country'), // e.g., 'Deutschland'
+  avatarUrl: text('avatar_url'),
+  bannerUrl: text('banner_url'),
+  address: text('address').notNull().default(''),
+  telephone: text('telephone'),
+  description: text('description'),
   deploymentMode: deploymentModeEnum('deployment_mode')
     .notNull()
     .default('hosted'),

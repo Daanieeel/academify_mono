@@ -1,5 +1,12 @@
 import { authClient } from '@/lib/auth-client';
-import { createContext, use, type PropsWithChildren } from 'react';
+import {
+  createContext,
+  use,
+  useState,
+  useEffect,
+  type PropsWithChildren,
+} from 'react';
+import { setAuthToken } from '@/lib/api-client';
 
 const AuthContext = createContext<{
   signIn: (
@@ -27,13 +34,28 @@ export function useSession() {
 export function SessionProvider({ children }: PropsWithChildren) {
   const { data, isPending } = authClient.useSession();
 
+  useEffect(() => {
+    if (data?.session?.token) {
+      setAuthToken(data.session.token);
+    } else if (!isPending) {
+      setAuthToken(null);
+    }
+  }, [data, isPending]);
+
   const signIn = async (username: string, password: string) => {
-    const { error } = await authClient.signIn.username({ username, password });
+    const { error, data: signInData } = await authClient.signIn.username({
+      username,
+      password,
+    });
+    if (signInData?.session?.token) {
+      setAuthToken(signInData.session.token);
+    }
     return { error: error?.message ?? null };
   };
 
   const signOut = async () => {
     await authClient.signOut();
+    setAuthToken(null);
   };
 
   const session = data

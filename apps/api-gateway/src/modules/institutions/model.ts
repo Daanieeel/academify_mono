@@ -15,3 +15,16 @@ export const UpdateInstitutionSettingsSchema = t.Object({
   ),
   applyPreset: t.Optional(t.String()),
 });
+
+export const GenerateUploadUrlSchema = t.Object({
+  assetType: t.Union([t.Literal('avatar'), t.Literal('banner')]),
+  contentType: t.String(),
+});
+
+export const UpdateInstitutionProfileSchema = t.Object({
+  avatarUrl: t.Optional(t.String()),
+  bannerUrl: t.Optional(t.String()),
+  address: t.Optional(t.String()),
+  telephone: t.Optional(t.String()),
+  description: t.Optional(t.String()),
+});

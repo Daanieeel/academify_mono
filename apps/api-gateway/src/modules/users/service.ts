@@ -8,6 +8,7 @@ export class UsersService {
         institutionId: profiles.institutionId,
         displayNameCiphertext: profiles.displayNameCiphertext,
         institutionName: institutions.displayName,
+        institutionSlug: institutions.slug,
       })
       .from(profiles)
       .innerJoin(institutions, eq(institutions.id, profiles.institutionId))
@@ -16,6 +17,7 @@ export class UsersService {
     return {
       profiles: rows.map((row) => ({
         institution_id: row.institutionId,
+        institution_slug: row.institutionSlug,
         institution_name: row.institutionName,
         display_name: row.displayNameCiphertext,
       })),

@@ -1,5 +1,4 @@
 import ThemedProfilePreview from '@/components/pages/settings/themed-profile-preview';
-import { ThemedSchoolSwitcherModal } from '@/components/modals/themed-school-switcher-modal';
 import ThemedAvatarPickerModal from '@/components/modals/themed-avatar-picker-modal';
 import { Separator } from '@/components/ui/separator';
 
@@ -70,7 +69,6 @@ const Settings = () => {
   const { signOut } = useSession();
   const captureTargetRef = useRef<View>(null);
   const [avatarPickerShown, setAvatarPickerShown] = useState(false);
-  const [schoolSwitcherShown, setSchoolSwitcherShown] = useState(false);
   const queryClient = useQueryClient();
   const { data: me } = useQuery({
     queryKey: ['me'],
@@ -152,7 +150,7 @@ const Settings = () => {
 
       <SafeAreaView edges={['top']}>
         <Stack.Screen options={{ headerShown: false }}></Stack.Screen>
-        <ThemedHeader headerTitle={'Einstellungen'}></ThemedHeader>
+        <ThemedHeader headerTitle={'Optionen'}></ThemedHeader>
       </SafeAreaView>
 
       <ScrollView
@@ -204,11 +202,6 @@ const Settings = () => {
             }, 50);
           }}
         ></ThemedAvatarPickerModal>
-
-        <ThemedSchoolSwitcherModal
-          visible={schoolSwitcherShown}
-          onRequestClose={() => setSchoolSwitcherShown(false)}
-        />
 
         <Separator className="my-[20px] mx-[20px]"></Separator>
 

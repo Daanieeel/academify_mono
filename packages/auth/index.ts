@@ -1,5 +1,5 @@
 import { betterAuth, type BetterAuthOptions } from 'better-auth';
-import { username } from 'better-auth/plugins';
+import { username, bearer } from 'better-auth/plugins';
 import { expo } from '@better-auth/expo';
 import { drizzleAdapter } from 'better-auth/adapters/drizzle';
 import { db, user, session, account, verification } from '@repo/database';
@@ -14,7 +14,7 @@ const authOptions: BetterAuthOptions = {
   // Expo plugin sets it as the Origin header on native requests, which
   // better-auth otherwise rejects as untrusted.
   trustedOrigins: ['academifyv3://'],
-  plugins: [username(), expo()],
+  plugins: [username(), bearer(), expo()],
   session: {
     expiresIn: 60 * 60 * 24 * 7,
   },

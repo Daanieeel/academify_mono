@@ -30,6 +30,11 @@ export const institutions = pgTable('institutions', {
   slug: text('slug').notNull().unique(),
   displayName: text('display_name').notNull(),
   region: text('region'),
+  avatarUrl: text('avatar_url'),
+  bannerUrl: text('banner_url'),
+  address: text('address').notNull().default(''),
+  telephone: text('telephone'),
+  description: text('description'),
   deploymentMode: deploymentModeEnum('deployment_mode')
     .notNull()
     .default('hosted'),
