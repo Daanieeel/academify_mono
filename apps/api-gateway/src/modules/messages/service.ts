@@ -7,12 +7,7 @@ import {
   institutions,
 } from '@repo/database';
 import { jobPayloadSchema } from '@repo/sync-protocol';
-import {
-  PolicyEngine,
-  PERMISSIONS,
-  PermissionError,
-  type InstitutionSettings,
-} from '@repo/permissions';
+import { PolicyEngine, PERMISSIONS, PermissionError } from '@repo/permissions';
 
 import { AppError } from '../../plugins/error';
 import { enqueueJob } from '../../queue';
@@ -51,6 +46,7 @@ export class MessagesService {
       ciphertext: message.ciphertext.toString('base64url'),
       content_type: message.contentType,
       deleted: message.deletedAt !== null,
+      created_at: message.createdAt.toISOString(),
     };
   }
 
@@ -103,7 +99,7 @@ export class MessagesService {
       .select({ settings: institutions.settings })
       .from(institutions)
       .where(eq(institutions.id, institutionId));
-    const settings = (instRow?.settings as InstitutionSettings) ?? null;
+    const settings: unknown = instRow?.settings ?? null;
 
     if (
       !PolicyEngine.hasPermission(roles, PERMISSIONS.SEND_MESSAGE, settings)

@@ -19,8 +19,11 @@ const ChatAboutPage = () => {
   const { data: chatDetail } = useQuery({
     queryKey: ['chat', id],
     queryFn: async () => {
-      const { data, error } = await api.chats[id as string].get();
-      if (error) {throw error;}
+      if (typeof id !== 'string') {throw new Error('Invalid chat ID');}
+      const { data, error } = await api.chats[id].get();
+      if (error) {
+        throw error;
+      }
       return data;
     },
     enabled: !!id,
@@ -115,7 +118,7 @@ const ChatAboutPage = () => {
                 <ThemedListPreviewItem
                   key={member.user_id}
                   userId={member.user_id}
-                  heading={member.display_name}
+                  heading={member.display_name || ''}
                   className="bg-transparent"
                 ></ThemedListPreviewItem>
               ))}

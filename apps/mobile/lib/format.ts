@@ -1,29 +1,29 @@
-const ROLE_LABELS = {
+const ROLE_LABELS: Record<string, string> = {
   student: 'Schüler:in',
   teacher: 'Lehrer:in',
   admin: 'Admin',
   compliance_officer: 'Compliance-Beauftragte:r',
   headmaster: 'Schulleitung',
-} as const;
+};
 
 export function formatRoleLabel(
-  role: keyof typeof ROLE_LABELS | null | undefined,
+  role: string | null | undefined,
 ): string | undefined {
-  return role ? ROLE_LABELS[role] : undefined;
+  return role && role in ROLE_LABELS ? ROLE_LABELS[role] : undefined;
 }
 
-const ROLE_ICONS = {
+const ROLE_ICONS: Record<string, string> = {
   student: 'student',
   teacher: 'chalkboard-teacher',
   admin: 'shield-star',
   compliance_officer: 'shield-check',
   headmaster: 'shield-star',
-} as const;
+};
 
 export function formatRoleIcon(
-  role: keyof typeof ROLE_ICONS | null | undefined,
+  role: string | null | undefined,
 ): string | undefined {
-  return role ? ROLE_ICONS[role] : undefined;
+  return role && role in ROLE_ICONS ? ROLE_ICONS[role] : undefined;
 }
 
 export function formatChatTimestamp(iso: string): string {

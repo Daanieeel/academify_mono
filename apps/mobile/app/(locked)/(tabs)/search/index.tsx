@@ -2,13 +2,20 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { ScrollView, View, ActivityIndicator } from 'react-native';
 import { Stack, router } from 'expo-router';
 import { Text } from '@/components/ui/text';
-import { Icon } from '@/components/ui/icon';
+import { Icon, type IconName } from '@/components/ui/icon';
 import { Button } from '@/components/ui/button';
 import { useQuery } from '@tanstack/react-query';
 import { api } from '@/lib/api-client';
 import APPLICATION_CONSTANTS from '@/constants/strings';
 import SearchCategorySection from '@/components/pages/search/search-category-section';
-import SearchResultItem from '@/components/pages/search/search-result-item';
+import SearchResultItem, {
+  type SearchResultItemProps,
+  type GetManySearchDto,
+  type SingleSearchContactDto,
+  type SingleSearchChatDto,
+  type SingleSearchBlackboardDto,
+  type SingleSearchClubDto,
+} from '@/components/pages/search/search-result-item';
 import SearchResultsModal from '@/components/modals/search-results-modal';
 import { type ThemedSettingsItemProp } from '@/components/pages/settings/themed-settings-item';
 
@@ -48,6 +55,35 @@ type FilterType =
   | 'clubs'
   | 'settings';
 
+const SEARCH_FILTERS: { id: FilterType; label: string; icon: IconName }[] = [
+  { id: 'all', label: APPLICATION_CONSTANTS.SEARCH_FILTER_ALL, icon: 'list' },
+  {
+    id: 'contacts',
+    label: APPLICATION_CONSTANTS.SEARCH_FILTER_CONTACTS,
+    icon: 'users',
+  },
+  {
+    id: 'chats',
+    label: APPLICATION_CONSTANTS.SEARCH_FILTER_CHATS,
+    icon: 'chat-circle',
+  },
+  {
+    id: 'blackboards',
+    label: APPLICATION_CONSTANTS.SEARCH_FILTER_BLACKBOARDS,
+    icon: 'megaphone-simple',
+  },
+  {
+    id: 'clubs',
+    label: APPLICATION_CONSTANTS.SEARCH_FILTER_CLUBS,
+    icon: 'users-three',
+  },
+  {
+    id: 'settings',
+    label: APPLICATION_CONSTANTS.SEARCH_FILTER_SETTINGS,
+    icon: 'gear',
+  },
+];
+
 export default function SearchIndex() {
   const [query, setQuery] = useState('');
   const [debouncedQuery, setDebouncedQuery] = useState('');
@@ -67,18 +103,24 @@ export default function SearchIndex() {
   }, [query]);
 
   // Fetch results
-  const { data: results, isLoading: loading } = useQuery({
+  const { data: rawResults, isLoading: loading } = useQuery({
     queryKey: ['search', debouncedQuery],
     queryFn: async () => {
-      if (!debouncedQuery) {return null;}
+      if (!debouncedQuery) {
+        return null;
+      }
       const { data, error } = await api.search.get({
         $query: { q: debouncedQuery, limit: 3 },
       });
-      if (error) {throw error;}
+      if (error) {
+        throw error;
+      }
       return data;
     },
     enabled: !!debouncedQuery,
   });
+
+  const results: GetManySearchDto | undefined = rawResults;
 
   // Client side filtering for settings
   const filteredSettings = useMemo(() => {
@@ -109,18 +151,18 @@ export default function SearchIndex() {
     setModalVisible(true);
   };
 
-  const handleResultPress = (type: string, data: any) => {
+  const handleResultPress = (item: Omit<SearchResultItemProps, 'onPress'>) => {
     setModalVisible(false);
 
-    if (type === 'contact') {
-      router.push(`/(auth)/user-card-page/${data.user_id}`);
-    } else if (type === 'chat') {
-      router.push(`/(locked)/chat/${data.chat_id}`);
-    } else if (type === 'blackboard') {
-      // router.push(`/blackboards/${data.id}`); // Not implemented yet
-    } else if (type === 'club') {
-      // router.push(`/clubs/${data.id}`); // Not implemented yet
-    } else if (type === 'setting') {
+    if (item.type === 'contact') {
+      router.push(`/(auth)/user-card-page/${item.data.user_id}`);
+    } else if (item.type === 'chat') {
+      router.push(`/(locked)/chat/${item.data.chat_id}`);
+    } else if (item.type === 'blackboard') {
+      // router.push(`/blackboards/${item.data.id}`); // Not implemented yet
+    } else if (item.type === 'club') {
+      // router.push(`/clubs/${item.data.id}`); // Not implemented yet
+    } else if (item.type === 'setting') {
       router.push(`/(locked)/(tabs)/settings`);
     }
   };
@@ -171,47 +213,16 @@ export default function SearchIndex() {
             showsHorizontalScrollIndicator={false}
             contentContainerStyle={{ paddingHorizontal: 15, gap: 10 }}
           >
-            {[
-              {
-                id: 'all',
-                label: APPLICATION_CONSTANTS.SEARCH_FILTER_ALL,
-                icon: 'list',
-              },
-              {
-                id: 'contacts',
-                label: APPLICATION_CONSTANTS.SEARCH_FILTER_CONTACTS,
-                icon: 'users',
-              },
-              {
-                id: 'chats',
-                label: APPLICATION_CONSTANTS.SEARCH_FILTER_CHATS,
-                icon: 'chat-circle',
-              },
-              {
-                id: 'blackboards',
-                label: APPLICATION_CONSTANTS.SEARCH_FILTER_BLACKBOARDS,
-                icon: 'megaphone-simple',
-              },
-              {
-                id: 'clubs',
-                label: APPLICATION_CONSTANTS.SEARCH_FILTER_CLUBS,
-                icon: 'users-three',
-              },
-              {
-                id: 'settings',
-                label: APPLICATION_CONSTANTS.SEARCH_FILTER_SETTINGS,
-                icon: 'gear',
-              },
-            ].map((filter) => (
+            {SEARCH_FILTERS.map((filter) => (
               <Button
                 key={filter.id}
                 variant={activeFilter === filter.id ? 'primary' : 'normal'}
-                onPress={() => setActiveFilter(filter.id as FilterType)}
+                onPress={() => setActiveFilter(filter.id)}
                 className="rounded-full px-[15px] py-[8px]"
               >
                 {filter.icon ? (
                   <Icon
-                    name={filter.icon as any}
+                    name={filter.icon}
                     size={16}
                     className={
                       activeFilter === filter.id
@@ -264,14 +275,16 @@ export default function SearchIndex() {
                     )
                   }
                 >
-                  {results.contacts.items.map((contact) => (
-                    <SearchResultItem
-                      key={contact.user_id}
-                      type="contact"
-                      data={contact}
-                      onPress={() => handleResultPress('contact', contact)}
-                    />
-                  ))}
+                  {results.contacts.items.map(
+                    (contact: SingleSearchContactDto) => (
+                      <SearchResultItem
+                        key={contact.user_id}
+                        type="contact"
+                        data={contact}
+                        onPress={() => handleResultPress('contact', contact)}
+                      />
+                    ),
+                  )}
                 </SearchCategorySection>
               ) : null}
 
@@ -289,7 +302,7 @@ export default function SearchIndex() {
                     )
                   }
                 >
-                  {results.chats.items.map((chat) => (
+                  {results.chats.items.map((chat: SingleSearchChatDto) => (
                     <SearchResultItem
                       key={chat.chat_id}
                       type="chat"
@@ -314,14 +327,16 @@ export default function SearchIndex() {
                     )
                   }
                 >
-                  {results.blackboards.items.map((post) => (
-                    <SearchResultItem
-                      key={post.id}
-                      type="blackboard"
-                      data={post}
-                      onPress={() => handleResultPress('blackboard', post)}
-                    />
-                  ))}
+                  {results.blackboards.items.map(
+                    (post: SingleSearchBlackboardDto) => (
+                      <SearchResultItem
+                        key={post.id}
+                        type="blackboard"
+                        data={post}
+                        onPress={() => handleResultPress('blackboard', post)}
+                      />
+                    ),
+                  )}
                 </SearchCategorySection>
               ) : null}
 
@@ -339,7 +354,7 @@ export default function SearchIndex() {
                     )
                   }
                 >
-                  {results.clubs.items.map((club) => (
+                  {results.clubs.items.map((club: SingleSearchClubDto) => (
                     <SearchResultItem
                       key={club.id}
                       type="club"

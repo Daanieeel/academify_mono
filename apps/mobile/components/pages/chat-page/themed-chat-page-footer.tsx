@@ -126,14 +126,10 @@ const ThemedChatPageFooter = ({
 
   return (
     <View className="px-[15px] z-[9999] pt-[10px] flex-col gap-[10px] bg-transparent">
-      <BlurView
-        intensity={50}
-        tint="light"
-        style={StyleSheet.absoluteFillObject}
-      />
+      <BlurView intensity={50} tint="light" style={StyleSheet.absoluteFill} />
       <LinearGradient
         colors={['rgba(250, 250, 245, 0)', 'rgba(250, 250, 245, 1)']}
-        style={StyleSheet.absoluteFillObject}
+        style={StyleSheet.absoluteFill}
       />
       {/* View for the plus button, textfield and send button */}
 

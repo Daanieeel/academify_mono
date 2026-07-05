@@ -19,7 +19,11 @@
     "react/jsx-key": "warn",
     "unicorn/no-empty-file": "off",
     "unicorn/filename-case": "off",
-    "unicorn/no-null": "off"
+    "unicorn/no-null": "off",
+    "typescript/no-explicit-any": "error",
+    "typescript/consistent-type-assertions": ["error", { "assertionStyle": "never" }],
+    "typescript/ban-ts-comment": "error",
+    "typescript/no-non-null-assertion": "error"
   },
   "settings": {},
   "ignorePatterns": [

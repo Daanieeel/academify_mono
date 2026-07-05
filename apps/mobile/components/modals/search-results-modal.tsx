@@ -5,7 +5,10 @@ import { Button } from '@/components/ui/button';
 import { Text } from '@/components/ui/text';
 import { Separator } from '@/components/ui/separator';
 import { api } from '@/lib/api-client';
-import SearchResultItem from '../pages/search/search-result-item';
+import SearchResultItem, {
+  type SearchResultItemProps,
+} from '../pages/search/search-result-item';
+import type { ThemedSettingsItemProp } from '../../../app/(locked)/(tabs)/settings';
 
 export type SearchResultsModalProps = {
   visible: boolean;
@@ -13,9 +16,9 @@ export type SearchResultsModalProps = {
   category: 'contacts' | 'chats' | 'blackboards' | 'clubs' | 'settings';
   categoryLabel: string;
   onRequestClose: () => void;
-  onResultPress: (type: string, data: any) => void;
+  onResultPress: (item: Omit<SearchResultItemProps, 'onPress'>) => void;
   // For settings, we pass the items down since it's client-side
-  settingsItems?: any[];
+  settingsItems?: ThemedSettingsItemProp[];
 };
 
 const PAGE_SIZE = 20;
@@ -29,7 +32,9 @@ const SearchResultsModal = ({
   onResultPress,
   settingsItems = [],
 }: SearchResultsModalProps) => {
-  const [items, setItems] = useState<any[]>([]);
+  const [items, setItems] = useState<Omit<SearchResultItemProps, 'onPress'>[]>(
+    [],
+  );
   const [loading, setLoading] = useState(false);
   const [loadingMore, setLoadingMore] = useState(false);
   const [hasMore, setHasMore] = useState(true);
@@ -42,7 +47,7 @@ const SearchResultsModal = ({
         const filtered = settingsItems.filter((item) =>
           item.label.toLowerCase().includes(query.toLowerCase()),
         );
-        setItems(filtered);
+        setItems(filtered.map((data) => ({ type: 'setting', data })));
         setHasMore(false);
         return;
       }
@@ -64,18 +69,40 @@ const SearchResultsModal = ({
             offset: currentOffset,
           },
         });
-        if (error) {throw error;}
-
-        const categoryResults = res[category];
-        if (categoryResults) {
-          if (isLoadMore) {
-            setItems((prev) => [...prev, ...categoryResults.items]);
-          } else {
-            setItems(categoryResults.items);
-          }
-          setHasMore(categoryResults.has_more);
-          setOffset(currentOffset + PAGE_SIZE);
+        if (error) {
+          throw error;
         }
+
+        let newItems: Omit<SearchResultItemProps, 'onPress'>[] = [];
+        let hasMore = false;
+
+        if (category === 'contacts' && res.contacts) {
+          newItems = res.contacts.items.map((data) => ({
+            type: 'contact',
+            data,
+          }));
+          hasMore = res.contacts.has_more;
+        } else if (category === 'chats' && res.chats) {
+          newItems = res.chats.items.map((data) => ({ type: 'chat', data }));
+          hasMore = res.chats.has_more;
+        } else if (category === 'blackboards' && res.blackboards) {
+          newItems = res.blackboards.items.map((data) => ({
+            type: 'blackboard',
+            data,
+          }));
+          hasMore = res.blackboards.has_more;
+        } else if (category === 'clubs' && res.clubs) {
+          newItems = res.clubs.items.map((data) => ({ type: 'club', data }));
+          hasMore = res.clubs.has_more;
+        }
+
+        if (isLoadMore) {
+          setItems((prev) => [...prev, ...newItems]);
+        } else {
+          setItems(newItems);
+        }
+        setHasMore(hasMore);
+        setOffset(currentOffset + PAGE_SIZE);
       } catch (e) {
         console.error('Failed to fetch category search results:', e);
       } finally {
@@ -97,17 +124,6 @@ const SearchResultsModal = ({
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [visible, query, category]); // We explicitly don't depend on fetchResults to avoid loops
-
-  const renderItemType =
-    category === 'contacts'
-      ? 'contact'
-      : category === 'chats'
-        ? 'chat'
-        : category === 'blackboards'
-          ? 'blackboard'
-          : category === 'clubs'
-            ? 'club'
-            : 'setting';
 
   return (
     <Modal
@@ -131,13 +147,14 @@ const SearchResultsModal = ({
 
         <FlatList
           data={items}
-          keyExtractor={(item, index) =>
-            item.id ||
-            item.user_id ||
-            item.chat_id ||
-            item.label ||
-            index.toString()
-          }
+          keyExtractor={(item, index) => {
+            if (item.type === 'contact') {return item.data.user_id;}
+            if (item.type === 'chat') {return item.data.chat_id;}
+            if (item.type === 'blackboard') {return item.data.id;}
+            if (item.type === 'club') {return item.data.id;}
+            if (item.type === 'setting') {return item.data.label;}
+            return index.toString();
+          }}
           contentContainerStyle={{
             paddingHorizontal: 15,
             paddingBottom: 50,
@@ -145,11 +162,7 @@ const SearchResultsModal = ({
           }}
           ItemSeparatorComponent={() => <Separator className="my-[5px]" />}
           renderItem={({ item }) => (
-            <SearchResultItem
-              type={renderItemType as any}
-              data={item}
-              onPress={() => onResultPress(renderItemType, item)}
-            />
+            <SearchResultItem {...item} onPress={() => onResultPress(item)} />
           )}
           ListEmptyComponent={
             loading ? (

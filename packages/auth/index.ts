@@ -9,6 +9,15 @@ const authOptions: BetterAuthOptions = {
     provider: 'pg',
     schema: { user, session, account, verification },
   }),
+  user: {
+    additionalFields: {
+      photoRef: { type: 'string' },
+      avatarBackgroundColor: { type: 'string' },
+      avatarEmoji: { type: 'string' },
+      mainInstitutionId: { type: 'string' },
+      canManageAccounts: { type: 'boolean' },
+    },
+  },
   emailAndPassword: { enabled: false },
   // `academifyv3://` is the mobile app's scheme (apps/mobile/app.json) — the
   // Expo plugin sets it as the Origin header on native requests, which
@@ -23,3 +32,6 @@ const authOptions: BetterAuthOptions = {
 export const auth = betterAuth(authOptions);
 
 export type Auth = typeof auth;
+export type AuthSession = NonNullable<
+  Awaited<ReturnType<typeof auth.api.getSession>>
+>;

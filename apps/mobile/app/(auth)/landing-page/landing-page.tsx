@@ -3,7 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Icon } from '@/components/ui/icon';
 import { Text } from '@/components/ui/text';
 import APPLICATION_CONSTANTS from '@/constants/strings';
-import { useThemeColor } from '@/hooks/use-theme-color';
+
 import { Stack, useRouter } from 'expo-router';
 import React from 'react';
 import { Image, View } from 'react-native';
@@ -51,8 +51,8 @@ const LandingPage = () => {
             size="lg"
             onPress={handleFindInstitutionPress}
           >
-            <Text>Schule finden</Text>
-            <Icon name="magnifying-glass" size={24} />
+            <Icon name="sign-in" size={24} />
+            <Text>Login</Text>
           </Button>
         </View>
       </View>

@@ -25,15 +25,13 @@ const ThemedChatPageHeader = (props: ThemedChatPageHeaderProps) => {
       edges={['top']}
       className="px-[15px] pb-[10px] pt-[20px] w-[100%] flex-row justify-between items-center bg-transparent"
     >
-      <BlurView
-        intensity={50}
-        tint="light"
-        style={StyleSheet.absoluteFillObject}
-      />
-      <LinearGradient
-        colors={['rgba(250, 250, 245, 1)', 'rgba(250, 250, 245, 0)']}
-        style={StyleSheet.absoluteFillObject}
-      />
+      <View style={StyleSheet.absoluteFill} pointerEvents="none">
+        <BlurView intensity={50} tint="light" style={StyleSheet.absoluteFill} />
+        <LinearGradient
+          colors={['rgba(250, 250, 245, 1)', 'rgba(250, 250, 245, 0)']}
+          style={StyleSheet.absoluteFill}
+        />
+      </View>
       <View className="flex-row items-center gap-[20px]">
         <Button variant="normal" onPress={onBackButtonPressed}>
           <Icon name="arrow-left" size={25} />

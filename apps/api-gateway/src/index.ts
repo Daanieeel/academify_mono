@@ -35,7 +35,7 @@ if (import.meta.main) {
     initializeBuckets().catch(console.error);
   }
 
-  app.listen(env.API_GATEWAY_PORT);
+  app.listen({ port: env.API_GATEWAY_PORT, hostname: '0.0.0.0' });
   console.log(
     `API Gateway listening on ${app.server?.hostname}:${app.server?.port}`,
   );

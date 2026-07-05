@@ -15,33 +15,36 @@ import {
 } from '@/lib/format';
 import { api } from '@/lib/api-client';
 
-type GetSingleSearchDto = NonNullable<
+export type GetManySearchDto = NonNullable<
   Awaited<ReturnType<typeof api.search.get>>['data']
 >;
-type SingleSearchContactDto = NonNullable<
-  GetSingleSearchDto['contacts']
->['items'][0];
-type SingleSearchChatDto = NonNullable<GetSingleSearchDto['chats']>['items'][0];
-type SingleSearchBlackboardDto = NonNullable<
-  GetSingleSearchDto['blackboards']
->['items'][0];
-type SingleSearchClubDto = NonNullable<GetSingleSearchDto['clubs']>['items'][0];
+export type SingleSearchContactDto = GetManySearchDto['contacts']['items'][0];
+export type SingleSearchChatDto = GetManySearchDto['chats']['items'][0];
+export type SingleSearchBlackboardDto =
+  GetManySearchDto['blackboards']['items'][0];
+export type SingleSearchClubDto = GetManySearchDto['clubs']['items'][0];
 
-export type SearchResultItemProps = {
-  type: 'contact' | 'chat' | 'blackboard' | 'club' | 'setting';
-  data: any;
-  onPress: () => void;
-};
+export type SearchResultItemProps = (
+  | { type: 'contact'; data: SingleSearchContactDto }
+  | { type: 'chat'; data: SingleSearchChatDto }
+  | { type: 'blackboard'; data: SingleSearchBlackboardDto }
+  | { type: 'club'; data: SingleSearchClubDto }
+  | { type: 'setting'; data: ThemedSettingsItemProp }
+) & { onPress: () => void };
 
-const SearchResultItem = ({ type, data, onPress }: SearchResultItemProps) => {
-  if (type === 'contact') {
-    const contact = data as SingleSearchContactDto;
+const SearchResultItem = (props: SearchResultItemProps) => {
+  if (props.type === 'contact') {
+    const contact = props.data;
     const badges = [];
     if (contact.role) {
-      badges.push({
-        icomoonIconName: formatRoleIcon(contact.role)!,
-        label: formatRoleLabel(contact.role)!,
-      });
+      const iconName = formatRoleIcon(contact.role);
+      const label = formatRoleLabel(contact.role);
+      if (iconName && label) {
+        badges.push({
+          icomoonIconName: iconName,
+          label: label,
+        });
+      }
     }
     if (contact.class_name) {
       badges.push({
@@ -51,7 +54,7 @@ const SearchResultItem = ({ type, data, onPress }: SearchResultItemProps) => {
     }
 
     return (
-      <ThemedPressable onPress={onPress}>
+      <ThemedPressable onPress={props.onPress}>
         <ThemedListPreviewItem
           userId={contact.user_id}
           heading={contact.display_name}
@@ -65,10 +68,10 @@ const SearchResultItem = ({ type, data, onPress }: SearchResultItemProps) => {
     );
   }
 
-  if (type === 'chat') {
-    const chat = data as SingleSearchChatDto;
+  if (props.type === 'chat') {
+    const chat = props.data;
     return (
-      <ThemedPressable onPress={onPress}>
+      <ThemedPressable onPress={props.onPress}>
         <ThemedChatPreview
           chatName={chat.peer.display_name}
           lastMessageTime={
@@ -85,10 +88,10 @@ const SearchResultItem = ({ type, data, onPress }: SearchResultItemProps) => {
     );
   }
 
-  if (type === 'blackboard') {
-    const post = data as SingleSearchBlackboardDto;
+  if (props.type === 'blackboard') {
+    const post = props.data;
     return (
-      <ThemedPressable onPress={onPress}>
+      <ThemedPressable onPress={props.onPress}>
         <View className="py-[10px] px-[5px] flex-row gap-[15px] items-center">
           <View className="bg-primary-100 rounded-full h-[45px] w-[45px] items-center justify-center">
             <Icon
@@ -114,10 +117,10 @@ const SearchResultItem = ({ type, data, onPress }: SearchResultItemProps) => {
     );
   }
 
-  if (type === 'club') {
-    const club = data as SingleSearchClubDto;
+  if (props.type === 'club') {
+    const club = props.data;
     return (
-      <ThemedPressable onPress={onPress}>
+      <ThemedPressable onPress={props.onPress}>
         <View className="py-[10px] px-[5px] flex-row gap-[15px] items-center">
           <View className="bg-primary-100 rounded-full h-[45px] w-[45px] items-center justify-center">
             <Icon name="users-three" className="text-primary-900" size={24} />
@@ -141,10 +144,10 @@ const SearchResultItem = ({ type, data, onPress }: SearchResultItemProps) => {
     );
   }
 
-  if (type === 'setting') {
-    const setting = data as ThemedSettingsItemProp;
+  if (props.type === 'setting') {
+    const setting = props.data;
     return (
-      <ThemedPressable onPress={onPress}>
+      <ThemedPressable onPress={props.onPress}>
         <View className="mb-[10px]">
           <ThemedSettingsItem {...setting} />
         </View>

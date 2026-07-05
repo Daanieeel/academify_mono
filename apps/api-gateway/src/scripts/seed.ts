@@ -1,4 +1,4 @@
-import { eq, sql } from 'drizzle-orm';
+import { sql } from 'drizzle-orm';
 import { auth } from '@repo/auth';
 import { generateComplianceKeyPair } from '@repo/crypto';
 import {
@@ -228,10 +228,21 @@ const REALISTIC_SCHOOLS = [
   },
 ];
 
-const MAIN_SCHOOL = REALISTIC_SCHOOLS[0]!;
+if (!REALISTIC_SCHOOLS[0] || !REALISTIC_SCHOOLS[1] || !REALISTIC_SCHOOLS[2]) {
+  throw new Error('Missing realistic schools');
+}
+const MAIN_SCHOOL = REALISTIC_SCHOOLS[0];
 const INSTITUTION_SLUG = 'goethe-gymnasium';
+const SECOND_SCHOOL = REALISTIC_SCHOOLS[1];
+const SECOND_SLUG = 'albert-einstein-schule';
+const THIRD_SCHOOL = REALISTIC_SCHOOLS[2];
+const THIRD_SLUG = 'schiller-gymnasium';
 
-async function createUser(seedUser: SeedUser, institutionId: string) {
+async function createUser(
+  seedUser: SeedUser,
+  mainInstitutionId: string,
+  canManageAccounts: boolean,
+) {
   const ctx = await auth.$context;
   const hashed = await ctx.password.hash(PASSWORD);
   const id = crypto.randomUUID();
@@ -245,25 +256,31 @@ async function createUser(seedUser: SeedUser, institutionId: string) {
       username: seedUser.username,
       displayUsername: seedUser.username,
       emailVerified: true,
+      mainInstitutionId,
+      canManageAccounts,
     })
     .returning();
+
+  if (!created) {
+    throw new Error('Failed to create user');
+  }
 
   await db.insert(account).values({
     id: `${id}-account`,
     accountId: id,
     providerId: 'credential',
-    userId: created!.id,
+    userId: created.id,
     password: hashed,
   });
 
   await db.insert(profiles).values({
-    userId: created!.id,
-    institutionId,
+    userId: created.id,
+    institutionId: mainInstitutionId,
     displayNameCiphertext: seedUser.displayName,
     keyVersion: 1,
   });
 
-  return created!;
+  return created;
 }
 
 function printSummary(complianceKeyLine: string | null) {
@@ -297,7 +314,9 @@ async function uploadImageFromUrl(
 ) {
   try {
     const response = await fetch(url);
-    if (!response.ok) {return null;}
+    if (!response.ok) {
+      return null;
+    }
     const arrayBuffer = await response.arrayBuffer();
 
     await s3Client.send(
@@ -391,7 +410,40 @@ async function main() {
       address: `Musterstraße 1, 12345 ${MAIN_SCHOOL.region}`,
     })
     .returning();
-  const institutionId = institution!.id;
+  if (!institution) {
+    throw new Error('Failed to create institution');
+  }
+  const institutionId = institution.id;
+
+  const [institution2] = await db
+    .insert(institutions)
+    .values({
+      slug: SECOND_SLUG,
+      displayName: SECOND_SCHOOL.name,
+      avatarUrl: `http://localhost:9000/${PUBLIC_BUCKET_NAME}/avatars/${SECOND_SLUG}.png`,
+      bannerUrl: `http://localhost:9000/${PUBLIC_BUCKET_NAME}/banners/${SECOND_SLUG}.jpg`,
+      address: `Musterstraße 2, 12345 ${SECOND_SCHOOL.region}`,
+    })
+    .returning();
+  if (!institution2) {
+    throw new Error('Failed to create institution2');
+  }
+  const institution2Id = institution2.id;
+
+  const [institution3] = await db
+    .insert(institutions)
+    .values({
+      slug: THIRD_SLUG,
+      displayName: THIRD_SCHOOL.name,
+      avatarUrl: `http://localhost:9000/${PUBLIC_BUCKET_NAME}/avatars/${THIRD_SLUG}.png`,
+      bannerUrl: `http://localhost:9000/${PUBLIC_BUCKET_NAME}/banners/${THIRD_SLUG}.jpg`,
+      address: `Musterstraße 3, 12345 ${THIRD_SCHOOL.region}`,
+    })
+    .returning();
+  if (!institution3) {
+    throw new Error('Failed to create institution3');
+  }
+  const institution3Id = institution3.id;
 
   const complianceKeyPair = generateComplianceKeyPair();
   await db.insert(complianceKeys).values({
@@ -400,25 +452,71 @@ async function main() {
     publicKey: complianceKeyPair.publicKey,
   });
 
-  const admin = await createUser(ADMIN, institutionId);
+  const admin = await createUser(ADMIN, institutionId, true);
   await db
     .insert(roleBindings)
     .values({ userId: admin.id, institutionId, role: 'admin' });
+  // Add admin to 2nd institution
+  await db.insert(profiles).values({
+    userId: admin.id,
+    institutionId: institution2Id,
+    displayNameCiphertext: ADMIN.displayName,
+    keyVersion: 1,
+  });
 
-  const teacher = await createUser(TEACHER, institutionId);
+  const teacher = await createUser(TEACHER, institutionId, false);
+  // Add teacher to 2nd and 3rd institution
+  await db.insert(profiles).values({
+    userId: teacher.id,
+    institutionId: institution2Id,
+    displayNameCiphertext: TEACHER.displayName,
+    keyVersion: 1,
+  });
+  await db.insert(profiles).values({
+    userId: teacher.id,
+    institutionId: institution3Id,
+    displayNameCiphertext: TEACHER.displayName,
+    keyVersion: 1,
+  });
+
   const students = [];
-  for (const seedUser of STUDENTS) {
-    students.push(await createUser(seedUser, institutionId));
+  for (let i = 0; i < STUDENTS.length; i++) {
+    const seedUser = STUDENTS[i];
+    if (!seedUser) {
+      continue;
+    }
+    const student = await createUser(seedUser, institutionId, false);
+    students.push(student);
+
+    // Assign some overlap: even students get inst2, odd students get inst3
+    if (i % 2 === 0) {
+      await db.insert(profiles).values({
+        userId: student.id,
+        institutionId: institution2Id,
+        displayNameCiphertext: seedUser.displayName,
+        keyVersion: 1,
+      });
+    } else {
+      await db.insert(profiles).values({
+        userId: student.id,
+        institutionId: institution3Id,
+        displayNameCiphertext: seedUser.displayName,
+        keyVersion: 1,
+      });
+    }
   }
 
   const [cls] = await db
     .insert(classes)
     .values({ institutionId, name: '10a', headTeacherUserId: teacher.id })
     .returning();
+  if (!cls) {
+    throw new Error('Failed to create class');
+  }
   await db.insert(classMemberships).values([
-    { classId: cls!.id, userId: teacher.id, role: 'teacher' },
+    { classId: cls.id, userId: teacher.id, role: 'teacher' },
     ...students.map((student) => ({
-      classId: cls!.id,
+      classId: cls.id,
       userId: student.id,
       role: 'student' as const,
     })),

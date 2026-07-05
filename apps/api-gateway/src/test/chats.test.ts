@@ -44,16 +44,17 @@ async function seedUser(
     id: `${id}-account`,
     accountId: id,
     providerId: 'credential',
-    userId: created!.id,
+    userId: created?.id ?? '',
     password: hashed,
   });
   await db.insert(profiles).values({
-    userId: created!.id,
+    userId: created?.id ?? '',
     institutionId,
     displayNameCiphertext: displayName,
     keyVersion: 1,
   });
-  return created!;
+  if (!created) {throw new Error('No user');}
+  return created;
 }
 
 async function signIn(username: string): Promise<string> {
@@ -68,7 +69,7 @@ async function signIn(username: string): Promise<string> {
   if (!setCookie) {
     throw new Error(`sign-in failed for ${username}: ${await response.text()}`);
   }
-  return setCookie.split(';')[0]!;
+  return setCookie.split(';')[0] ?? '';
 }
 
 describe('api-gateway chats routes', () => {
@@ -86,7 +87,7 @@ describe('api-gateway chats routes', () => {
       .insert(institutions)
       .values({ slug: `chats-test-${suffix}`, displayName: 'Chats Test' })
       .returning();
-    institutionId = institution!.id;
+    institutionId = institution?.id ?? '';
 
     await seedUser(aliceId, `alice_c_${suffix}`, 'Alice', institutionId);
     await seedUser(bobId, `bob_c_${suffix}`, 'Bob', institutionId);
@@ -99,7 +100,7 @@ describe('api-gateway chats routes', () => {
         headTeacherUserId: aliceId,
       })
       .returning();
-    classId = cls!.id;
+    classId = cls?.id ?? '';
     await db
       .insert(classMemberships)
       .values([{ classId, userId: bobId, role: 'student' }]);
@@ -136,10 +137,10 @@ describe('api-gateway chats routes', () => {
     const response = await app.handle(
       new Request('http://localhost/me', { headers: { Cookie: aliceCookie } }),
     );
-    const body = (await response.json()) as {
+    const body: {
       user_id: string;
       display_name: string;
-    };
+    } = await response.json();
     expect(body.user_id).toBe(aliceId);
     expect(body.display_name).toBe('Alice');
   });
@@ -150,10 +151,10 @@ describe('api-gateway chats routes', () => {
         headers: { Cookie: aliceCookie },
       }),
     );
-    const body = (await response.json()) as {
+    const body: {
       user_id: string;
       display_name: string;
-    }[];
+    }[] = await response.json();
     expect(
       body.some(
         (contact) =>
@@ -168,10 +169,10 @@ describe('api-gateway chats routes', () => {
         headers: { Cookie: aliceCookie },
       }),
     );
-    const body = (await response.json()) as {
+    const body: {
       user_id: string;
       class_name: string | null;
-    }[];
+    }[] = await response.json();
     const bob = body.find((contact) => contact.user_id === bobId);
     expect(bob?.class_name).toBe(`10a-${suffix}`);
   });
@@ -185,20 +186,20 @@ describe('api-gateway chats routes', () => {
       }),
     );
     expect(patchResponse.status).toBe(200);
-    const patchBody = (await patchResponse.json()) as {
+    const patchBody: {
       avatar_background_color: string | null;
       avatar_emoji: string | null;
-    };
+    } = await patchResponse.json();
     expect(patchBody.avatar_background_color).toBe('#FF00FF');
     expect(patchBody.avatar_emoji).toBe('🎉');
 
     const meResponse = await app.handle(
       new Request('http://localhost/me', { headers: { Cookie: aliceCookie } }),
     );
-    const meBody = (await meResponse.json()) as {
+    const meBody: {
       avatar_background_color: string | null;
       avatar_emoji: string | null;
-    };
+    } = await meResponse.json();
     expect(meBody.avatar_background_color).toBe('#FF00FF');
     expect(meBody.avatar_emoji).toBe('🎉');
   });
@@ -228,11 +229,11 @@ describe('api-gateway chats routes', () => {
         headers: { Cookie: aliceCookie },
       }),
     );
-    const body = (await response.json()) as {
+    const body: {
       user_id: string;
       avatar_background_color: string | null;
       avatar_emoji: string | null;
-    }[];
+    }[] = await response.json();
     const bob = body.find((contact) => contact.user_id === bobId);
     expect(bob?.avatar_background_color).toBe('#00FF00');
     expect(bob?.avatar_emoji).toBe('🐸');
@@ -244,11 +245,11 @@ describe('api-gateway chats routes', () => {
         headers: { Cookie: aliceCookie },
       }),
     );
-    const body = (await response.json()) as {
+    const body: {
       class_id: string;
       class_name: string;
       member_count: number;
-    }[];
+    }[] = await response.json();
     const cls = body.find((entry) => entry.class_id === classId);
     expect(cls?.class_name).toBe(`10a-${suffix}`);
     expect(cls?.member_count).toBe(1);
@@ -262,7 +263,7 @@ describe('api-gateway chats routes', () => {
         body: JSON.stringify({ peer_user_id: bobId }),
       }),
     );
-    const firstBody = (await first.json()) as { chat_id: string };
+    const firstBody: { chat_id: string } = await first.json();
     chatId = firstBody.chat_id;
     expect(chatId).toBeTruthy();
 
@@ -273,7 +274,7 @@ describe('api-gateway chats routes', () => {
         body: JSON.stringify({ peer_user_id: bobId }),
       }),
     );
-    const secondBody = (await second.json()) as { chat_id: string };
+    const secondBody: { chat_id: string } = await second.json();
     expect(secondBody.chat_id).toBe(chatId);
   });
 
@@ -281,12 +282,12 @@ describe('api-gateway chats routes', () => {
     const response = await app.handle(
       new Request('http://localhost/chats', { headers: { Cookie: bobCookie } }),
     );
-    const body = (await response.json()) as {
+    const body: {
       chats: {
         chat_id: string;
         peer: { user_id: string; display_name: string } | null;
       }[];
-    };
+    } = await response.json();
     const entry = body.chats.find((chatEntry) => chatEntry.chat_id === chatId);
     expect(entry?.peer?.user_id).toBe(aliceId);
     expect(entry?.peer?.display_name).toBe('Alice');
@@ -298,10 +299,10 @@ describe('api-gateway chats routes', () => {
         headers: { Cookie: aliceCookie },
       }),
     );
-    const body = (await response.json()) as {
+    const body: {
       group_exists: boolean;
       peer: { user_id: string } | null;
-    };
+    } = await response.json();
     expect(body.group_exists).toBe(false);
     expect(body.peer?.user_id).toBe(bobId);
   });
@@ -316,9 +317,11 @@ describe('api-gateway chats routes', () => {
         }),
       }),
     );
-    const { device_id: deviceId } = (await deviceResponse.json()) as {
+    const {
+      device_id: deviceId,
+    }: {
       device_id: string;
-    };
+    } = await deviceResponse.json();
 
     const messageId = crypto.randomUUID();
     const sendResponse = await app.handle(
@@ -345,9 +348,9 @@ describe('api-gateway chats routes', () => {
         headers: { Cookie: bobCookie },
       }),
     );
-    const historyBody = (await historyResponse.json()) as {
+    const historyBody: {
       messages: { message_id: string }[];
-    };
+    } = await historyResponse.json();
     expect(
       historyBody.messages.some((message) => message.message_id === messageId),
     ).toBe(true);
@@ -355,9 +358,9 @@ describe('api-gateway chats routes', () => {
     const bobChatsResponse = await app.handle(
       new Request('http://localhost/chats', { headers: { Cookie: bobCookie } }),
     );
-    const bobChatsBody = (await bobChatsResponse.json()) as {
+    const bobChatsBody: {
       chats: { chat_id: string; read: boolean }[];
-    };
+    } = await bobChatsResponse.json();
     const bobEntry = bobChatsBody.chats.find(
       (chatEntry) => chatEntry.chat_id === chatId,
     );
@@ -369,9 +372,9 @@ describe('api-gateway chats routes', () => {
         headers: { Cookie: aliceCookie },
       }),
     );
-    const aliceChatsBody = (await aliceChatsResponse.json()) as {
+    const aliceChatsBody: {
       chats: { chat_id: string; read: boolean }[];
-    };
+    } = await aliceChatsResponse.json();
     const aliceEntry = aliceChatsBody.chats.find(
       (chatEntry) => chatEntry.chat_id === chatId,
     );

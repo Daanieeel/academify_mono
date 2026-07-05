@@ -88,7 +88,7 @@ export function useChatThread(chatId: string) {
         setCurrentEpoch(detail.current_epoch ?? 1);
         const { data: welcome, error: welcomeError } =
           await api.mls.groups[chatId].welcome.get();
-        if (welcomeError && (welcomeError as any).status !== 404) {
+        if (welcomeError && welcomeError.status !== 404) {
           throw welcomeError;
         }
         if (cancelled) {
@@ -196,7 +196,7 @@ export function useChatThread(chatId: string) {
         if (detail.group_exists) {
           const { data: welcome, error: welcomeError } =
             await api.mls.groups[chatId].welcome.get();
-          if (welcomeError && (welcomeError as any).status !== 404) {
+          if (welcomeError && welcomeError.status !== 404) {
             throw welcomeError;
           }
           if (!welcome || welcomeError) {
@@ -213,7 +213,7 @@ export function useChatThread(chatId: string) {
           const { data: peerKeyPackage, error: peerError } = await api.mls[
             'key-packages'
           ].consume.post({ user_id: peer.user_id });
-          if (peerError && (peerError as any).status !== 404) {
+          if (peerError && peerError.status !== 404) {
             throw peerError;
           }
           if (!peerKeyPackage || peerError) {

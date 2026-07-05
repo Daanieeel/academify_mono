@@ -84,18 +84,19 @@ async function seedUser(id: string, username: string, institutionId: string) {
     id: `${id}-account`,
     accountId: id,
     providerId: 'credential',
-    userId: created!.id,
+    userId: created?.id ?? '',
     password: hashed,
   });
   // Institution context (used by the auth middleware to derive `institutionId`)
   // comes from `profiles`, not the auth identity — deliberately separate.
   await db.insert(profiles).values({
-    userId: created!.id,
+    userId: created?.id ?? '',
     institutionId,
     displayNameCiphertext: id,
     keyVersion: 1,
   });
-  return created!;
+  if (!created) {throw new Error('No user');}
+  return created;
 }
 
 async function signIn(username: string): Promise<string> {
@@ -108,7 +109,7 @@ async function signIn(username: string): Promise<string> {
   if (!setCookie) {
     throw new Error(`sign-in failed for ${username}: ${await response.text()}`);
   }
-  return setCookie.split(';')[0]!;
+  return setCookie.split(';')[0] ?? '';
 }
 
 describe('end-to-end messaging + report harness', () => {
@@ -139,7 +140,7 @@ describe('end-to-end messaging + report harness', () => {
         displayName: 'E2E Harness School',
       })
       .returning();
-    institutionId = institution!.id;
+    institutionId = institution?.id ?? '';
 
     await db.insert(complianceKeys).values({
       institutionId,
@@ -168,15 +169,15 @@ describe('end-to-end messaging + report harness', () => {
       })
       .returning();
     await db.insert(classMemberships).values([
-      { classId: cls!.id, userId: aliceId, role: 'student' },
-      { classId: cls!.id, userId: bobId, role: 'student' },
+      { classId: cls?.id ?? '', userId: aliceId, role: 'student' },
+      { classId: cls?.id ?? '', userId: bobId, role: 'student' },
     ]);
 
     const [chat] = await db
       .insert(chats)
       .values({ institutionId, type: 'dm', createdBy: aliceId })
       .returning();
-    chatId = chat!.id;
+    chatId = chat?.id ?? '';
     await db.insert(chatMembers).values([
       { chatId, userId: aliceId },
       { chatId, userId: bobId },
@@ -287,9 +288,11 @@ describe('end-to-end messaging + report harness', () => {
         identity_pubkey: encodeBase64Url(new Uint8Array([1])),
       }),
     });
-    const { device_id: bobDeviceId } = (await bobDeviceRes.json()) as {
+    const {
+      device_id: bobDeviceId,
+    }: {
       device_id: string;
-    };
+    } = await bobDeviceRes.json();
     await fetch(`${BACKEND_URL}/mls/key-packages`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', Cookie: bobCookie },
@@ -306,19 +309,22 @@ describe('end-to-end messaging + report harness', () => {
         identity_pubkey: encodeBase64Url(new Uint8Array([2])),
       }),
     });
-    const { device_id: aliceDeviceId } = (await aliceDeviceRes.json()) as {
+    const {
+      device_id: aliceDeviceId,
+    }: {
       device_id: string;
-    };
+    } = await aliceDeviceRes.json();
 
     const consumeRes = await fetch(`${BACKEND_URL}/mls/key-packages/consume`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', Cookie: aliceCookie },
       body: JSON.stringify({ user_id: bobId }),
     });
-    const { key_package_bytes: consumedKeyPackage } =
-      (await consumeRes.json()) as {
-        key_package_bytes: string;
-      };
+    const {
+      key_package_bytes: consumedKeyPackage,
+    }: {
+      key_package_bytes: string;
+    } = await consumeRes.json();
 
     alice.create_group();
     const welcome = alice.add_member(decodeBase64Url(consumedKeyPackage));
@@ -351,9 +357,11 @@ describe('end-to-end messaging + report harness', () => {
         headers: { Cookie: bobCookie },
       },
     );
-    const { welcome_bytes: fetchedWelcome } = (await welcomeRes.json()) as {
+    const {
+      welcome_bytes: fetchedWelcome,
+    }: {
       welcome_bytes: string;
-    };
+    } = await welcomeRes.json();
     bob.join_from_welcome(decodeBase64Url(fetchedWelcome));
 
     // --- Bob is connected (live path) when Alice sends message 1 ---
@@ -372,7 +380,7 @@ describe('end-to-end messaging + report harness', () => {
       const res = await fetch(`${BACKEND_URL}/messages/${event.entity_id}`, {
         headers: { Cookie: bobCookie },
       });
-      const body = (await res.json()) as { ciphertext: string };
+      const body: { ciphertext: string } = await res.json();
       const plaintext = bob.decrypt(decodeBase64Url(body.ciphertext));
       decryptedByBob.push(new TextDecoder().decode(plaintext));
     };
@@ -456,9 +464,11 @@ describe('end-to-end messaging + report harness', () => {
         content_hash: 'unused-in-this-harness',
       }),
     });
-    const { report_id: reportId } = (await reportRes.json()) as {
+    const {
+      report_id: reportId,
+    }: {
       report_id: string;
-    };
+    } = await reportRes.json();
 
     const firstApproval = await fetch(
       `${BACKEND_URL}/reports/${reportId}/review`,
@@ -467,9 +477,9 @@ describe('end-to-end messaging + report harness', () => {
         headers: { Cookie: adminCookie },
       },
     );
-    const firstApprovalBody = (await firstApproval.json()) as {
+    const firstApprovalBody: {
       status: string;
-    };
+    } = await firstApproval.json();
     expect(firstApprovalBody.status).toBe('awaiting_second_approval');
 
     const secondApproval = await fetch(
@@ -479,10 +489,10 @@ describe('end-to-end messaging + report harness', () => {
         headers: { Cookie: teacherCookie },
       },
     );
-    const secondApprovalBody = (await secondApproval.json()) as {
+    const secondApprovalBody: {
       status: string;
       plaintext: string;
-    };
+    } = await secondApproval.json();
     expect(secondApprovalBody.status).toBe('approved');
     expect(secondApprovalBody.plaintext).toBe(reportPlaintext);
   }, 20_000);

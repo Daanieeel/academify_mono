@@ -1,4 +1,4 @@
-export const attachmentButtons: any[] = [
+export const attachmentButtons: unknown[] = [
   {
     id: 0,
     label: 'Kamera',

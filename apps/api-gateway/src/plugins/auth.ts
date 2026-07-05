@@ -1,13 +1,15 @@
 import { eq, and } from 'drizzle-orm';
 import { Elysia } from 'elysia';
-import { auth } from '@repo/auth';
+import { auth, type AuthSession } from '@repo/auth';
 import { db, profiles, institutions, session, user } from '@repo/database';
 import { AppError } from './error';
 
 export const authMiddleware = new Elysia({ name: 'auth-middleware' }).derive(
   { as: 'scoped' },
   async ({ request }) => {
-    let result = await auth.api.getSession({ headers: request.headers });
+    let result: AuthSession | null = await auth.api.getSession({
+      headers: request.headers,
+    });
 
     if (!result) {
       const authHeader = request.headers.get('Authorization');
@@ -20,8 +22,9 @@ export const authMiddleware = new Elysia({ name: 'auth-middleware' }).derive(
           const userRecord = await db.query.user.findFirst({
             where: eq(user.id, sessionRecord.userId),
           });
-          if (userRecord)
-            {result = { session: sessionRecord, user: userRecord } as any;}
+          if (userRecord) {
+            result = { session: sessionRecord, user: userRecord };
+          }
         }
       }
     }
@@ -64,6 +67,7 @@ export const authMiddleware = new Elysia({ name: 'auth-middleware' }).derive(
 
     return {
       userId: result.user.id,
+      user: result.user,
       institutionId,
     };
   },

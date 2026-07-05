@@ -85,8 +85,8 @@ const Settings = () => {
   const badges = [
     me?.role
       ? {
-          icomoonIconName: formatRoleIcon(me.role)!,
-          label: formatRoleLabel(me.role)!,
+          icomoonIconName: formatRoleIcon(me.role) ?? '',
+          label: formatRoleLabel(me.role) ?? '',
         }
       : undefined,
     me?.class_name
@@ -109,7 +109,6 @@ const Settings = () => {
 
   const settingsActionHandler: Record<string, () => void> = {
     'log-out-press-action': onLogOutPressed,
-    'switch-school-press-action': () => setSchoolSwitcherShown(true),
     'show-help-press-action': defaultPressedAction,
     default: defaultPressedAction,
   };
@@ -121,7 +120,7 @@ const Settings = () => {
         pointerEvents="none"
       >
         <LinearGradient
-          ref={captureTargetRef as any}
+          ref={captureTargetRef}
           collapsable={false}
           colors={
             parseAvatarGradient(me?.avatar_background_color) ?? ['#000', '#000']
@@ -175,14 +174,20 @@ const Settings = () => {
           currentBackgroundColor={me?.avatar_background_color}
           currentEmoji={me?.avatar_emoji}
           onSaved={({ backgroundColor, emoji }) => {
-            queryClient.setQueryData(['me'], (prev: any) =>
-              prev
-                ? {
-                    ...prev,
-                    avatar_background_color: backgroundColor,
-                    avatar_emoji: emoji,
-                  }
-                : prev,
+            queryClient.setQueryData(
+              ['me'],
+              (
+                prev:
+                  | NonNullable<Awaited<ReturnType<typeof api.me.get>>['data']>
+                  | undefined,
+              ) =>
+                prev
+                  ? {
+                      ...prev,
+                      avatar_background_color: backgroundColor,
+                      avatar_emoji: emoji,
+                    }
+                  : prev,
             );
             setTimeout(() => {
               if (!captureTargetRef.current) {

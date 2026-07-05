@@ -9,50 +9,30 @@ import { Text } from '@/components/ui/text';
 import { Icon } from '@/components/ui/icon';
 import { Input } from '@/components/ui/input';
 
-import { registryClient } from '@/lib/registry';
 import { useSession } from '@/context/auth-context';
 import { useInstitution } from '@/context/institution-context';
-import { api } from '@/lib/api-client';
-import { getAssetUrl } from '@/lib/utils';
+import { setInstitutionId } from '@/lib/api-client';
 
 const UsernamePage = () => {
-  const params = useLocalSearchParams();
-  const [backendUrl, setBackendUrl] = useState(
-    (params.backendUrl as string) || '',
-  );
-  const institutionName = params.institutionName as string;
-  const institutionId = params.institutionId as string;
-  const avatarUrl = params.avatarUrl as string;
-
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [inputError, setInputError] = useState('');
   const [isValid, setIsValid] = useState(true);
-  const [isResolving, setIsResolving] = useState(false);
 
   const router = useRouter();
-  const { signIn, signOut } = useSession();
+  const { signIn } = useSession();
   const { setActiveInstitutionId } = useInstitution();
   const errorColor = useThemeColor({}, 'red-500');
   const neutral900Color = useThemeColor({}, 'neutral-900');
 
+  const params = useLocalSearchParams();
+  const { institutionId } = params;
+
   React.useEffect(() => {
-    if (!backendUrl && institutionId) {
-      setIsResolving(true);
-      registryClient.institutions[institutionId].resolve
-        .get()
-        .then(({ data, error }) => {
-          if (error) {
-            throw error;
-          }
-          if (data && 'backend_url' in data) {
-            setBackendUrl((data as any).backend_url);
-          }
-        })
-        .catch(console.error)
-        .finally(() => setIsResolving(false));
+    if (typeof institutionId === 'string') {
+      setInstitutionId(institutionId);
     }
-  }, [backendUrl, institutionId]);
+  }, [institutionId]);
 
   const handleBackButtonPress = () => {
     router.back();
@@ -65,23 +45,18 @@ const UsernamePage = () => {
       return;
     }
 
-    const { error } = await signIn(username, password);
+    const { error, session } = await signIn(username, password);
     if (error) {
       setIsValid(false);
       setInputError(error);
       return;
     }
 
-    await setActiveInstitutionId(institutionId);
-
-    // Verify membership
-    const { error: profileError } = await api.me.get();
-    if (profileError) {
-      await signOut();
+    if (session?.mainInstitutionId) {
+      await setActiveInstitutionId(session.mainInstitutionId);
+    } else {
+      // Fallback if no mainInstitutionId
       await setActiveInstitutionId(null);
-      setIsValid(false);
-      setInputError('Du bist kein Mitglied dieser Institution.');
-      return;
     }
 
     setIsValid(true);
@@ -117,31 +92,6 @@ const UsernamePage = () => {
         }}
       ></Stack.Screen>
       <View className="pt-[70px] px-[15px] w-full gap-[20px]">
-        {institutionName && (
-          <View className="items-center mb-[10px]">
-            <View className="flex-row items-center gap-3 px-4 py-2 rounded-2xl bg-white dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 shadow-sm">
-              {avatarUrl ? (
-                <Image
-                  source={{ uri: `${getAssetUrl(avatarUrl)}?t=1` }} // Use t=1 cache buster just in case
-                  style={{ width: 28, height: 28, borderRadius: 8 }}
-                  contentFit="cover"
-                />
-              ) : (
-                <View className="w-7 h-7 rounded-lg bg-neutral-100 dark:bg-neutral-700 items-center justify-center">
-                  <Icon
-                    name="graduation-cap"
-                    size={14}
-                    className="text-neutral-400"
-                  />
-                </View>
-              )}
-              <Text className="text-neutral-900 dark:text-neutral-100 font-medium text-sm">
-                {institutionName}
-              </Text>
-            </View>
-          </View>
-        )}
-
         <View className="gap-[10px] items-center">
           <Icon size={62} name="user-focus" color={neutral900Color}></Icon>
           <Text
@@ -176,9 +126,9 @@ const UsernamePage = () => {
         ></Input>
 
         {!isValid && (
-          <View className="mt-[10px] flex-row gap-[5px] items-center">
-            <Icon name="x-circle" size={15} color={errorColor}></Icon>
-            <Text color={errorColor} variant="caption">
+          <View className="mt-[10px] flex-row gap-[5px] items-center pr-[15px]">
+            <Icon name="warning-circle" size={15} color={errorColor}></Icon>
+            <Text color={errorColor} variant="caption" className="flex-1">
               {inputError}
             </Text>
           </View>

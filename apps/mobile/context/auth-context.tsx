@@ -12,9 +12,18 @@ const AuthContext = createContext<{
   signIn: (
     username: string,
     password: string,
-  ) => Promise<{ error: string | null }>;
+  ) => Promise<{
+    error: string | null;
+    session?: NonNullable<
+      Awaited<ReturnType<typeof authClient.signIn.username>>
+    >['data']['session'];
+  }>;
   signOut: () => Promise<void>;
-  session: { userId: string; username: string } | null;
+  session: {
+    userId: string;
+    username: string;
+    mainInstitutionId?: string;
+  } | null;
   isLoading: boolean;
 }>({
   signIn: async () => ({ error: 'not wrapped in a SessionProvider' }),
@@ -33,6 +42,7 @@ export function useSession() {
 
 export function SessionProvider({ children }: PropsWithChildren) {
   const { data, isPending } = authClient.useSession();
+  const [optimisticUser, setOptimisticUser] = useState<unknown>(null);
 
   useEffect(() => {
     if (data?.session?.token) {
@@ -43,23 +53,41 @@ export function SessionProvider({ children }: PropsWithChildren) {
   }, [data, isPending]);
 
   const signIn = async (username: string, password: string) => {
-    const { error, data: signInData } = await authClient.signIn.username({
-      username,
-      password,
-    });
-    if (signInData?.session?.token) {
-      setAuthToken(signInData.session.token);
+    try {
+      const { error, data: signInData } = await authClient.signIn.username({
+        username,
+        password,
+      });
+      if (signInData?.token) {
+        setAuthToken(signInData.token);
+      }
+      if (signInData?.user) {
+        setOptimisticUser(signInData.user);
+      }
+      return { error: error?.message ?? null, session: signInData?.user };
+    } catch (e) {
+      console.error('Failed to sign in:', e);
+      return {
+        error:
+          'Verbindung zum Server fehlgeschlagen. Bitte überprüfe deine Internetverbindung.',
+        session: null,
+      };
     }
-    return { error: error?.message ?? null };
   };
 
   const signOut = async () => {
     await authClient.signOut();
     setAuthToken(null);
+    setOptimisticUser(null);
   };
 
-  const session = data
-    ? { userId: data.user.id, username: data.user.username ?? data.user.name }
+  const userToUse = data?.user || optimisticUser;
+  const session = userToUse
+    ? {
+        userId: userToUse.id,
+        username: userToUse.username ?? userToUse.name,
+        mainInstitutionId: userToUse.mainInstitutionId,
+      }
     : null;
 
   return (

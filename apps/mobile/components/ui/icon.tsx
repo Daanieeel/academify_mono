@@ -7,12 +7,13 @@ export type IconProps = React.ComponentProps<typeof IcomoonIcon> & {
   name: string;
 };
 
-export function Icon({ className, size = 16, ...props }: IconProps) {
+export function Icon({ className, size = 16, color, ...props }: IconProps) {
   const textClass = React.useContext(TextClassContext);
   return (
     <IcomoonIcon
-      className={cn('text-neutral-900', textClass, className)}
+      className={cn(!color && 'text-neutral-900', textClass, className)}
       size={size}
+      color={color}
       {...props}
     />
   );

@@ -35,8 +35,8 @@ import ThemedAvatarPickerModal, {
 import { serializeAvatarGradient } from '@/lib/avatar';
 
 const DEFAULT_GROUP_AVATAR = {
-  backgroundColor: serializeAvatarGradient(AVATAR_PRESETS[0]!.gradient),
-  emoji: AVATAR_PRESETS[0]!.emoji,
+  backgroundColor: serializeAvatarGradient(AVATAR_PRESETS[0]?.gradient ?? []),
+  emoji: AVATAR_PRESETS[0]?.emoji ?? '',
 };
 
 const ROLE_GROUP_ORDER: SingleContactDto['role'][] = [
@@ -65,10 +65,11 @@ function groupContactsByRole(
   }[] = [];
   for (const role of ROLE_GROUP_ORDER) {
     const list = role ? groups.get(role) : undefined;
-    if (list && list.length > 0) {
+    if (role && list && list.length > 0) {
+      const label = formatRoleLabel(role);
       ordered.push({
-        key: role!,
-        label: formatRoleLabel(role)!,
+        key: role,
+        label: label ?? 'Other',
         contacts: list,
       });
     }
@@ -87,10 +88,14 @@ function groupContactsByRole(
 function contactBadges(contact: SingleContactDto): ThemedUserBadgeProps[] {
   const badges: ThemedUserBadgeProps[] = [];
   if (contact.role) {
-    badges.push({
-      icomoonIconName: formatRoleIcon(contact.role)!,
-      label: formatRoleLabel(contact.role)!,
-    });
+    const iconName = formatRoleIcon(contact.role);
+    const label = formatRoleLabel(contact.role);
+    if (iconName && label) {
+      badges.push({
+        icomoonIconName: iconName,
+        label: label,
+      });
+    }
   }
   if (contact.class_name) {
     badges.push({
@@ -173,7 +178,7 @@ const ThemedCreateChatModal = (props: ThemedCreateChatModalProps) => {
     },
     enabled: props.visible,
   });
-  const contacts = contactsData ?? [];
+  const contacts = useMemo(() => contactsData ?? [], [contactsData]);
 
   const { data: classesData } = useQuery({
     queryKey: ['classes'],

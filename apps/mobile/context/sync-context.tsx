@@ -65,10 +65,10 @@ async function ensureDeviceRegistered(
   const { data: regData, error: regError } = await api.mls.devices.post({
     identity_pubkey: bytesToBase64Url(new Uint8Array([1])),
   });
-  if (regError) {
-    throw regError;
+  if (regError || !regData) {
+    throw regError || new Error('No data returned');
   }
-  const device_id = regData!.device_id;
+  const device_id = regData.device_id;
 
   for (let i = 0; i < KEY_PACKAGE_POOL_SIZE; i++) {
     const keyPackageBytes =
