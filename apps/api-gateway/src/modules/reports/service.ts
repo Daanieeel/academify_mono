@@ -98,14 +98,18 @@ export class ReportsService {
         })
         .returning();
 
+      if (!created) {
+        throw new Error('Failed to create report');
+      }
+
       await tx.insert(reportPackages).values({
-        reportId: created!.id,
+        reportId: created.id,
         encryptedPackage: Buffer.from(encryptedPackage, 'base64url'),
         complianceKeyVersion,
         contentHash,
       });
 
-      return created!;
+      return created;
     });
 
     return { report_id: report.id, status: report.status };
@@ -228,22 +232,23 @@ export class ReportsService {
       .select()
       .from(reportPackages)
       .where(eq(reportPackages.reportId, report.id));
+
+    if (!reportPackage) {
+      throw new AppError(500, 'REPORT_PACKAGE_ERROR', 'report package missing');
+    }
+
     const [complianceKey] = await db
       .select()
       .from(complianceKeys)
       .where(
         and(
           eq(complianceKeys.institutionId, institutionId),
-          eq(complianceKeys.keyVersion, reportPackage!.complianceKeyVersion),
+          eq(complianceKeys.keyVersion, reportPackage.complianceKeyVersion),
         ),
       );
 
-    if (!reportPackage || !complianceKey) {
-      throw new AppError(
-        500,
-        'REPORT_PACKAGE_ERROR',
-        'report package or compliance key missing',
-      );
+    if (!complianceKey) {
+      throw new AppError(500, 'REPORT_PACKAGE_ERROR', 'compliance key missing');
     }
 
     const keyPair: ComplianceKeyPair = {

@@ -38,7 +38,7 @@ const SearchResultsModal = ({
   const [loading, setLoading] = useState(false);
   const [loadingMore, setLoadingMore] = useState(false);
   const [hasMore, setHasMore] = useState(true);
-  const [offset, setOffset] = useState(0);
+  const offset = React.useRef(0);
 
   const fetchResults = useCallback(
     async (isLoadMore = false) => {
@@ -52,7 +52,7 @@ const SearchResultsModal = ({
         return;
       }
 
-      const currentOffset = isLoadMore ? offset : 0;
+      const currentOffset = isLoadMore ? offset.current : 0;
 
       try {
         if (isLoadMore) {
@@ -64,7 +64,7 @@ const SearchResultsModal = ({
         const { data: res, error } = await api.search.get({
           $query: {
             q: query,
-            category: category,
+            category,
             limit: PAGE_SIZE,
             offset: currentOffset,
           },
@@ -74,26 +74,26 @@ const SearchResultsModal = ({
         }
 
         let newItems: Omit<SearchResultItemProps, 'onPress'>[] = [];
-        let hasMore = false;
+        let newHasMore = false;
 
         if (category === 'contacts' && res.contacts) {
           newItems = res.contacts.items.map((data) => ({
             type: 'contact',
             data,
           }));
-          hasMore = res.contacts.has_more;
+          newHasMore = res.contacts.has_more;
         } else if (category === 'chats' && res.chats) {
           newItems = res.chats.items.map((data) => ({ type: 'chat', data }));
-          hasMore = res.chats.has_more;
+          newHasMore = res.chats.has_more;
         } else if (category === 'blackboards' && res.blackboards) {
           newItems = res.blackboards.items.map((data) => ({
             type: 'blackboard',
             data,
           }));
-          hasMore = res.blackboards.has_more;
+          newHasMore = res.blackboards.has_more;
         } else if (category === 'clubs' && res.clubs) {
           newItems = res.clubs.items.map((data) => ({ type: 'club', data }));
-          hasMore = res.clubs.has_more;
+          newHasMore = res.clubs.has_more;
         }
 
         if (isLoadMore) {
@@ -101,8 +101,8 @@ const SearchResultsModal = ({
         } else {
           setItems(newItems);
         }
-        setHasMore(hasMore);
-        setOffset(currentOffset + PAGE_SIZE);
+        setHasMore(newHasMore);
+        offset.current = currentOffset + PAGE_SIZE;
       } catch (e) {
         console.error('Failed to fetch category search results:', e);
       } finally {
@@ -110,20 +110,19 @@ const SearchResultsModal = ({
         setLoadingMore(false);
       }
     },
-    [query, category, offset, settingsItems],
+    [query, category, settingsItems],
   );
 
   useEffect(() => {
     if (visible && query) {
-      setOffset(0);
+      offset.current = 0;
       setHasMore(true);
-      fetchResults(false);
+      void fetchResults(false);
     } else if (!visible) {
       setItems([]);
-      setOffset(0);
+      offset.current = 0;
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [visible, query, category]); // We explicitly don't depend on fetchResults to avoid loops
+  }, [visible, query, category, fetchResults]);
 
   return (
     <Modal
@@ -148,11 +147,21 @@ const SearchResultsModal = ({
         <FlatList
           data={items}
           keyExtractor={(item, index) => {
-            if (item.type === 'contact') {return item.data.user_id;}
-            if (item.type === 'chat') {return item.data.chat_id;}
-            if (item.type === 'blackboard') {return item.data.id;}
-            if (item.type === 'club') {return item.data.id;}
-            if (item.type === 'setting') {return item.data.label;}
+            if (item.type === 'contact') {
+              return item.data.user_id;
+            }
+            if (item.type === 'chat') {
+              return item.data.chat_id;
+            }
+            if (item.type === 'blackboard') {
+              return item.data.id;
+            }
+            if (item.type === 'club') {
+              return item.data.id;
+            }
+            if (item.type === 'setting') {
+              return item.data.label;
+            }
             return index.toString();
           }}
           contentContainerStyle={{

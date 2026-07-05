@@ -42,7 +42,7 @@ const SearchResultItem = (props: SearchResultItemProps) => {
       if (iconName && label) {
         badges.push({
           icomoonIconName: iconName,
-          label: label,
+          label,
         });
       }
     }

@@ -106,20 +106,25 @@ function deferredFeedHandler(command: string) {
   };
 }
 
-const handlers: Record<
-  JobPayload['command'],
-  (job: JobPayload) => Promise<void>
-> = {
-  SEND_MESSAGE: handleSendMessage as (job: JobPayload) => Promise<void>,
-  MEMBERSHIP_CHANGED: handleMembershipChanged as (
-    job: JobPayload,
-  ) => Promise<void>,
-  PROFILE_UPDATED: handleProfileUpdated as (job: JobPayload) => Promise<void>,
-  BLACKBOARD_POSTED: deferredFeedHandler('BLACKBOARD_POSTED'),
-  EVENT_UPDATED: deferredFeedHandler('EVENT_UPDATED'),
-  CLUB_UPDATED: deferredFeedHandler('CLUB_UPDATED'),
-};
-
 export async function processJob(payload: JobPayload): Promise<void> {
-  await handlers[payload.command](payload);
+  switch (payload.command) {
+    case 'SEND_MESSAGE':
+      await handleSendMessage(payload);
+      break;
+    case 'MEMBERSHIP_CHANGED':
+      await handleMembershipChanged(payload);
+      break;
+    case 'PROFILE_UPDATED':
+      await handleProfileUpdated(payload);
+      break;
+    case 'BLACKBOARD_POSTED':
+      await deferredFeedHandler('BLACKBOARD_POSTED')();
+      break;
+    case 'EVENT_UPDATED':
+      await deferredFeedHandler('EVENT_UPDATED')();
+      break;
+    case 'CLUB_UPDATED':
+      await deferredFeedHandler('CLUB_UPDATED')();
+      break;
+  }
 }

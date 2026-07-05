@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Image, View } from 'react-native';
+import { Image, View, type LayoutChangeEvent } from 'react-native';
 import { Text } from '@/components/ui/text';
 import { Icon } from '@/components/ui/icon';
 
@@ -14,9 +14,9 @@ const ThemedImageMessage = ({
 }: ThemedImageMessageProps) => {
   const [width, setWidth] = useState(0);
 
-  const onLayout = (event: any) => {
-    const { width } = event.nativeEvent.layout;
-    setWidth(width);
+  const onLayout = (event: LayoutChangeEvent) => {
+    const { width: layoutWidth } = event.nativeEvent.layout;
+    setWidth(layoutWidth);
   };
 
   const numberOfPictures = props.sources.length;

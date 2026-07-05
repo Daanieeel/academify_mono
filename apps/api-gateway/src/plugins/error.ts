@@ -4,13 +4,13 @@ import { PermissionError } from '@repo/permissions';
 export class AppError extends Error {
   public statusCode: number;
   public code: string;
-  public details?: any;
+  public details?: unknown;
 
   constructor(
     statusCode: number,
     code: string,
     message: string,
-    details?: any,
+    details?: unknown,
   ) {
     super(message);
     this.statusCode = statusCode;

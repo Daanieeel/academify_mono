@@ -176,8 +176,14 @@ export function useChatThread(chatId: string) {
     return () => {
       cancelled = true;
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [groupEstablished, allMessages.length, chatId]);
+  }, [
+    groupEstablished,
+    allMessages,
+    chatId,
+    mlsBridge,
+    plaintextById,
+    session,
+  ]);
 
   const sendMessage = useCallback(
     async (text: string) => {

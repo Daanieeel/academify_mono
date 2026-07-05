@@ -6,7 +6,7 @@ import React, { useEffect } from 'react';
 SplashScreen.preventAutoHideAsync();
 
 const RootNavigator = () => {
-  const { isLoading } = useSession();
+  const { isLoading, session } = useSession();
 
   const [loaded, error] = useFonts({
     'MartianGrotesk-NrBl': require('../assets/fonts/MartianGrotesk-NrBl.ttf'),
@@ -29,7 +29,6 @@ const RootNavigator = () => {
     return null;
   }
 
-  const { session } = useSession();
   const isAuthenticated = session !== null;
 
   return (

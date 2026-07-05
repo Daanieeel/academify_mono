@@ -15,6 +15,7 @@ import { user } from './auth';
 import { chats } from './chats';
 import { bytea } from './columns';
 import { devices } from './mls';
+import type { UserEventEnvelope } from '@repo/sync-protocol';
 
 // `deletedAt` is a tombstone, not a hard delete: deletion is itself a
 // syncable event so other devices/clients converge on "this message is gone".
@@ -48,10 +49,14 @@ export const userEventStream = pgTable(
       .notNull()
       .references(() => user.id, { onDelete: 'cascade' }),
     cursor: bigint('cursor', { mode: 'bigint' }).notNull(),
-    eventType: text('event_type').notNull(),
+    eventType: text('event_type')
+      .$type<UserEventEnvelope['event_type']>()
+      .notNull(),
     entityId: text('entity_id').notNull(),
     createdAt: timestamp('created_at').defaultNow().notNull(),
-    payloadMetadata: jsonb('payload_metadata').notNull(),
+    payloadMetadata: jsonb('payload_metadata')
+      .$type<UserEventEnvelope['payload_metadata']>()
+      .notNull(),
     payloadRef: text('payload_ref'),
   },
   (table) => [

@@ -107,7 +107,7 @@ describe('processJob', () => {
       .from(messages)
       .where(eq(messages.id, messageId));
     expect(persisted).toBeDefined();
-    expect(persisted!.ciphertext.toString()).toBe('hello bob');
+    expect(persisted?.ciphertext.toString()).toBe('hello bob');
 
     const events = await db
       .select()
@@ -157,7 +157,7 @@ describe('processJob', () => {
       .orderBy(userEventStream.cursor);
 
     expect(events.length).toBe(2);
-    expect(events[1]!.cursor > events[0]!.cursor).toBe(true);
+    expect((events[1]?.cursor ?? 0) > (events[0]?.cursor ?? 0)).toBe(true);
   });
 
   it('MEMBERSHIP_CHANGED notifies only the affected user', async () => {
@@ -174,8 +174,8 @@ describe('processJob', () => {
       .where(eq(userEventStream.entityId, fixture.chat.id));
 
     expect(events.length).toBe(1);
-    expect(events[0]!.userId).toBe(fixture.bob.id);
-    expect(events[0]!.eventType).toBe('membership.removed');
+    expect(events[0]?.userId).toBe(fixture.bob.id);
+    expect(events[0]?.eventType).toBe('membership.removed');
   });
 
   it('PROFILE_UPDATED notifies chat-mates but not the updated user', async () => {
@@ -195,6 +195,6 @@ describe('processJob', () => {
       );
 
     expect(events.length).toBe(1);
-    expect(events[0]!.userId).toBe(fixture.bob.id);
+    expect(events[0]?.userId).toBe(fixture.bob.id);
   });
 });

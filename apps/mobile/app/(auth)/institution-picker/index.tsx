@@ -7,7 +7,6 @@ import {
   View,
   FlatList,
   ScrollView,
-  useColorScheme,
   TouchableOpacity,
   TextInput,
 } from 'react-native';
@@ -66,17 +65,20 @@ export default function InstitutionPicker() {
 
   const error = isError ? 'Failed to load institutions' : null;
 
-  const handleSelect = (inst: SingleRegistryInstitutionDto) => {
-    // Navigate immediately to remove lag
-    router.push({
-      pathname: '/(auth)/username-page',
-      params: {
-        institutionId: inst.slug,
-        institutionName: inst.display_name,
-        avatarUrl: inst.avatar_url || '',
-      },
-    });
-  };
+  const handleSelect = useCallback(
+    (inst: SingleRegistryInstitutionDto) => {
+      // Navigate immediately to remove lag
+      router.push({
+        pathname: '/(auth)/username-page',
+        params: {
+          institutionId: inst.slug,
+          institutionName: inst.display_name,
+          avatarUrl: inst.avatar_url || '',
+        },
+      });
+    },
+    [router],
+  );
 
   const renderItem = useCallback(
     ({ item }: { item: SingleRegistryInstitutionDto }) => {
@@ -178,10 +180,8 @@ export default function InstitutionPicker() {
         </TouchableOpacity>
       );
     },
-    [],
+    [handleSelect],
   );
-
-  const colorScheme = useColorScheme();
 
   return (
     <View className="flex-1 bg-neutral-50 dark:bg-neutral-900">

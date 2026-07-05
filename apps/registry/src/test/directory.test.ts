@@ -39,13 +39,13 @@ describe('directory', () => {
         `http://localhost/institutions?search=Active+School+${suffix}`,
       ),
     );
-    const body = (await response.json()) as {
+    const body: {
       institutions: {
         slug: string;
         display_name: string;
         region: string | null;
       }[];
-    };
+    } = await response.json();
 
     expect(
       body.institutions.some((institution) => institution.slug === activeSlug),
@@ -57,10 +57,10 @@ describe('directory', () => {
     const response = await app.handle(
       new Request(`http://localhost/institutions/${activeSlug}/resolve`),
     );
-    const body = (await response.json()) as {
+    const body: {
       backend_url: string;
       deployment_mode: string;
-    };
+    } = await response.json();
 
     expect(response.status).toBe(200);
     expect(body.backend_url).toBe('http://localhost:3001');

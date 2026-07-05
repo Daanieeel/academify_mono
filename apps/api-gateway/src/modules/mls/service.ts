@@ -24,7 +24,11 @@ export class MlsService {
       })
       .returning({ id: devices.id });
 
-    return { device_id: device!.id };
+    if (!device) {
+      throw new Error('Failed to insert device');
+    }
+
+    return { device_id: device.id };
   }
 
   static async purgeUnconsumedKeyPackages(userId: string) {
@@ -77,7 +81,11 @@ export class MlsService {
       })
       .returning({ id: keyPackages.id });
 
-    return { key_package_id: keyPackage!.id };
+    if (!keyPackage) {
+      throw new Error('Failed to insert key package');
+    }
+
+    return { key_package_id: keyPackage.id };
   }
 
   static async consumeKeyPackage(targetUserId: string) {
@@ -153,21 +161,25 @@ export class MlsService {
       const [created] = await tx
         .insert(mlsGroups)
         .values({
-          chatId: chatId,
+          chatId,
           mlsGroupId: Buffer.from(mlsGroupId, 'base64url'),
-          cipherSuite: cipherSuite,
+          cipherSuite,
         })
         .returning();
 
+      if (!created) {
+        throw new Error('Failed to create MLS group');
+      }
+
       await tx.insert(mlsGroupMembers).values({
-        groupId: created!.id,
+        groupId: created.id,
         userId,
         deviceId,
         leafIndex: 0,
         addedEpoch: 0,
       });
 
-      return created!;
+      return created;
     });
 
     return { group_id: group.id, current_epoch: group.currentEpoch };
@@ -215,7 +227,7 @@ export class MlsService {
         groupId: group.id,
         userId: newMemberUserId,
         deviceId: newMemberDeviceId,
-        leafIndex: leafIndex,
+        leafIndex,
         addedEpoch: newEpoch,
         pendingWelcome: Buffer.from(welcomeBytes, 'base64url'),
       });

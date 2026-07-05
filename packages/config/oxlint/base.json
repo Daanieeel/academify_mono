@@ -21,7 +21,7 @@
     "unicorn/filename-case": "off",
     "unicorn/no-null": "off",
     "typescript/no-explicit-any": "error",
-    "typescript/consistent-type-assertions": ["error", { "assertionStyle": "never" }],
+    "typescript/consistent-type-assertions": ["error", { "assertionStyle": "as", "objectLiteralTypeAssertions": "allow" }],
     "typescript/ban-ts-comment": "error",
     "typescript/no-non-null-assertion": "error",
     "typescript/strict-boolean-expressions": "warn",

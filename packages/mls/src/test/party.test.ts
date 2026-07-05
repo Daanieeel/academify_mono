@@ -2,8 +2,8 @@ import { describe, expect, it } from 'bun:test';
 
 import { MlsParty } from '../../index';
 
-function text(bytes: Uint8Array): string {
-  return new TextDecoder().decode(bytes);
+function text(encoded: Uint8Array): string {
+  return new TextDecoder().decode(encoded);
 }
 
 function bytes(value: string): Uint8Array {

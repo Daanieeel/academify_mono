@@ -12,8 +12,8 @@ const ThemedGridView = ({ gap = 10, ...props }: ThemedGridViewProps) => {
   const [width, setWidth] = useState(0);
 
   const onLayout = (event: LayoutChangeEvent) => {
-    const { width } = event.nativeEvent.layout;
-    setWidth(width);
+    const { width: layoutWidth } = event.nativeEvent.layout;
+    setWidth(layoutWidth);
   };
 
   if (!width) {
@@ -28,7 +28,7 @@ const ThemedGridView = ({ gap = 10, ...props }: ThemedGridViewProps) => {
   }
 
   return (
-    <View onLayout={onLayout} style={[props.style, { gap: gap }]}>
+    <View onLayout={onLayout} style={[props.style, { gap }]}>
       {rows.map((row, rowIndex) => {
         const isSparseRow = row.length < itemsPerRow;
         return (

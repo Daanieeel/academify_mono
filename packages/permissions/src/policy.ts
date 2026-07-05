@@ -27,10 +27,10 @@ export class PolicyEngine {
     role: string,
     settings?: InstitutionSettings | null,
     visited = new Set<string>(),
-  ): Record<PermissionKey, boolean> {
+  ): Partial<Record<PermissionKey, boolean>> {
     // Avoid circular dependencies
     if (visited.has(role)) {
-      return {} as Record<PermissionKey, boolean>;
+      return {};
     }
     visited.add(role);
 
@@ -53,13 +53,13 @@ export class PolicyEngine {
       ...systemDefaults,
       ...inheritedPerms,
       ...roleDef?.permissions,
-    } as Record<PermissionKey, boolean>;
+    };
   }
 
   static computePermissions(
     roles: string[],
     settings?: InstitutionSettings | null,
-  ): Record<PermissionKey, boolean> {
+  ): Partial<Record<PermissionKey, boolean>> {
     if (!roles || roles.length === 0) {
       return DEFAULT_ROLE_PERMISSIONS['student']; // Fallback
     }
@@ -72,7 +72,7 @@ export class PolicyEngine {
       return rankA - rankB;
     });
 
-    let finalPerms = {} as Record<PermissionKey, boolean>;
+    let finalPerms: Partial<Record<PermissionKey, boolean>> = {};
     for (const role of sortedRoles) {
       const rolePerms = this.computeSingleRoleRecursively(role, settings);
       finalPerms = { ...finalPerms, ...rolePerms };
@@ -83,11 +83,15 @@ export class PolicyEngine {
 
   static hasPermission(
     roles: string[],
-    permission: PermissionKey,
+    permission: PermissionKey | (string & {}),
     settings?: InstitutionSettings | null,
   ): boolean {
     const permissions = this.computePermissions(roles, settings);
-    return permissions[permission] ?? false;
+    const isPermissionKey = (_key: string): _key is PermissionKey => true;
+    if (isPermissionKey(permission)) {
+      return permissions[permission] ?? false;
+    }
+    return false;
   }
 
   static canInitiateChat(
@@ -96,7 +100,7 @@ export class PolicyEngine {
     settings?: InstitutionSettings | null,
   ): boolean {
     for (const targetRole of targetRoles) {
-      const permissionKey = `chat:initiate:${targetRole}` as PermissionKey;
+      const permissionKey = `chat:initiate:${targetRole}`;
       if (this.hasPermission(actorRoles, permissionKey, settings)) {
         return true;
       }

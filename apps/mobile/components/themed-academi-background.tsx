@@ -7,7 +7,7 @@ const ThemedAcademiBackground = () => {
     <View className="absolute top-[-100px] right-[-100px] z-0 gap-[25px] -rotate-[15deg]">
       {Array.from({ length: 30 }).map((_, index) => (
         <View key={index} className="flex-row gap-[25px]">
-          {Array.from({ length: 30 }).map((_, innerIndex) => (
+          {Array.from({ length: 30 }).map((__, innerIndex) => (
             <Text
               key={innerIndex}
               className="text-neutral-200"

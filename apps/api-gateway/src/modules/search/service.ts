@@ -13,6 +13,51 @@ import {
 } from '@repo/database';
 import { AppError } from '../../plugins/error';
 
+export interface SearchResults {
+  contacts?: {
+    items: {
+      user_id: string;
+      display_name: string;
+      role: string | null;
+      class_name: string | null;
+      avatar_background_color: string | null;
+      avatar_emoji: string | null;
+    }[];
+    has_more: boolean;
+  };
+  chats?: {
+    items: {
+      chat_id: string;
+      type: string;
+      peer: {
+        user_id: string;
+        display_name: string;
+      };
+      last_message_at: string | null;
+    }[];
+    has_more: boolean;
+  };
+  blackboards?: {
+    items: {
+      id: string;
+      title: string;
+      body: string;
+      author_user_id: string;
+      created_at: string;
+    }[];
+    has_more: boolean;
+  };
+  clubs?: {
+    items: {
+      id: string;
+      name: string;
+      description: string;
+      created_at: string;
+    }[];
+    has_more: boolean;
+  };
+}
+
 export class SearchService {
   static async search(
     userId: string,
@@ -31,7 +76,7 @@ export class SearchService {
     }
 
     const searchStr = `%${q}%`;
-    const results: any = {};
+    const results: SearchResults = {};
 
     // 1. Search Contacts
     if (!requestedCategory || requestedCategory === 'contacts') {
@@ -124,7 +169,7 @@ export class SearchService {
 
       const chatIds = memberships.map((m) => m.chatId);
 
-      let chatResults: any[] = [];
+      let chatResults: NonNullable<SearchResults['chats']>['items'] = [];
       let hasMoreChats = false;
 
       if (chatIds.length > 0) {

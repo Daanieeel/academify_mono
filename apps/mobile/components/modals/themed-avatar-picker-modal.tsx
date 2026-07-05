@@ -81,10 +81,11 @@ export type ThemedAvatarPickerModalProps = {
 const ThemedAvatarPickerModal = (props: ThemedAvatarPickerModalProps) => {
   const { persist = true } = props;
   const [gradient, setGradient] = useState<Gradient>(
-    parseAvatarGradient(props.currentBackgroundColor) ?? AVATAR_GRADIENTS[0]!,
+    parseAvatarGradient(props.currentBackgroundColor) ??
+      AVATAR_GRADIENTS[0] ?? ['#000', '#fff'],
   );
   const [emoji, setEmoji] = useState(
-    props.currentEmoji ?? AVATAR_PRESETS[0]!.emoji,
+    props.currentEmoji ?? AVATAR_PRESETS[0]?.emoji ?? '😀',
   );
   const [emojiError, setEmojiError] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -127,7 +128,9 @@ const ThemedAvatarPickerModal = (props: ThemedAvatarPickerModalProps) => {
         background_color: backgroundColor,
         emoji,
       });
-      if (error) {throw error;}
+      if (error) {
+        throw error;
+      }
     } catch (error) {
       console.error('failed to save avatar:', error);
     } finally {

@@ -109,7 +109,10 @@ export function MlsBridgeProvider({ children }: PropsWithChildren) {
       },
       generateKeyPackage: async (chatId) => {
         const result = await call('generateKeyPackage', chatId);
-        return base64ToBytes(result!);
+        if (!result) {
+          throw new Error('Result was null');
+        }
+        return base64ToBytes(result);
       },
       createGroup: async (chatId) => {
         await call('createGroup', chatId);
@@ -118,7 +121,10 @@ export function MlsBridgeProvider({ children }: PropsWithChildren) {
         const result = await call('addMember', chatId, [
           bytesToBase64(keyPackageBytes),
         ]);
-        return base64ToBytes(result!);
+        if (!result) {
+          throw new Error('Result was null');
+        }
+        return base64ToBytes(result);
       },
       joinFromWelcome: async (chatId, welcomeBytes) => {
         await call('joinFromWelcome', chatId, [bytesToBase64(welcomeBytes)]);
@@ -127,13 +133,19 @@ export function MlsBridgeProvider({ children }: PropsWithChildren) {
         const result = await call('encrypt', chatId, [
           bytesToBase64(plaintext),
         ]);
-        return base64ToBytes(result!);
+        if (!result) {
+          throw new Error('Result was null');
+        }
+        return base64ToBytes(result);
       },
       decrypt: async (chatId, ciphertext) => {
         const result = await call('decrypt', chatId, [
           bytesToBase64(ciphertext),
         ]);
-        return base64ToBytes(result!);
+        if (!result) {
+          throw new Error('Result was null');
+        }
+        return base64ToBytes(result);
       },
     }),
     [ready],

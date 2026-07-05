@@ -31,8 +31,7 @@ const ThemedPickerModal = (props: ThemedPickerModalProps) => {
       setSelectedIDs(props.initialSelectedIds ?? []);
       setSearchQuery('');
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [props.visible]);
+  }, [props.visible, props.initialSelectedIds]);
 
   const toggleItem = (itemId: number | string) => {
     setSelectedIDs((prev) => {

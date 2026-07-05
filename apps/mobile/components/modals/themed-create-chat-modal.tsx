@@ -93,7 +93,7 @@ function contactBadges(contact: SingleContactDto): ThemedUserBadgeProps[] {
     if (iconName && label) {
       badges.push({
         icomoonIconName: iconName,
-        label: label,
+        label,
       });
     }
   }

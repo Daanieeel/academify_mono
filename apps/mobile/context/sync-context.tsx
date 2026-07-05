@@ -94,7 +94,7 @@ export function SyncProvider({ children }: PropsWithChildren) {
   const [chatsVersion, setChatsVersion] = useState(0);
   const [deviceId, setDeviceId] = useState<string | null>(null);
 
-  const addMessage = (message: RawMessage) => {
+  const addMessage = useCallback((message: RawMessage) => {
     setMessagesByChat((prev) => {
       const existing = prev[message.chatId] ?? [];
       if (existing.some((entry) => entry.id === message.id)) {
@@ -102,7 +102,7 @@ export function SyncProvider({ children }: PropsWithChildren) {
       }
       return { ...prev, [message.chatId]: [...existing, message] };
     });
-  };
+  }, []);
 
   useEffect(() => {
     if (!session || !mlsBridge.ready) {
@@ -177,8 +177,7 @@ export function SyncProvider({ children }: PropsWithChildren) {
       client.disconnect();
       syncClientRef.current = null;
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [session?.userId, mlsBridge.ready]);
+  }, [session, mlsBridge, addMessage]);
 
   return (
     <SyncContext.Provider

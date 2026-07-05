@@ -480,8 +480,8 @@ async function main() {
   });
 
   const students = [];
-  for (let i = 0; i < STUDENTS.length; i++) {
-    const seedUser = STUDENTS[i];
+  for (let studentIdx = 0; studentIdx < STUDENTS.length; studentIdx++) {
+    const seedUser = STUDENTS[studentIdx];
     if (!seedUser) {
       continue;
     }

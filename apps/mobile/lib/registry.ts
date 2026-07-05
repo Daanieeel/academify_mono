@@ -18,8 +18,9 @@ const getBaseUrl = () => {
 export const registryClient = edenTreaty<RegistryApp>(getBaseUrl(), {
   fetcher: (url: string, init?: RequestInit) => {
     const mergedHeaders = new Headers(init?.headers);
-    if (currentAuthToken)
-      {mergedHeaders.set('Authorization', `Bearer ${currentAuthToken}`);}
+    if (currentAuthToken) {
+      mergedHeaders.set('Authorization', `Bearer ${currentAuthToken}`);
+    }
     mergedHeaders.set('Cookie', authClient.getCookie() ?? '');
 
     return fetch(url, {
@@ -27,4 +28,4 @@ export const registryClient = edenTreaty<RegistryApp>(getBaseUrl(), {
       headers: mergedHeaders,
     });
   },
-} as any);
+});

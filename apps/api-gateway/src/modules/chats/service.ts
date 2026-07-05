@@ -492,12 +492,16 @@ export class ChatsService {
         .values({ institutionId, type: 'dm', createdBy: userId })
         .returning();
 
+      if (!created) {
+        throw new Error('Failed to create chat');
+      }
+
       await tx.insert(chatMembers).values([
-        { chatId: created!.id, userId },
-        { chatId: created!.id, userId: peerUserId },
+        { chatId: created.id, userId },
+        { chatId: created.id, userId: peerUserId },
       ]);
 
-      return created!;
+      return created;
     });
 
     return { chat_id: chat.id };

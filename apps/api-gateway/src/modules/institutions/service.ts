@@ -48,7 +48,7 @@ export class InstitutionsService {
       throw new AppError(404, 'INSTITUTION_NOT_FOUND', 'institution not found');
     }
 
-    const currentSettings = (instRow.settings as InstitutionSettings) || {};
+    const currentSettings = (instRow.settings as InstitutionSettings) ?? {};
 
     // Merge new settings with existing settings
     const newSettings: InstitutionSettings = {
@@ -69,7 +69,11 @@ export class InstitutionsService {
       .where(eq(institutions.id, institutionId))
       .returning({ settings: institutions.settings });
 
-    return { settings: updated!.settings };
+    if (!updated) {
+      throw new Error('Failed to update institution settings');
+    }
+
+    return { settings: updated.settings };
   }
 
   static async generateUploadUrl(

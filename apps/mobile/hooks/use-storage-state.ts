@@ -6,13 +6,14 @@ type UseStateHook<T> = [[boolean, T | null], (value: T | null) => void];
 function useAsyncState<T>(
   initalValue: [boolean, T | null] = [true, null],
 ): UseStateHook<T> {
-  return useReducer(
+  const [state, dispatch] = useReducer(
     (
-      state: [boolean, T | null],
+      prevState: [boolean, T | null],
       action: T | null = null,
     ): [boolean, T | null] => [false, action],
     initalValue,
-  ) as UseStateHook<T>;
+  );
+  return [state, dispatch];
 }
 
 export async function setStorageItemAsync(key: string, value: string | null) {

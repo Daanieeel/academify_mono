@@ -117,7 +117,7 @@ export class MessagesService {
       sender_user_id: userId,
       sender_device_id: senderDeviceId,
       mls_epoch: mlsEpoch,
-      ciphertext: ciphertext,
+      ciphertext,
       content_type: contentType,
     });
 

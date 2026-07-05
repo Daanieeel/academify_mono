@@ -9,7 +9,7 @@ const CHARS =
 export function bytesToBase64(bytes: Uint8Array): string {
   let result = '';
   for (let i = 0; i < bytes.length; i += 3) {
-    const b0 = bytes[i]!;
+    const b0 = bytes[i] ?? 0;
     const b1 = bytes[i + 1];
     const b2 = bytes[i + 2];
     result += CHARS[b0 >> 2];
@@ -30,7 +30,9 @@ export function base64ToBytes(value: string): Uint8Array {
   let bits = 0;
   for (const char of clean) {
     const index = CHARS.indexOf(char);
-    if (index === -1) {continue;}
+    if (index === -1) {
+      continue;
+    }
     buffer = (buffer << 6) | index;
     bits += 6;
     if (bits >= 8) {

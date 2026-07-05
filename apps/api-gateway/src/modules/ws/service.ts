@@ -37,11 +37,10 @@ export class WsService {
       event_id: row.eventId,
       user_id: row.userId,
       cursor: row.cursor.toString(),
-      event_type: row.eventType as UserEventEnvelope['event_type'],
+      event_type: row.eventType,
       entity_id: row.entityId,
       created_at: row.createdAt.toISOString(),
-      payload_metadata:
-        row.payloadMetadata as UserEventEnvelope['payload_metadata'],
+      payload_metadata: row.payloadMetadata,
     };
   }
 
@@ -90,10 +89,10 @@ export class WsService {
       }
     }
 
-    WsService.lastPushedCursorByUser.set(
-      userId,
-      newRows[newRows.length - 1]!.cursor,
-    );
+    const lastRow = newRows[newRows.length - 1];
+    if (lastRow) {
+      WsService.lastPushedCursorByUser.set(userId, lastRow.cursor);
+    }
   }
 
   static addConnection(userId: string, ws: Socket) {

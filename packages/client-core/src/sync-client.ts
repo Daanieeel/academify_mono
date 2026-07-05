@@ -278,7 +278,8 @@ export class SyncClient {
       );
     }
 
-    return response.json() as Promise<T>;
+    const data: Promise<T> = response.json();
+    return data;
   }
 }
 

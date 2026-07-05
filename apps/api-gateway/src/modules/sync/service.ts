@@ -16,11 +16,10 @@ export class SyncService {
       event_id: row.eventId,
       user_id: row.userId,
       cursor: row.cursor.toString(),
-      event_type: row.eventType as UserEventEnvelope['event_type'],
+      event_type: row.eventType,
       entity_id: row.entityId,
       created_at: row.createdAt.toISOString(),
-      payload_metadata:
-        row.payloadMetadata as UserEventEnvelope['payload_metadata'],
+      payload_metadata: row.payloadMetadata,
     };
   }
 
@@ -42,10 +41,10 @@ export class SyncService {
 
     const hasMore = rows.length > window.limit;
     const page = hasMore ? rows.slice(0, window.limit) : rows;
-    const nextCursor =
-      page.length > 0
-        ? page[page.length - 1]!.cursor.toString()
-        : window.after_cursor;
+    const lastPage = page[page.length - 1];
+    const nextCursor = lastPage
+      ? lastPage.cursor.toString()
+      : window.after_cursor;
 
     return createSyncResponseDto({
       events: page.map(SyncService.toEnvelope),

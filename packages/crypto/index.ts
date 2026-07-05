@@ -72,11 +72,10 @@ const privateKeyFromRaw = (rawPrivateKey: Buffer, rawPublicKey: Buffer) =>
 
 const exportRawPublicKey = (
   publicKey: ReturnType<typeof createPublicKey>,
-): Buffer =>
-  Buffer.from(
-    (publicKey.export({ format: 'jwk' }) as { x: string }).x,
-    'base64url',
-  );
+): Buffer => {
+  const jwk: { x?: string } = publicKey.export({ format: 'jwk' });
+  return Buffer.from(jwk.x ?? '', 'base64url');
+};
 
 const deriveAesKey = (
   sharedSecret: Buffer,
@@ -94,12 +93,10 @@ const deriveAesKey = (
 
 export const generateComplianceKeyPair = (): ComplianceKeyPair => {
   const { publicKey, privateKey } = generateKeyPairSync('x25519');
+  const privateJwk: { d?: string } = privateKey.export({ format: 'jwk' });
   return {
     publicKey: exportRawPublicKey(publicKey),
-    privateKey: Buffer.from(
-      (privateKey.export({ format: 'jwk' }) as { d: string }).d,
-      'base64url',
-    ),
+    privateKey: Buffer.from(privateJwk.d ?? '', 'base64url'),
   };
 };
 
