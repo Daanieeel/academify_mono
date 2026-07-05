@@ -1,6 +1,6 @@
 {
   "$schema": "../../../node_modules/oxlint/configuration_schema.json",
-  "plugins": ["typescript", "unicorn", "oxc"],
+  "plugins": ["typescript", "unicorn", "oxc", "react-hooks", "import"],
   "categories": {
     "correctness": "error"
   },
@@ -23,7 +23,15 @@
     "typescript/no-explicit-any": "error",
     "typescript/consistent-type-assertions": ["error", { "assertionStyle": "never" }],
     "typescript/ban-ts-comment": "error",
-    "typescript/no-non-null-assertion": "error"
+    "typescript/no-non-null-assertion": "error",
+    "typescript/strict-boolean-expressions": "warn",
+    "typescript/no-unnecessary-condition": "warn",
+    "typescript/switch-exhaustiveness-check": "warn",
+    "typescript/prefer-nullish-coalescing": "warn",
+    "no-shadow": "warn",
+    "object-shorthand": "warn",
+    "react-hooks/rules-of-hooks": "warn",
+    "import/no-cycle": "warn"
   },
   "settings": {},
   "ignorePatterns": [

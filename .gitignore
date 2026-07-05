@@ -61,3 +61,5 @@ packages/mls/src/wasm/
 **/target/
 
 .skills
+
+oxlint_output.txt
