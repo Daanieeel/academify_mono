@@ -114,13 +114,7 @@ export function SyncProvider({ children }: PropsWithChildren) {
 
     const client = new SyncClient(
       {
-        backendUrl: API_URL,
-        headers: {
-          ...(currentAuthToken
-            ? { Authorization: `Bearer ${currentAuthToken}` }
-            : {}),
-          Cookie: authClient.getCookie() ?? '',
-        },
+        apiClient: api,
       },
       async (event) => {
         if (event.event_type === 'message.created') {

@@ -18,6 +18,8 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
+    "@app/api-gateway": "workspace:*",
+    "@elysiajs/eden": "^1.4.9",
     "@repo/auth": "workspace:*",
     "@repo/crypto": "workspace:*",
     "@repo/database": "workspace:*",

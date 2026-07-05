@@ -27,6 +27,9 @@ import {
 import { generateComplianceKeyPair, sealToPublicKey } from '@repo/crypto';
 import { MlsParty } from '@repo/mls';
 
+import { edenTreaty } from '@elysiajs/eden';
+import type { App } from '@app/api-gateway';
+
 import { SyncClient, type SyncClientEventHandler } from '../sync-client';
 
 // Full end-to-end harness (Ticket 1.7 / Phase 7): spawns the *real*
@@ -77,6 +80,7 @@ async function seedUser(id: string, username: string, institutionId: string) {
       username,
       displayUsername: username,
       emailVerified: true,
+      mainInstitutionId: institutionId,
     })
     .returning();
   const hashed = await ctx.password.hash(PASSWORD);
@@ -95,7 +99,9 @@ async function seedUser(id: string, username: string, institutionId: string) {
     displayNameCiphertext: id,
     keyVersion: 1,
   });
-  if (!created) {throw new Error('No user');}
+  if (!created) {
+    throw new Error('No user');
+  }
   return created;
 }
 
@@ -186,7 +192,7 @@ describe('end-to-end messaging + report harness', () => {
     workerProcess = Bun.spawn(['bun', 'run', 'index.ts'], {
       cwd: `${import.meta.dir}/../../../../apps/worker`,
       env: { ...process.env },
-      stdout: 'ignore',
+      stdout: 'inherit',
       stderr: 'inherit',
     });
 
@@ -198,7 +204,7 @@ describe('end-to-end messaging + report harness', () => {
         COMPLIANCE_PRIVATE_KEY:
           complianceKeyPair.privateKey.toString('base64url'),
       },
-      stdout: 'ignore',
+      stdout: 'inherit',
       stderr: 'inherit',
     });
 
@@ -283,19 +289,25 @@ describe('end-to-end messaging + report harness', () => {
     const bobKeyPackage = bob.generate_key_package();
     const bobDeviceRes = await fetch(`${BACKEND_URL}/mls/devices`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json', Cookie: bobCookie },
+      headers: {
+        'Content-Type': 'application/json',
+        Cookie: bobCookie,
+        'x-institution-id': institutionId,
+      },
       body: JSON.stringify({
         identity_pubkey: encodeBase64Url(new Uint8Array([1])),
       }),
     });
-    const {
-      device_id: bobDeviceId,
-    }: {
+    const { device_id: bobDeviceId } = (await bobDeviceRes.json()) as {
       device_id: string;
-    } = await bobDeviceRes.json();
+    };
     await fetch(`${BACKEND_URL}/mls/key-packages`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json', Cookie: bobCookie },
+      headers: {
+        'Content-Type': 'application/json',
+        Cookie: bobCookie,
+        'x-institution-id': institutionId,
+      },
       body: JSON.stringify({
         device_id: bobDeviceId,
         key_package_bytes: encodeBase64Url(bobKeyPackage),
@@ -309,22 +321,19 @@ describe('end-to-end messaging + report harness', () => {
         identity_pubkey: encodeBase64Url(new Uint8Array([2])),
       }),
     });
-    const {
-      device_id: aliceDeviceId,
-    }: {
+    const { device_id: aliceDeviceId } = (await aliceDeviceRes.json()) as {
       device_id: string;
-    } = await aliceDeviceRes.json();
+    };
 
     const consumeRes = await fetch(`${BACKEND_URL}/mls/key-packages/consume`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', Cookie: aliceCookie },
       body: JSON.stringify({ user_id: bobId }),
     });
-    const {
-      key_package_bytes: consumedKeyPackage,
-    }: {
-      key_package_bytes: string;
-    } = await consumeRes.json();
+    const { key_package_bytes: consumedKeyPackage } =
+      (await consumeRes.json()) as {
+        key_package_bytes: string;
+      };
 
     alice.create_group();
     const welcome = alice.add_member(decodeBase64Url(consumedKeyPackage));
@@ -357,11 +366,9 @@ describe('end-to-end messaging + report harness', () => {
         headers: { Cookie: bobCookie },
       },
     );
-    const {
-      welcome_bytes: fetchedWelcome,
-    }: {
+    const { welcome_bytes: fetchedWelcome } = (await welcomeRes.json()) as {
       welcome_bytes: string;
-    } = await welcomeRes.json();
+    };
     bob.join_from_welcome(decodeBase64Url(fetchedWelcome));
 
     // --- Bob is connected (live path) when Alice sends message 1 ---
@@ -380,15 +387,25 @@ describe('end-to-end messaging + report harness', () => {
       const res = await fetch(`${BACKEND_URL}/messages/${event.entity_id}`, {
         headers: { Cookie: bobCookie },
       });
-      const body: { ciphertext: string } = await res.json();
+      const body = (await res.json()) as { ciphertext: string };
       const plaintext = bob.decrypt(decodeBase64Url(body.ciphertext));
       decryptedByBob.push(new TextDecoder().decode(plaintext));
     };
 
-    const bobClient = new SyncClient(
-      { backendUrl: BACKEND_URL, headers: { Cookie: bobCookie } },
-      onBobEvent,
-    );
+    const customFetchBob = (
+      url: Parameters<typeof fetch>[0],
+      init?: Parameters<typeof fetch>[1],
+    ) => {
+      return fetch(url, {
+        ...init,
+        headers: { ...init?.headers, Cookie: bobCookie },
+      });
+    };
+    const bobApiClient = edenTreaty<App>(BACKEND_URL, {
+      fetcher: Object.assign(customFetchBob, fetch),
+    });
+
+    const bobClient = new SyncClient({ apiClient: bobApiClient }, onBobEvent);
     await bobClient.connect('0');
     expect(bobClient.getState()).toBe('live');
 
@@ -396,9 +413,13 @@ describe('end-to-end messaging + report harness', () => {
     const firstCiphertext = alice.encrypt(
       new TextEncoder().encode('hello bob, live'),
     );
-    await fetch(`${BACKEND_URL}/messages`, {
+    const msgRes = await fetch(`${BACKEND_URL}/messages`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json', Cookie: aliceCookie },
+      headers: {
+        'Content-Type': 'application/json',
+        Cookie: aliceCookie,
+        'x-institution-id': institutionId,
+      },
       body: JSON.stringify({
         message_id: firstMessageId,
         chat_id: chatId,
@@ -408,6 +429,7 @@ describe('end-to-end messaging + report harness', () => {
         content_type: 'application/json',
       }),
     });
+    console.log('POST /messages status:', msgRes.status, await msgRes.text());
 
     await new Promise((resolve) => setTimeout(resolve, 700));
     expect(decryptedByBob).toContain('hello bob, live');
@@ -422,7 +444,11 @@ describe('end-to-end messaging + report harness', () => {
     );
     await fetch(`${BACKEND_URL}/messages`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json', Cookie: aliceCookie },
+      headers: {
+        'Content-Type': 'application/json',
+        Cookie: aliceCookie,
+        'x-institution-id': institutionId,
+      },
       body: JSON.stringify({
         message_id: secondMessageId,
         chat_id: chatId,
@@ -435,10 +461,19 @@ describe('end-to-end messaging + report harness', () => {
     await new Promise((resolve) => setTimeout(resolve, 500));
 
     // --- Bob reconnects from where he left off: gap path, catch-up fetch loop ---
-    const bobClient2 = new SyncClient(
-      { backendUrl: BACKEND_URL, headers: { Cookie: bobCookie } },
-      onBobEvent,
-    );
+    const customFetchBob2 = (
+      url: Parameters<typeof fetch>[0],
+      init?: Parameters<typeof fetch>[1],
+    ) => {
+      return fetch(url, {
+        ...init,
+        headers: { ...init?.headers, Cookie: bobCookie },
+      });
+    };
+    const bobApiClient2 = edenTreaty<App>(BACKEND_URL, {
+      fetcher: Object.assign(customFetchBob2, fetch),
+    });
+    const bobClient2 = new SyncClient({ apiClient: bobApiClient2 }, onBobEvent);
     await bobClient2.connect(bobLastAppliedCursor);
     expect(decryptedByBob).toContain('hello bob, while offline');
     bobClient2.disconnect();
@@ -455,7 +490,11 @@ describe('end-to-end messaging + report harness', () => {
     );
     const reportRes = await fetch(`${BACKEND_URL}/reports`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json', Cookie: bobCookie },
+      headers: {
+        'Content-Type': 'application/json',
+        Cookie: bobCookie,
+        'x-institution-id': institutionId,
+      },
       body: JSON.stringify({
         reported_message_id: secondMessageId,
         chat_id: chatId,
@@ -464,35 +503,33 @@ describe('end-to-end messaging + report harness', () => {
         content_hash: 'unused-in-this-harness',
       }),
     });
-    const {
-      report_id: reportId,
-    }: {
+    const { report_id: reportId } = (await reportRes.json()) as {
       report_id: string;
-    } = await reportRes.json();
+    };
 
     const firstApproval = await fetch(
       `${BACKEND_URL}/reports/${reportId}/review`,
       {
         method: 'POST',
-        headers: { Cookie: adminCookie },
+        headers: { Cookie: adminCookie, 'x-institution-id': institutionId },
       },
     );
-    const firstApprovalBody: {
+    const firstApprovalBody = (await firstApproval.json()) as {
       status: string;
-    } = await firstApproval.json();
+    };
     expect(firstApprovalBody.status).toBe('awaiting_second_approval');
 
     const secondApproval = await fetch(
       `${BACKEND_URL}/reports/${reportId}/review`,
       {
         method: 'POST',
-        headers: { Cookie: teacherCookie },
+        headers: { Cookie: teacherCookie, 'x-institution-id': institutionId },
       },
     );
-    const secondApprovalBody: {
+    const secondApprovalBody = (await secondApproval.json()) as {
       status: string;
       plaintext: string;
-    } = await secondApproval.json();
+    };
     expect(secondApprovalBody.status).toBe('approved');
     expect(secondApprovalBody.plaintext).toBe(reportPlaintext);
   }, 20_000);

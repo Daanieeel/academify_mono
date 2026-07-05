@@ -10,12 +10,13 @@ import {
   type UserEventEnvelope,
 } from '@repo/sync-protocol';
 
-export type Socket = ElysiaWS<{ userId: string }>;
+export type Socket = ElysiaWS<{ userId: string | null }>;
 
 export class WsService {
   private static connectionsByUser = new Map<string, Set<Socket>>();
   private static lastPushedCursorByUser = new Map<string, bigint>();
   private static subscriber: Redis | null = null;
+  private static redis: Redis | null = null;
 
   static init() {
     if (WsService.subscriber) {
@@ -23,6 +24,7 @@ export class WsService {
     }
 
     WsService.subscriber = new Redis(getRedisConnectionOptions());
+    WsService.redis = new Redis(getRedisConnectionOptions());
     void WsService.subscriber.subscribe(channelNames.syncBroadcast);
     WsService.subscriber.on('message', (_channel: string, raw: string) => {
       void WsService.handleWake(raw);
@@ -128,6 +130,23 @@ export class WsService {
     }
 
     WsService.lastPushedCursorByUser.set(userId, latest);
+  }
+
+  static async generateToken(userId: string): Promise<string> {
+    const token = crypto.randomUUID();
+    await WsService.redis?.setex(`ws_token:${token}`, 300, userId);
+    return token;
+  }
+
+  static async validateTokenAndGetUserId(
+    token: string,
+  ): Promise<string | null> {
+    const key = `ws_token:${token}`;
+    const userId = await WsService.redis?.get(key);
+    if (userId) {
+      await WsService.redis?.del(key);
+    }
+    return userId ?? null;
   }
 }
 

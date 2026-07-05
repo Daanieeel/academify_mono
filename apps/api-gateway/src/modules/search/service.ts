@@ -294,7 +294,7 @@ export class SearchService {
         items: clubsToReturn.map((club) => ({
           id: club.id,
           name: club.name,
-          description: club.description,
+          description: club.description ?? '',
           created_at: club.createdAt.toISOString(),
         })),
         has_more: hasMoreClubs,

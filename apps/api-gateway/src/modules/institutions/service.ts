@@ -48,7 +48,7 @@ export class InstitutionsService {
       throw new AppError(404, 'INSTITUTION_NOT_FOUND', 'institution not found');
     }
 
-    const currentSettings = (instRow.settings as InstitutionSettings) ?? {};
+    const currentSettings = instRow.settings ?? {};
 
     // Merge new settings with existing settings
     const newSettings: InstitutionSettings = {

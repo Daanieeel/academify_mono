@@ -1,8 +1,6 @@
+import type { edenTreaty } from '@elysiajs/eden';
+import type { App } from '@app/api-gateway';
 import {
-  createAckRequestDto,
-  createClientHello,
-  createSyncRequestDto,
-  parseWsMessage,
   PROTOCOL_VERSION,
   type Cursor,
   type UserEventEnvelope,
@@ -19,16 +17,7 @@ export type SyncClientEventHandler = (
 ) => void | Promise<void>;
 
 export interface SyncClientOptions {
-  /** Gateway base URL, e.g. `http://localhost:3001`. */
-  backendUrl: string;
-  /**
-   * Extra headers for REST + WS requests. In a browser this is normally
-   * unnecessary (cookies attach automatically); a non-browser caller (tests,
-   * a headless worker) passes `{ Cookie: '...' }` here instead.
-   */
-  headers?: Record<string, string>;
-  fetchImpl?: typeof fetch;
-  webSocketImpl?: typeof WebSocket;
+  apiClient: ReturnType<typeof edenTreaty<App>>;
   /** Page size for the catch-up fetch loop. Defaults to the protocol max. */
   syncLimit?: number;
   onStateChange?: (state: SyncClientState) => void;
@@ -39,38 +28,22 @@ export interface SyncClientOptions {
 const INITIAL_BACKOFF_MS = 500;
 const MAX_BACKOFF_MS = 30_000;
 
-/**
- * Reference implementation of the client sync state machine (README §3,
- * Ticket 1.8): CONNECT -> HELLO -> (SYNC_REQUIRED?) -> FETCH_LOOP -> APPLY ->
- * ACK -> LIVE. Shared shape for web/mobile; this module has no DOM/RN
- * dependency, only `fetch` + `WebSocket` (both injectable for testing).
- *
- * Decryption is the caller's job: `onEvent` receives the envelope (metadata
- * only) and decides what to do per `event_type` — e.g. for `message.created`,
- * fetch `GET /messages/:id` and decrypt with `@repo/mls` before persisting.
- */
 export class SyncClient {
-  private readonly backendUrl: string;
-  private readonly headers: Record<string, string>;
-  private readonly fetchImpl: typeof fetch;
-  private readonly webSocketImpl: typeof WebSocket;
+  private readonly apiClient: ReturnType<typeof edenTreaty<App>>;
   private readonly syncLimit: number;
   private readonly onEvent: SyncClientEventHandler;
   private readonly onStateChange?: (state: SyncClientState) => void;
   private readonly onError?: (error: unknown) => void;
 
   private state: SyncClientState = 'disconnected';
-  private ws: WebSocket | null = null;
+  private ws: { send: (data: string) => void; close: () => void } | null = null;
   private lastAppliedCursor: Cursor = '0';
   private reconnectAttempt = 0;
   private reconnectTimer: ReturnType<typeof setTimeout> | null = null;
   private closedByCaller = false;
 
   constructor(options: SyncClientOptions, onEvent: SyncClientEventHandler) {
-    this.backendUrl = options.backendUrl.replace(/\/$/, '');
-    this.headers = options.headers ?? {};
-    this.fetchImpl = options.fetchImpl ?? fetch;
-    this.webSocketImpl = options.webSocketImpl ?? WebSocket;
+    this.apiClient = options.apiClient;
     this.syncLimit = options.syncLimit ?? 500;
     this.onEvent = onEvent;
     this.onStateChange = options.onStateChange;
@@ -81,7 +54,6 @@ export class SyncClient {
     return this.state;
   }
 
-  /** CONNECT -> HELLO -> catch-up -> LIVE. Resolves once catch-up completes. */
   async connect(lastAckCursor: Cursor): Promise<void> {
     this.closedByCaller = false;
     this.lastAppliedCursor = lastAckCursor;
@@ -109,37 +81,42 @@ export class SyncClient {
   }
 
   async ack(cursor: Cursor): Promise<void> {
-    await this.postJson(
-      '/ack',
-      createAckRequestDto({ last_ack_cursor: cursor }),
-    );
+    const response = await this.apiClient.ack.post({
+      version: PROTOCOL_VERSION,
+      last_ack_cursor: cursor,
+    });
+    if (response.error) {
+      throw new Error(
+        `ack failed: ${response.error.status} ${JSON.stringify(response.error.value)}`,
+      );
+    }
   }
 
-  // A plain REST gap-check before opening the socket — equivalent to what
-  // `client.hello` over WS would also tell us, but lets connect() do the
-  // catch-up fetch loop before LIVE rather than racing it against the socket.
   private async checkGap(afterCursor: Cursor): Promise<Cursor | null> {
     const page = await this.fetchSyncPage(afterCursor, 1);
     return page.has_more || page.events.length > 0 ? afterCursor : null;
   }
 
-  private async fetchSyncPage(
-    afterCursor: Cursor,
-    limit: number,
-  ): Promise<{
-    events: UserEventEnvelope[];
-    next_cursor: Cursor;
-    has_more: boolean;
-  }> {
-    return this.postJson(
-      '/sync',
-      createSyncRequestDto({ after_cursor: afterCursor, limit }),
-    );
+  private async fetchSyncPage(afterCursor: Cursor, limit: number) {
+    const response = await this.apiClient.sync.post({
+      version: PROTOCOL_VERSION,
+      after_cursor: afterCursor,
+      limit,
+    });
+
+    if (response.error) {
+      throw new Error(
+        `sync failed: ${response.error.status} ${JSON.stringify(response.error.value)}`,
+      );
+    }
+
+    return response.data as {
+      events: UserEventEnvelope[];
+      next_cursor: Cursor;
+      has_more: boolean;
+    };
   }
 
-  // FETCH_LOOP -> APPLY -> ACK, repeated until caught up. Stops (without
-  // acking the failing batch) if `onEvent` throws, so a decrypt failure can't
-  // silently advance the ack past undelivered data.
   private async fetchLoop(afterCursor: Cursor): Promise<void> {
     let cursor = afterCursor;
     for (;;) {
@@ -162,65 +139,56 @@ export class SyncClient {
   }
 
   private async openSocket(): Promise<void> {
-    return new Promise((resolve, reject) => {
-      const wsUrl = `${this.backendUrl.replace(/^http/, 'ws')}/ws`;
-      // Headers can't go in one fixed argument slot — Bun's WebSocket (used
-      // in tests) reads `options.headers` from the 2nd constructor arg, like
-      // a browser's `protocols` slot, while React Native's WebSocket reads
-      // it from the 3rd (`protocols` is genuinely 2nd there). Passing the
-      // same options object in both spots lets each runtime pick up the one
-      // it actually reads; a real browser WebSocket (which supports neither)
-      // just ignores the extra arguments.
-      const wsOptions = { headers: this.headers };
-      const WebSocketCtor = this.webSocketImpl as unknown as new (
-        url: string,
-        options?: unknown,
-        options2?: unknown,
-      ) => WebSocket;
-      const ws = new WebSocketCtor(wsUrl, wsOptions, wsOptions);
-      this.ws = ws;
-      let settled = false;
+    // 1. Get single-use token
+    const tokenResponse = await this.apiClient['ws-token'].post({});
+    if (tokenResponse.error) {
+      throw new Error(
+        `Failed to get WS token: ${tokenResponse.error.status} ${JSON.stringify(tokenResponse.error.value)}`,
+      );
+    }
+    const token = (tokenResponse.data as { token: string }).token;
 
-      ws.addEventListener('open', () => {
+    // 2. Connect
+    return new Promise((resolve) => {
+      const ws = this.apiClient.ws.subscribe({ $query: { token } });
+      this.ws = ws;
+
+      // EdenWS .on listeners:
+      ws.on('open', () => {
         ws.send(
-          JSON.stringify(
-            createClientHello({ last_ack_cursor: this.lastAppliedCursor }),
-          ),
+          JSON.stringify({
+            type: 'client.hello',
+            version: PROTOCOL_VERSION,
+            last_ack_cursor: this.lastAppliedCursor,
+          }),
         );
-        if (!settled) {
-          settled = true;
-          resolve();
-        }
+
+        this.setState('live');
+        resolve();
         this.reconnectAttempt = 0;
       });
 
-      ws.addEventListener('message', (event: MessageEvent) => {
-        void this.handleSocketMessage(String(event.data));
+      ws.on('message', (event: { data: unknown }) => {
+        void this.handleSocketMessage(event.data);
       });
 
-      ws.addEventListener('close', () => {
+      ws.on('close', () => {
         this.ws = null;
         if (!this.closedByCaller) {
           this.scheduleReconnect();
         }
       });
-
-      ws.addEventListener('error', (event) => {
-        if (!settled) {
-          settled = true;
-          reject(event);
-        }
-      });
     });
   }
 
-  private async handleSocketMessage(raw: string): Promise<void> {
-    const message = parseWsMessage(JSON.parse(raw));
+  private async handleSocketMessage(message: unknown): Promise<void> {
+    // Eden Treaty may automatically parse JSON
+    const parsed = typeof message === 'string' ? JSON.parse(message) : message;
 
-    if (message.type === 'server.sync.required') {
+    if (parsed.type === 'server.sync.required') {
       this.setState('catching_up');
       try {
-        await this.fetchLoop(message.required_after_cursor);
+        await this.fetchLoop(parsed.required_after_cursor);
       } catch (error) {
         this.onError?.(error);
         return;
@@ -229,10 +197,10 @@ export class SyncClient {
       return;
     }
 
-    if (message.type === 'event.notify') {
+    if (parsed.type === 'event.notify') {
       try {
-        await this.onEvent(message.event);
-        this.lastAppliedCursor = message.event.cursor;
+        await this.onEvent(parsed.event);
+        this.lastAppliedCursor = parsed.event.cursor;
         await this.ack(this.lastAppliedCursor);
       } catch (error) {
         this.onError?.(error);
@@ -240,9 +208,6 @@ export class SyncClient {
     }
   }
 
-  // Exponential backoff with jitter, capped at MAX_BACKOFF_MS. Reconnect
-  // restarts from CONNECT (gap-check + catch-up), not just the socket, since
-  // events may have arrived while disconnected.
   private scheduleReconnect(): void {
     const delay = Math.min(
       INITIAL_BACKOFF_MS * 2 ** this.reconnectAttempt,
@@ -262,24 +227,6 @@ export class SyncClient {
   private setState(state: SyncClientState): void {
     this.state = state;
     this.onStateChange?.(state);
-  }
-
-  private async postJson<T>(path: string, body: unknown): Promise<T> {
-    const response = await this.fetchImpl(`${this.backendUrl}${path}`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', ...this.headers },
-      body: JSON.stringify(body),
-      credentials: 'include',
-    });
-
-    if (!response.ok) {
-      throw new Error(
-        `${path} failed: ${response.status} ${await response.text()}`,
-      );
-    }
-
-    const data: Promise<T> = response.json();
-    return data;
   }
 }
 

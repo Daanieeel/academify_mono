@@ -180,6 +180,8 @@
     "packages/client-core": {
       "name": "@repo/client-core",
       "dependencies": {
+        "@app/api-gateway": "workspace:*",
+        "@elysiajs/eden": "^1.4.9",
         "@repo/auth": "workspace:*",
         "@repo/crypto": "workspace:*",
         "@repo/database": "workspace:*",
@@ -211,6 +213,7 @@
       "name": "@repo/database",
       "dependencies": {
         "@repo/env": "workspace:*",
+        "@repo/permissions": "workspace:*",
         "drizzle-orm": "catalog:",
         "postgres": "^3.4.9",
       },

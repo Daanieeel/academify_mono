@@ -99,7 +99,7 @@ export class MessagesService {
       .select({ settings: institutions.settings })
       .from(institutions)
       .where(eq(institutions.id, institutionId));
-    const settings: unknown = instRow?.settings ?? null;
+    const settings = instRow?.settings ?? null;
 
     if (
       !PolicyEngine.hasPermission(roles, PERMISSIONS.SEND_MESSAGE, settings)

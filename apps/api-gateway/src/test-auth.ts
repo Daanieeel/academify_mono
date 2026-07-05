@@ -5,7 +5,7 @@ async function test() {
     console.log('Result:', result);
   } catch (e: unknown) {
     console.log('Error:', e);
-    console.log('Message:', e.message);
+    console.log('Message:', e instanceof Error ? e.message : String(e));
   }
 }
 test();

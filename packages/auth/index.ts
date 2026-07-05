@@ -4,17 +4,17 @@ import { expo } from '@better-auth/expo';
 import { drizzleAdapter } from 'better-auth/adapters/drizzle';
 import { db, user, session, account, verification } from '@repo/database';
 
-const authOptions: BetterAuthOptions = {
+const authOptions = {
   database: drizzleAdapter(db, {
     provider: 'pg',
     schema: { user, session, account, verification },
   }),
   user: {
     additionalFields: {
-      photoRef: { type: 'string' },
-      avatarBackgroundColor: { type: 'string' },
-      avatarEmoji: { type: 'string' },
-      mainInstitutionId: { type: 'string' },
+      photoRef: { type: 'string', required: false },
+      avatarBackgroundColor: { type: 'string', required: false },
+      avatarEmoji: { type: 'string', required: false },
+      mainInstitutionId: { type: 'string', required: false },
       canManageAccounts: { type: 'boolean' },
     },
   },
@@ -27,7 +27,7 @@ const authOptions: BetterAuthOptions = {
   session: {
     expiresIn: 60 * 60 * 24 * 7,
   },
-};
+} satisfies BetterAuthOptions;
 
 export const auth = betterAuth(authOptions);
 

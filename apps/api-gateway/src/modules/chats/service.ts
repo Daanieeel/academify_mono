@@ -110,7 +110,7 @@ export class ChatsService {
         .select({ settings: institutions.settings })
         .from(institutions)
         .where(eq(institutions.id, institutionId));
-      settings = (instRow?.settings as InstitutionSettings) ?? null;
+      settings = instRow?.settings ?? null;
     }
 
     const roleNames = roles.length > 0 ? roles : ['student'];
@@ -428,7 +428,7 @@ export class ChatsService {
       .select({ settings: institutions.settings })
       .from(institutions)
       .where(eq(institutions.id, institutionId));
-    const settings = (instRow?.settings as InstitutionSettings) ?? null;
+    const settings = instRow?.settings ?? null;
 
     if (!PolicyEngine.canInitiateChat(callerRoles, peerRoles, settings)) {
       throw new PermissionError(

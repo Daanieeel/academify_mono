@@ -39,7 +39,9 @@ async function seedUser(id: string, username: string) {
     userId: created?.id ?? '',
     password: hashed,
   });
-  if (!created) {throw new Error('No user');}
+  if (!created) {
+    throw new Error('No user');
+  }
   return created;
 }
 
@@ -140,11 +142,9 @@ describe('api-gateway messaging loop', () => {
         }),
       }),
     );
-    const {
-      device_id: deviceId,
-    }: {
+    const { device_id: deviceId } = (await deviceResponse.json()) as {
       device_id: string;
-    } = await deviceResponse.json();
+    };
 
     const sendResponse = await app.handle(
       new Request('http://localhost/messages', {
@@ -176,9 +176,9 @@ describe('api-gateway messaging loop', () => {
         }),
       }),
     );
-    const syncBody: {
+    const syncBody = (await syncResponse.json()) as {
       events: { entity_id: string; cursor: string }[];
-    } = await syncResponse.json();
+    };
     expect(syncBody.events.some((event) => event.entity_id === messageId)).toBe(
       true,
     );
@@ -194,7 +194,7 @@ describe('api-gateway messaging loop', () => {
         body: JSON.stringify({ version: '1.0.0', last_ack_cursor: cursor }),
       }),
     );
-    const ackBody: { accepted: boolean } = await ackResponse.json();
+    const ackBody = (await ackResponse.json()) as { accepted: boolean };
     expect(ackBody.accepted).toBe(true);
 
     const staleAckResponse = await app.handle(
@@ -204,9 +204,9 @@ describe('api-gateway messaging loop', () => {
         body: JSON.stringify({ version: '1.0.0', last_ack_cursor: '0' }),
       }),
     );
-    const staleAckBody: {
+    const staleAckBody = (await staleAckResponse.json()) as {
       accepted: boolean;
-    } = await staleAckResponse.json();
+    };
     expect(staleAckBody.accepted).toBe(false);
   });
 

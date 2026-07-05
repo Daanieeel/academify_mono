@@ -9,6 +9,7 @@ import {
   jsonb,
   primaryKey,
 } from 'drizzle-orm/pg-core';
+import type { InstitutionSettings } from '@repo/permissions';
 
 import { user } from './auth';
 
@@ -39,7 +40,7 @@ export const institutions = pgTable('institutions', {
     .notNull()
     .default('hosted'),
   status: text('status').notNull().default('active'),
-  settings: jsonb('settings').default({}),
+  settings: jsonb('settings').$type<InstitutionSettings>().default({}),
   createdAt: timestamp('created_at').defaultNow().notNull(),
 });
 

@@ -27,6 +27,7 @@
   "types": "dist/index.d.ts",
   "dependencies": {
     "@repo/env": "workspace:*",
+    "@repo/permissions": "workspace:*",
     "drizzle-orm": "catalog:",
     "postgres": "^3.4.9"
   }
