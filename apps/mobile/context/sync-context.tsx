@@ -1,12 +1,12 @@
 import { useSession } from '@/context/auth-context';
 import { useMlsBridge } from '@/context/mls-context';
-import { authClient } from '@/lib/auth-client';
-import { api, API_URL, currentAuthToken } from '@/lib/api-client';
+import { api } from '@/lib/api-client';
 import { bytesToBase64Url } from '@/lib/base64';
 import { SyncClient } from '@repo/client-core';
 import {
   createContext,
   use,
+  useCallback,
   useEffect,
   useRef,
   useState,

@@ -22,7 +22,7 @@ const AuthContext = createContext<{
   session: {
     userId: string;
     username: string;
-    mainInstitutionId?: string;
+    mainInstitutionId?: string | null;
   } | null;
   isLoading: boolean;
 }>({
@@ -42,7 +42,9 @@ export function useSession() {
 
 export function SessionProvider({ children }: PropsWithChildren) {
   const { data, isPending } = authClient.useSession();
-  const [optimisticUser, setOptimisticUser] = useState<unknown>(null);
+  const [optimisticUser, setOptimisticUser] = useState<
+    NonNullable<typeof data>['user'] | null
+  >(null);
 
   useEffect(() => {
     if (data?.session?.token) {
@@ -81,7 +83,13 @@ export function SessionProvider({ children }: PropsWithChildren) {
     setOptimisticUser(null);
   };
 
-  const userToUse = data?.user || optimisticUser;
+  const userToUse:
+    | (NonNullable<typeof data>['user'] & {
+        mainInstitutionId?: string | null;
+        username?: string | null;
+      })
+    | null
+    | undefined = data?.user || optimisticUser;
   const session = userToUse
     ? {
         userId: userToUse.id,

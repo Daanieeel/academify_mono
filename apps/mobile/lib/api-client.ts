@@ -20,23 +20,28 @@ export function setAuthToken(token: string | null) {
   currentAuthToken = token;
 }
 
+const customApiFetch = (
+  url: Parameters<typeof fetch>[0],
+  init?: Parameters<typeof fetch>[1],
+) => {
+  const mergedHeaders = new Headers(init?.headers);
+  if (currentAuthToken) {
+    mergedHeaders.set('Authorization', `Bearer ${currentAuthToken}`);
+  }
+  mergedHeaders.set('Cookie', authClient.getCookie() ?? '');
+  if (currentInstitutionId) {
+    mergedHeaders.set('x-institution-id', currentInstitutionId);
+  }
+
+  return fetch(url, {
+    ...init,
+    headers: mergedHeaders,
+  });
+};
+
 export const api: ReturnType<typeof edenTreaty<ApiGatewayApp>> =
   edenTreaty<ApiGatewayApp>(API_URL, {
-    fetcher: (url: string, init?: RequestInit) => {
-      const mergedHeaders = new Headers(init?.headers);
-      if (currentAuthToken) {
-        mergedHeaders.set('Authorization', `Bearer ${currentAuthToken}`);
-      }
-      mergedHeaders.set('Cookie', authClient.getCookie() ?? '');
-      if (currentInstitutionId) {
-        mergedHeaders.set('x-institution-id', currentInstitutionId);
-      }
-
-      return fetch(url, {
-        ...init,
-        headers: mergedHeaders,
-      });
-    },
+    fetcher: Object.assign(customApiFetch, fetch),
   });
 
 export { API_URL };

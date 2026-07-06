@@ -67,7 +67,7 @@ const schoolSettingsItems: ThemedSettingsItemProp[] = [
 const Settings = () => {
   const router = useRouter();
   const { signOut } = useSession();
-  const captureTargetRef = useRef<View>(null);
+  const captureTargetRef = useRef<LinearGradient>(null);
   const [avatarPickerShown, setAvatarPickerShown] = useState(false);
   const queryClient = useQueryClient();
   const { data: me } = useQuery({

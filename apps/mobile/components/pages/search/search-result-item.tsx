@@ -18,19 +18,29 @@ import { api } from '@/lib/api-client';
 export type GetManySearchDto = NonNullable<
   Awaited<ReturnType<typeof api.search.get>>['data']
 >;
-export type SingleSearchContactDto = GetManySearchDto['contacts']['items'][0];
-export type SingleSearchChatDto = GetManySearchDto['chats']['items'][0];
-export type SingleSearchBlackboardDto =
-  GetManySearchDto['blackboards']['items'][0];
-export type SingleSearchClubDto = GetManySearchDto['clubs']['items'][0];
+export type SingleSearchContactDto = NonNullable<
+  GetManySearchDto['contacts']
+>['items'][0];
+export type SingleSearchChatDto = NonNullable<
+  GetManySearchDto['chats']
+>['items'][0];
+export type SingleSearchBlackboardDto = NonNullable<
+  GetManySearchDto['blackboards']
+>['items'][0];
+export type SingleSearchClubDto = NonNullable<
+  GetManySearchDto['clubs']
+>['items'][0];
 
-export type SearchResultItemProps = (
+export type SearchResultItemData =
   | { type: 'contact'; data: SingleSearchContactDto }
   | { type: 'chat'; data: SingleSearchChatDto }
   | { type: 'blackboard'; data: SingleSearchBlackboardDto }
   | { type: 'club'; data: SingleSearchClubDto }
-  | { type: 'setting'; data: ThemedSettingsItemProp }
-) & { onPress: () => void };
+  | { type: 'setting'; data: ThemedSettingsItemProp };
+
+export type SearchResultItemProps = SearchResultItemData & {
+  onPress: () => void;
+};
 
 const SearchResultItem = (props: SearchResultItemProps) => {
   if (props.type === 'contact') {

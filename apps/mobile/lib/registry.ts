@@ -15,17 +15,22 @@ const getBaseUrl = () => {
     : 'http://localhost:3002';
 };
 
-export const registryClient = edenTreaty<RegistryApp>(getBaseUrl(), {
-  fetcher: (url: string, init?: RequestInit) => {
-    const mergedHeaders = new Headers(init?.headers);
-    if (currentAuthToken) {
-      mergedHeaders.set('Authorization', `Bearer ${currentAuthToken}`);
-    }
-    mergedHeaders.set('Cookie', authClient.getCookie() ?? '');
+const customRegistryFetch = (
+  url: Parameters<typeof fetch>[0],
+  init?: Parameters<typeof fetch>[1],
+) => {
+  const mergedHeaders = new Headers(init?.headers);
+  if (currentAuthToken) {
+    mergedHeaders.set('Authorization', `Bearer ${currentAuthToken}`);
+  }
+  mergedHeaders.set('Cookie', authClient.getCookie() ?? '');
 
-    return fetch(url, {
-      ...init,
-      headers: mergedHeaders,
-    });
-  },
+  return fetch(url, {
+    ...init,
+    headers: mergedHeaders,
+  });
+};
+
+export const registryClient = edenTreaty<RegistryApp>(getBaseUrl(), {
+  fetcher: Object.assign(customRegistryFetch, fetch),
 });

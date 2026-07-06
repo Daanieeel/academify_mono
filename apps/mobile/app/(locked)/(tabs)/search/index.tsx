@@ -2,19 +2,19 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { ScrollView, View, ActivityIndicator } from 'react-native';
 import { Stack, router } from 'expo-router';
 import { Text } from '@/components/ui/text';
-import { Icon, type IconName } from '@/components/ui/icon';
+import { Icon } from '@/components/ui/icon';
 import { Button } from '@/components/ui/button';
 import { useQuery } from '@tanstack/react-query';
 import { api } from '@/lib/api-client';
 import APPLICATION_CONSTANTS from '@/constants/strings';
 import SearchCategorySection from '@/components/pages/search/search-category-section';
 import SearchResultItem, {
-  type SearchResultItemProps,
   type GetManySearchDto,
   type SingleSearchContactDto,
   type SingleSearchChatDto,
   type SingleSearchBlackboardDto,
   type SingleSearchClubDto,
+  type SearchResultItemData,
 } from '@/components/pages/search/search-result-item';
 import SearchResultsModal from '@/components/modals/search-results-modal';
 import { type ThemedSettingsItemProp } from '@/components/pages/settings/themed-settings-item';
@@ -55,7 +55,7 @@ type FilterType =
   | 'clubs'
   | 'settings';
 
-const SEARCH_FILTERS: { id: FilterType; label: string; icon: IconName }[] = [
+const SEARCH_FILTERS: { id: FilterType; label: string; icon: string }[] = [
   { id: 'all', label: APPLICATION_CONSTANTS.SEARCH_FILTER_ALL, icon: 'list' },
   {
     id: 'contacts',
@@ -120,7 +120,7 @@ export default function SearchIndex() {
     enabled: !!debouncedQuery,
   });
 
-  const results: GetManySearchDto | undefined = rawResults;
+  const results: GetManySearchDto | undefined = rawResults ?? undefined;
 
   // Client side filtering for settings
   const filteredSettings = useMemo(() => {
@@ -151,7 +151,7 @@ export default function SearchIndex() {
     setModalVisible(true);
   };
 
-  const handleResultPress = (item: Omit<SearchResultItemProps, 'onPress'>) => {
+  const handleResultPress = (item: SearchResultItemData) => {
     setModalVisible(false);
 
     if (item.type === 'contact') {
@@ -281,7 +281,9 @@ export default function SearchIndex() {
                         key={contact.user_id}
                         type="contact"
                         data={contact}
-                        onPress={() => handleResultPress('contact', contact)}
+                        onPress={() =>
+                          handleResultPress({ type: 'contact', data: contact })
+                        }
                       />
                     ),
                   )}
@@ -307,7 +309,9 @@ export default function SearchIndex() {
                       key={chat.chat_id}
                       type="chat"
                       data={chat}
-                      onPress={() => handleResultPress('chat', chat)}
+                      onPress={() =>
+                        handleResultPress({ type: 'chat', data: chat })
+                      }
                     />
                   ))}
                 </SearchCategorySection>
@@ -333,7 +337,9 @@ export default function SearchIndex() {
                         key={post.id}
                         type="blackboard"
                         data={post}
-                        onPress={() => handleResultPress('blackboard', post)}
+                        onPress={() =>
+                          handleResultPress({ type: 'blackboard', data: post })
+                        }
                       />
                     ),
                   )}
@@ -359,7 +365,9 @@ export default function SearchIndex() {
                       key={club.id}
                       type="club"
                       data={club}
-                      onPress={() => handleResultPress('club', club)}
+                      onPress={() =>
+                        handleResultPress({ type: 'club', data: club })
+                      }
                     />
                   ))}
                 </SearchCategorySection>
@@ -384,7 +392,9 @@ export default function SearchIndex() {
                       key={setting.label}
                       type="setting"
                       data={setting}
-                      onPress={() => handleResultPress('setting', setting)}
+                      onPress={() =>
+                        handleResultPress({ type: 'setting', data: setting })
+                      }
                     />
                   ))}
                 </SearchCategorySection>

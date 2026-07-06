@@ -15,4 +15,13 @@ export const authClient = createAuthClient({
       storage: SecureStore,
     }),
   ],
+  user: {
+    additionalFields: {
+      photoRef: { type: 'string', required: false },
+      avatarBackgroundColor: { type: 'string', required: false },
+      avatarEmoji: { type: 'string', required: false },
+      mainInstitutionId: { type: 'string', required: false },
+      canManageAccounts: { type: 'boolean', required: false },
+    },
+  },
 });

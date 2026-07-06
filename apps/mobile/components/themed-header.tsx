@@ -7,7 +7,7 @@ import { useQuery } from '@tanstack/react-query';
 import { api } from '@/lib/api-client';
 import { parseAvatarGradient } from '@/lib/avatar';
 import { LinearGradient } from 'expo-linear-gradient';
-import { MenuView } from '@expo/ui/community/menu';
+import { MenuView, type MenuAction } from '@expo/ui/community/menu';
 import { useSession } from '@/context/auth-context';
 
 export type ThemedHeaderProps = {
@@ -16,7 +16,7 @@ export type ThemedHeaderProps = {
 };
 
 type MyProfileDto = NonNullable<
-  Awaited<ReturnType<typeof api.me.get>>['data']
+  Awaited<ReturnType<typeof api.me.profiles.get>>['data']
 >['profiles'][0];
 
 const ThemedHeader = (props: ThemedHeaderProps) => {
@@ -57,7 +57,7 @@ const ThemedHeader = (props: ThemedHeaderProps) => {
     }
   }
 
-  const menuActions = (profiles || []).map((p: MyProfileDto) => {
+  const menuActions: MenuAction[] = (profiles || []).map((p: MyProfileDto) => {
     const isMain = p.institution_id === session?.mainInstitutionId;
     return {
       id: p.institution_id,

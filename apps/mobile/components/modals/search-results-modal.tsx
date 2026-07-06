@@ -6,9 +6,9 @@ import { Text } from '@/components/ui/text';
 import { Separator } from '@/components/ui/separator';
 import { api } from '@/lib/api-client';
 import SearchResultItem, {
-  type SearchResultItemProps,
+  type SearchResultItemData,
 } from '../pages/search/search-result-item';
-import type { ThemedSettingsItemProp } from '../../../app/(locked)/(tabs)/settings';
+import type { ThemedSettingsItemProp } from '@/components/pages/settings/themed-settings-item';
 
 export type SearchResultsModalProps = {
   visible: boolean;
@@ -16,7 +16,7 @@ export type SearchResultsModalProps = {
   category: 'contacts' | 'chats' | 'blackboards' | 'clubs' | 'settings';
   categoryLabel: string;
   onRequestClose: () => void;
-  onResultPress: (item: Omit<SearchResultItemProps, 'onPress'>) => void;
+  onResultPress: (item: SearchResultItemData) => void;
   // For settings, we pass the items down since it's client-side
   settingsItems?: ThemedSettingsItemProp[];
 };
@@ -32,9 +32,7 @@ const SearchResultsModal = ({
   onResultPress,
   settingsItems = [],
 }: SearchResultsModalProps) => {
-  const [items, setItems] = useState<Omit<SearchResultItemProps, 'onPress'>[]>(
-    [],
-  );
+  const [items, setItems] = useState<SearchResultItemData[]>([]);
   const [loading, setLoading] = useState(false);
   const [loadingMore, setLoadingMore] = useState(false);
   const [hasMore, setHasMore] = useState(true);
@@ -73,7 +71,7 @@ const SearchResultsModal = ({
           throw error;
         }
 
-        let newItems: Omit<SearchResultItemProps, 'onPress'>[] = [];
+        let newItems: SearchResultItemData[] = [];
         let newHasMore = false;
 
         if (category === 'contacts' && res.contacts) {
