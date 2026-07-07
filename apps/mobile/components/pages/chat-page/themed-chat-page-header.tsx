@@ -33,17 +33,17 @@ const ThemedChatPageHeader = (props: ThemedChatPageHeaderProps) => {
         />
       </View>
       <View className="flex-row items-center gap-[20px]">
-        <Button variant="normal" onPress={onBackButtonPressed}>
+        <Button variant="secondary" onPress={onBackButtonPressed}>
           <Icon name="arrow-left" size={25} />
         </Button>
         <ThemedPressable onPress={props.onChatAboutPressed}>
           <View className="gap-[10px] flex-row items-center">
-            <Avatar size={'small'}></Avatar>
+            <Avatar size={'sm'}></Avatar>
             <Text variant="body">{props.chatName ?? 'Chat'}</Text>
           </View>
         </ThemedPressable>
       </View>
-      <Button variant="normal" onPress={() => {}}>
+      <Button variant="secondary" onPress={() => {}}>
         <Icon name="dots-three-circle" size={25} />
       </Button>
     </SafeAreaView>

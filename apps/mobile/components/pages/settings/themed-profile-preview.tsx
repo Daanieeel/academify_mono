@@ -43,7 +43,7 @@ const ThemedProfilePreview = ({
     <View className="w-full rounded-[18px] items-center py-[20px] gap-[15px] bg-neutral-100">
       <View>
         <Avatar
-          size="large"
+          size="lg"
           source={props.imageSource}
           backgroundColor={props.avatarBackgroundColor}
           emoji={props.avatarEmoji}
@@ -60,7 +60,7 @@ const ThemedProfilePreview = ({
         )}
       </View>
       <View className="gap-[0px] items-center">
-        <Text variant="subHeading">{firstName + ' ' + lastName}</Text>
+        <Text variant="subheading">{firstName + ' ' + lastName}</Text>
         <Text className="text-neutral-700" variant="caption">
           {props.username}
         </Text>

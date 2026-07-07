@@ -75,7 +75,7 @@ const ThemedPickerModal = (props: ThemedPickerModalProps) => {
         </View>
 
         <Button
-          variant="normal"
+          variant="secondary"
           disabled={selectedIDs.length === 0}
           onPress={onClearSelectionPressed}
         >
@@ -90,7 +90,7 @@ const ThemedPickerModal = (props: ThemedPickerModalProps) => {
       </View>
 
       <View className="absolute bottom-[30px] left-[15px] right-[15px] z-[9999]">
-        <Button variant="primary" size="lg" onPress={onFinishPressed}>
+        <Button variant="default" size="lg" onPress={onFinishPressed}>
           <Text>Fertig</Text>
           <Icon name="check" size={24} />
         </Button>

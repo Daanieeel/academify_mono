@@ -7,6 +7,7 @@ import {
   Pressable,
   PressableProps,
   StyleProp,
+  View,
   ViewStyle,
 } from 'react-native';
 
@@ -31,6 +32,8 @@ const ThemedPressable = ({
 }: ThemedPressableProps) => {
   const selectionHaptic = useHaptic(feedBackType);
   const scaleAnim = useRef(new Animated.Value(1)).current;
+
+  const { children, ...restProps } = props;
 
   const handlePressIn = () => {
     if (animationEnabled) {
@@ -64,24 +67,41 @@ const ThemedPressable = ({
   };
 
   return (
-    <Pressable
-      disabled={disabled}
-      {...props}
-      onPress={handleOnPress}
-      onPressIn={handlePressIn}
-      onPressOut={handlePressOut}
+    <Animated.View
+      className={className}
+      style={[
+        style,
+        { opacity: disabled ? 0.6 : 1 },
+        { transform: [{ scale: scaleAnim }] },
+      ]}
     >
-      <Animated.View
-        className={className}
-        style={[
-          style,
-          { opacity: disabled ? 0.6 : 1 },
-          { transform: [{ scale: scaleAnim }] },
-        ]}
+      <Pressable
+        disabled={disabled}
+        {...restProps}
+        style={{
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          zIndex: 1,
+        }}
+        onPress={handleOnPress}
+        onPressIn={handlePressIn}
+        onPressOut={handlePressOut}
+      />
+      <View
+        style={{
+          flexDirection: 'row',
+          alignItems: 'center',
+          justifyContent: 'center',
+          gap: 8,
+        }}
+        pointerEvents="none"
       >
-        {props.children}
-      </Animated.View>
-    </Pressable>
+        {children}
+      </View>
+    </Animated.View>
   );
 };
 

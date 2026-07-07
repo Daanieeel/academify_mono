@@ -1,23 +1,25 @@
-// Registers className support for components NativeWind doesn't wrap automatically.
-// react-native-css-interop only auto-registers the plain RN exports (View, Text, ...),
-// so wrapped components like Animated.View are a different reference and need opting in.
-//
-// IMPORTANT: cssInterop swaps the component for every instance of that exact
-// reference, app-wide — not just instances that pass className. Registering it
-// for react-native-reanimated's Animated.View/Animated.Text breaks
-// useAnimatedStyle()/useAnimatedScrollHandler() on ALL of them, even ones with
-// no className at all. Only register core React Native's Animated here; give
-// reanimated's Animated.View/Animated.Text their styling via a plain View/Text
-// nested inside instead of className directly on the animated element.
-import { cssInterop } from 'nativewind';
+/**
+ * NativeWind Interop — registers className support for components that
+ * NativeWind v5 doesn't wrap automatically.
+ *
+ * NativeWind v5 uses react-native-css-interop's new architecture which
+ * handles most standard RN components automatically. Third-party libs
+ * that don't ship NativeWind-aware exports still need manual registration.
+ *
+ * IMPORTANT: cssInterop swaps the component for every instance of that
+ * exact reference, app-wide. Do NOT register Reanimated's Animated.View /
+ * Animated.Text here — this breaks useAnimatedStyle(). Instead, nest a
+ * plain View/Text inside for Tailwind styling on those components.
+ */
+import { cssInterop } from 'react-native-css-interop';
 import { Animated } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 cssInterop(Animated.View, { className: 'style' });
 cssInterop(Animated.Text, { className: 'style' });
+cssInterop(SafeAreaView, { className: 'style' });
 
-// @rn-primitives/* components are also third-party (not in NativeWind's
-// default registration list), so every Root/Item/Content-level component we
-// pass className to needs registering here too, the same way IcomoonIcon does.
+// @rn-primitives/* components are third-party and need className → style mapping.
 import * as AvatarPrimitive from '@rn-primitives/avatar';
 import * as CheckboxPrimitive from '@rn-primitives/checkbox';
 import * as ProgressPrimitive from '@rn-primitives/progress';

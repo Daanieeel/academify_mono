@@ -17,11 +17,11 @@ const LandingPage = () => {
   };
 
   return (
-    <SafeAreaView className="flex-1 bg-neutral-50">
+    <SafeAreaView style={{ flex: 1 }} className="bg-background">
       <Stack.Screen options={{ headerShown: false }}></Stack.Screen>
       <View className="flex-1 flex-col p-[15px]">
         <View className="flex-1">
-          <View className="w-100vw shrink z-[1]">
+          <View className="w-full shrink z-[1]">
             <LandingPageSpeachBubble
               className="max-w-[65%]"
               style={{ transform: [{ rotate: '352deg' }] }}
@@ -29,7 +29,7 @@ const LandingPage = () => {
               content={APPLICATION_CONSTANTS.LANDING_BUBBLE_1}
             ></LandingPageSpeachBubble>
           </View>
-          <View className="w-100vw display-flex items-end shrink">
+          <View className="w-full flex items-end shrink">
             <LandingPageSpeachBubble
               className="max-w-[75%]"
               style={{ transform: [{ rotate: '4deg' }] }}
@@ -39,15 +39,19 @@ const LandingPage = () => {
           </View>
           <View className="flex-1">
             <Image
-              className="flex-1 h-full w-[50%]"
-              style={{ resizeMode: 'contain' }}
+              style={{
+                flex: 1,
+                width: '100%',
+                height: '100%',
+                resizeMode: 'contain',
+              }}
               source={require('@/assets/images/app/wild-boar.png')}
             ></Image>
           </View>
         </View>
         <View className="shrink gap-[10px]">
           <Button
-            variant="primary"
+            variant="default"
             size="lg"
             onPress={handleFindInstitutionPress}
           >

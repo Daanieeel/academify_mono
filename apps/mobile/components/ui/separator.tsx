@@ -2,6 +2,10 @@ import { cn } from '@/lib/utils';
 import * as SeparatorPrimitive from '@rn-primitives/separator';
 import type * as React from 'react';
 
+/**
+ * Separator — Shadcn-compatible.
+ * Uses border color token for a consistent look.
+ */
 export function Separator({
   className,
   orientation = 'horizontal',
@@ -13,8 +17,8 @@ export function Separator({
       decorative={decorative}
       orientation={orientation}
       className={cn(
-        'bg-neutral-100',
-        orientation === 'horizontal' ? 'h-[1.5px] w-full' : 'h-full w-[1.5px]',
+        'bg-border',
+        orientation === 'horizontal' ? 'h-px w-full' : 'h-full w-px',
         className,
       )}
       {...props}

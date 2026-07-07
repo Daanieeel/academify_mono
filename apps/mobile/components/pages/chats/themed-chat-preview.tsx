@@ -48,7 +48,7 @@ const ThemedChatPreview = ({
           : '',
       )}
     >
-      <Avatar size={'medium'} source={props.chatIcon}></Avatar>
+      <Avatar size={'md'} source={props.chatIcon}></Avatar>
       <View className="gap-[2px] flex-col flex-1 justify-start">
         <View className="flex-row justify-between items-center">
           <Text
@@ -62,7 +62,7 @@ const ThemedChatPreview = ({
           {/* Last message time + unread badge or dismiss button */}
           {props.isTemporary ? (
             <Button
-              variant="normal"
+              variant="secondary"
               className="p-0 h-[30px] w-[30px] rounded-full"
               onPress={props.onDismiss}
             >

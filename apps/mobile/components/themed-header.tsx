@@ -80,7 +80,7 @@ const ThemedHeader = (props: ThemedHeaderProps) => {
         <Text
           numberOfLines={1}
           className="text-left flex-shrink mr-[10px]"
-          variant="heading2"
+          variant="h2"
           style={{ fontSize: 28, lineHeight: 32 }}
         >
           {props.headerTitle}

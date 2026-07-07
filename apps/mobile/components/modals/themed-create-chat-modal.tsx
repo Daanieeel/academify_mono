@@ -292,7 +292,7 @@ const ThemedCreateChatModal = (props: ThemedCreateChatModalProps) => {
       {/* Button for creating the group */}
       {isGroup ? (
         <View className="absolute bottom-[30px] left-[15px] right-[15px] z-[999]">
-          <Button variant="primary" size="lg" onPress={onCreateChatPressed}>
+          <Button variant="default" size="lg" onPress={onCreateChatPressed}>
             <Text>Gruppe erstellen</Text>
             <Icon name="check" size={24} />
           </Button>
@@ -300,7 +300,7 @@ const ThemedCreateChatModal = (props: ThemedCreateChatModalProps) => {
       ) : undefined}
 
       <View className="pt-[20px] px-[15px] pb-[10px]">
-        <Text variant="heading2">
+        <Text variant="h2">
           {isGroup
             ? APPLICATION_CONSTANTS.CREATE_CHAT_MODAL_SLIDER_OPTION_1
             : APPLICATION_CONSTANTS.CREATE_CHAT_MODAL_SLIDER_OPTION_2}
@@ -322,13 +322,13 @@ const ThemedCreateChatModal = (props: ThemedCreateChatModalProps) => {
               onPress={onAvatarPressed}
               backgroundColor={avatarBackgroundColor}
               emoji={avatarEmoji}
-              variant="group"
+              variant="rounded"
               showBorder={false}
-              size="medium"
+              size="md"
             ></Avatar>
             <View className="flex-1">
               <Input
-                variant="big"
+                variant="display"
                 className="text-[26px] leading-[30px]"
                 placeholder="Gruppenname"
               ></Input>
@@ -337,7 +337,7 @@ const ThemedCreateChatModal = (props: ThemedCreateChatModalProps) => {
 
           {/* Container for the text field where the user can add the group description */}
 
-          <Input variant="normal" placeholder="Gruppenbeschreibung"></Input>
+          <Input variant="default" placeholder="Gruppenbeschreibung"></Input>
 
           {/* Bento box for showing classes and adding additional ones */}
 
@@ -359,7 +359,7 @@ const ThemedCreateChatModal = (props: ThemedCreateChatModalProps) => {
               </View>
             ))}
             <View className="pt-[20px] pb-[10px] flex-row justify-center">
-              <Button variant="normal" onPress={onAddClassPressed}>
+              <Button variant="secondary" onPress={onAddClassPressed}>
                 <Icon name="plus" size={18} />
                 <Text>Weitere Klasse hinzufügen</Text>
               </Button>
@@ -386,7 +386,7 @@ const ThemedCreateChatModal = (props: ThemedCreateChatModalProps) => {
             ))}
             <View className="flex-row justify-center">
               <View className="pt-[20px] pb-[10px] flex-row justify-center">
-                <Button variant="normal" onPress={onAddUserPressed}>
+                <Button variant="secondary" onPress={onAddUserPressed}>
                   <Icon name="plus" size={18} />
                   <Text>Weitere Benutzer hinzufügen</Text>
                 </Button>

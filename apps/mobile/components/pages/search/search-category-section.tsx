@@ -31,7 +31,7 @@ const SearchCategorySection = ({
       <View className="px-[10px]">{children}</View>
       {hasMore && (
         <View className="px-[15px] mt-[5px]">
-          <Button variant="inverted" onPress={onShowMore} className="py-[10px]">
+          <Button variant="outline" onPress={onShowMore} className="py-[10px]">
             <Text>{APPLICATION_CONSTANTS.SEARCH_SHOW_MORE}</Text>
             <Icon name="caret-right" size={16} />
           </Button>

@@ -3,15 +3,16 @@ import * as RadioGroupPrimitive from '@rn-primitives/radio-group';
 import type * as React from 'react';
 import { View } from 'react-native';
 
+/**
+ * RadioGroup — Shadcn-compatible.
+ * Inner indicator dot uses primary color when selected.
+ */
 export function RadioGroup({
   className,
   ...props
 }: React.ComponentProps<typeof RadioGroupPrimitive.Root>) {
   return (
-    <RadioGroupPrimitive.Root
-      className={cn('gap-[10px]', className)}
-      {...props}
-    />
+    <RadioGroupPrimitive.Root className={cn('gap-3', className)} {...props} />
   );
 }
 
@@ -22,14 +23,14 @@ export function RadioGroupItem({
   return (
     <RadioGroupPrimitive.Item
       className={cn(
-        'h-[22px] w-[22px] items-center justify-center rounded-full border-[1.5px] border-neutral-400',
+        'h-[22px] w-[22px] items-center justify-center rounded-full border-2 border-border',
         props.disabled && 'opacity-50',
         className,
       )}
       {...props}
     >
       <RadioGroupPrimitive.Indicator>
-        <View className="h-[12px] w-[12px] rounded-full bg-primary-900" />
+        <View className="h-[11px] w-[11px] rounded-full bg-primary" />
       </RadioGroupPrimitive.Indicator>
     </RadioGroupPrimitive.Item>
   );

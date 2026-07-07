@@ -94,11 +94,7 @@ const UsernamePage = () => {
       <View className="pt-[70px] px-[15px] w-full gap-[20px]">
         <View className="gap-[10px] items-center">
           <Icon size={62} name="user-focus" color={neutral900Color}></Icon>
-          <Text
-            color={neutral900Color}
-            variant="heading2"
-            className="text-center"
-          >
+          <Text color={neutral900Color} variant="h2" className="text-center">
             Anmelden
           </Text>
           <Text color={neutral900Color} variant="body" className="text-center">
@@ -110,7 +106,6 @@ const UsernamePage = () => {
           placeholder="Benutzername oder E-Mail"
           value={username}
           onChangeText={handleUsernameChange}
-          heightBased={60}
           autoCorrect={false}
           spellCheck={false}
           autoCapitalize="none"
@@ -120,8 +115,7 @@ const UsernamePage = () => {
           placeholder="Passwort"
           value={password}
           onChangeText={setPassword}
-          heightBased={60}
-          obscureText={true}
+          secureTextEntry={true}
           autoCapitalize="none"
         ></Input>
 
@@ -134,7 +128,7 @@ const UsernamePage = () => {
           </View>
         )}
 
-        <Button variant="primary" size="lg" onPress={handleContinueButtonPress}>
+        <Button variant="default" size="lg" onPress={handleContinueButtonPress}>
           <Text>Anmelden</Text>
           <Icon name="arrow-right" size={24} />
         </Button>

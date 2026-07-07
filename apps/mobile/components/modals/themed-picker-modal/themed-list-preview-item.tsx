@@ -49,7 +49,7 @@ const ThemedListPreviewItem = ({
       <View className="flex-1 flex-row items-center gap-[20px]">
         <Avatar
           showBorder={false}
-          size="small"
+          size="sm"
           backgroundColor={props.avatarBackgroundColor}
           emoji={props.avatarEmoji}
         ></Avatar>

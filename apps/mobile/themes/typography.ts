@@ -1,48 +1,60 @@
-// Typography styles used in the app
-// these are all from the design system in figma
-
-module.exports = {
-  '.text-caption': {
+/**
+ * Typography scale — MartianGrotesk design system.
+ *
+ * In Tailwind v4 / NativeWind v5, custom utilities are defined via
+ * @utility in global.css or via extend in tailwind.config.js.
+ * This file is kept as a reference and for JS consumers that need
+ * the raw values (e.g., StyleSheet-based components).
+ */
+export const typography = {
+  caption: {
     fontFamily: 'MartianGrotesk-StdxBd',
     fontSize: 10,
-    lineHeight: 1.36,
+    lineHeight: 13.6,
+    letterSpacing: 0.2,
   },
-
-  '.text-body': {
+  label: {
+    fontFamily: 'MartianGrotesk-StdMd',
+    fontSize: 12,
+    lineHeight: 16,
+  },
+  body: {
     fontFamily: 'MartianGrotesk-StdRg',
     fontSize: 14,
-    lineHeight: 1.43,
+    lineHeight: 20.5,
   },
-
-  '.text-subHeading': {
+  lead: {
+    fontFamily: 'MartianGrotesk-StdMd',
+    fontSize: 18,
+    lineHeight: 24,
+  },
+  subheading: {
     fontFamily: 'MartianGrotesk-StdMd',
     fontSize: 22.65,
-    lineHeight: 3.11,
-    letterSpacing: 0.97,
+    lineHeight: 31.1,
+    letterSpacing: 0.1,
   },
-
-  '.text-heading2': {
+  h2: {
     fontFamily: 'MartianGrotesk-NrBl',
     fontSize: 36.65,
-    lineHeight: 1.2,
+    lineHeight: 40.1,
     letterSpacing: -0.2,
   },
-
-  '.text-heading1': {
+  h1: {
     fontFamily: 'MartianGrotesk-StdxBd',
     fontSize: 59.3,
-    lineHeight: 6.76,
+    lineHeight: 67.6,
   },
-
-  '.text-title': {
+  display: {
     fontFamily: 'MartianGrotesk-StdBl',
     fontSize: 95.95,
-    lineHeight: 12.54,
+    lineHeight: 105.4,
   },
-
-  '.text-titleWide': {
+  displayWide: {
     fontFamily: 'MartianGrotesk-sWdBl',
     fontSize: 95.95,
-    lineHeight: 12.54,
+    lineHeight: 105.4,
   },
-};
+} as const;
+
+export type TypographyVariant = keyof typeof typography;

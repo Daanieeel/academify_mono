@@ -1,5 +1,5 @@
 import createIconSetFromIcoMoon from '@expo/vector-icons/createIconSetFromIcoMoon';
-import { cssInterop } from 'nativewind';
+import { cssInterop } from 'react-native-css-interop';
 
 import icoMoonConfig from '../assets/icomoon/selection.json';
 

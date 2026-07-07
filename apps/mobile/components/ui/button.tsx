@@ -6,40 +6,67 @@ import { cn } from '@/lib/utils';
 import { cva, type VariantProps } from 'class-variance-authority';
 import * as React from 'react';
 
-const buttonVariants = cva('flex-row items-center justify-center gap-[8px]', {
+/**
+ * Button variants following the Shadcn/ui naming scheme.
+ *
+ * Brutalist design notes:
+ * - `default`: solid primary brown with a hard offset shadow for depth.
+ * - `outline`: transparent with a thick 2px border; shadow on active.
+ * - `secondary`: muted fill, no shadow.
+ * - `ghost`: no border/fill, hover-only effect.
+ * - `destructive`: deep red.
+ * - `link`: text-only, underline.
+ */
+const buttonVariants = cva(
+  'flex-row items-center justify-center gap-2 active:opacity-90 will-change-variable',
+  {
+    variants: {
+      variant: {
+        default:
+          'bg-primary border-2 border-foreground rounded-xl shadow-brutal',
+        destructive:
+          'bg-destructive border-2 border-foreground rounded-xl shadow-brutal',
+        outline: 'bg-transparent border-2 border-foreground rounded-xl',
+        secondary: 'bg-secondary border-2 border-border rounded-xl',
+        ghost: 'bg-transparent',
+        link: 'bg-transparent',
+      },
+      size: {
+        default: 'h-[52px] px-5',
+        sm: 'h-[40px] px-4 rounded-lg',
+        lg: 'h-[60px] px-7',
+        icon: 'h-[44px] w-[44px] rounded-full',
+        round: 'h-[60px] w-[60px] rounded-full',
+      },
+    },
+    defaultVariants: {
+      variant: 'default',
+      size: 'default',
+    },
+  },
+);
+
+const buttonTextVariants = cva('font-martian-extrabold', {
   variants: {
     variant: {
-      primary: 'bg-neutral-900 border-[1.5px] border-neutral-700',
-      secondary: 'bg-transparent border-[1.5px] border-neutral-200',
-      normal: 'bg-neutral-200 border-0',
-      inverted: 'bg-neutral-900 border-0',
-      dotted: 'bg-transparent border-[2px] border-neutral-400',
-      destructive: 'bg-red-600 border-0',
+      default: 'text-primary-foreground',
+      destructive: 'text-destructive-foreground',
+      outline: 'text-foreground',
+      secondary: 'text-secondary-foreground',
+      ghost: 'text-foreground',
+      link: 'text-primary underline',
     },
     size: {
-      lg: 'rounded-[18px] px-[25px] h-[60px]',
-      default: 'rounded-[18px] px-[20px] py-[10px]',
+      default: 'text-[14px]',
+      sm: 'text-[13px]',
+      lg: 'text-[16px]',
+      icon: 'text-[14px]',
+      round: 'text-[14px]',
     },
   },
   defaultVariants: {
-    variant: 'normal',
+    variant: 'default',
     size: 'default',
-  },
-});
-
-const buttonTextVariants = cva('', {
-  variants: {
-    variant: {
-      primary: 'text-neutral-50',
-      secondary: 'text-neutral-900',
-      normal: 'text-neutral-900',
-      inverted: 'text-neutral-100',
-      dotted: 'text-neutral-900',
-      destructive: 'text-neutral-50',
-    },
-  },
-  defaultVariants: {
-    variant: 'normal',
   },
 });
 
@@ -56,7 +83,7 @@ export function Button({
   ...props
 }: ButtonProps) {
   return (
-    <TextClassContext.Provider value={buttonTextVariants({ variant })}>
+    <TextClassContext.Provider value={buttonTextVariants({ variant, size })}>
       <ThemedPressable
         onPress={onPress ?? (() => {})}
         className={cn(buttonVariants({ variant, size }), className)}

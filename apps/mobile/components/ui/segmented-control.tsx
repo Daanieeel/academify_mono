@@ -13,6 +13,12 @@ export type SegmentedControlProps = {
   onValueChange: (index: number) => void;
 };
 
+/**
+ * SegmentedControl — pill-style tab switcher with animated indicator.
+ *
+ * Uses muted background for the track, background color for the active segment.
+ * Fires haptic feedback on value change.
+ */
 export function SegmentedControl({
   value = 0,
   ...props
@@ -35,7 +41,7 @@ export function SegmentedControl({
       toValue: selectedContainerWidth * value,
       useNativeDriver: true,
       duration: ANIMATION_DURATION,
-      easing: Easing.linear,
+      easing: Easing.out(Easing.ease),
     }).start();
   }, [value, selectedContainerWidth, translateX]);
 
@@ -56,10 +62,10 @@ export function SegmentedControl({
       value={String(value)}
       onValueChange={onItemValueChange}
       onLayout={onLayout}
-      className="h-[50px] p-[5px] rounded-[18px] w-full flex-row justify-evenly bg-neutral-200"
+      className="h-[50px] p-[5px] rounded-xl w-full flex-row justify-evenly bg-muted"
     >
       <Animated.View
-        className="h-full absolute top-[5px] rounded-[15px] z-[1] bg-neutral-50"
+        className="h-full absolute top-[5px] rounded-lg z-[1] bg-background border border-border"
         style={{
           left: SLIDER_PADDING,
           width: selectedContainerWidth - SLIDER_PADDING * props.options.length,
@@ -70,13 +76,15 @@ export function SegmentedControl({
         <ToggleGroupPrimitive.Item
           value={String(index)}
           key={index}
-          className="z-[999] rounded-[13px] justify-center items-center flex-1 bg-transparent"
+          className="z-[999] rounded-lg justify-center items-center flex-1 bg-transparent"
         >
           <View>
             <Text
               numberOfLines={1}
               className={
-                index === value ? 'text-neutral-900' : 'text-neutral-600'
+                index === value
+                  ? 'text-foreground font-martian-extrabold'
+                  : 'text-muted-foreground'
               }
               variant="body"
             >

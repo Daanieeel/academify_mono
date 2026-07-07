@@ -1,56 +1,60 @@
-import { Text } from '@/components/ui/text';
 import { cn } from '@/lib/utils';
 import * as React from 'react';
 import { TextInput, View } from 'react-native';
+import { Text } from '@/components/ui/text';
 
 export type InputProps = React.ComponentProps<typeof TextInput> & {
-  fieldDescription?: string;
-  obscureText?: boolean;
-  isEditable?: boolean;
-  heightBased?: number;
-  variant?: 'normal' | 'big';
+  /** Optional label shown above the input field */
+  label?: string;
+  /** Visual size variant */
+  variant?: 'default' | 'display';
   containerClassName?: string;
   ref?: React.Ref<TextInput> | undefined;
 };
 
+/**
+ * Shadcn-compatible Input component.
+ *
+ * Brutalist design: thick border, clear focus ring, warm background.
+ * Variants:
+ * - `default`: standard 14px body text input
+ * - `display`: large heading-style input (e.g., group name entry)
+ */
 export function Input({
-  variant = 'normal',
-  obscureText,
-  isEditable = true,
-  fieldDescription,
+  variant = 'default',
+  label,
   containerClassName,
   className,
   ref,
+  editable = true,
+  secureTextEntry,
   ...props
 }: InputProps) {
   return (
     <View
       className={cn(
-        'px-[15px] rounded-[16px] justify-center bg-neutral-200 gap-[10px]',
-        props.heightBased !== null && props.heightBased !== undefined
-          ? 'py-0'
-          : 'py-[15px]',
+        'rounded-xl border-2 border-border bg-input px-4 gap-1',
+        variant === 'default' ? 'py-3' : 'py-4',
+        !editable && 'opacity-60',
         containerClassName,
       )}
-      style={{
-        height: props.heightBased,
-      }}
     >
-      {fieldDescription && (
-        <Text className="text-neutral-900" variant="caption">
-          {fieldDescription}
+      {label && (
+        <Text variant="label" className="text-muted-foreground">
+          {label}
         </Text>
       )}
       <TextInput
         ref={ref}
-        editable={isEditable}
-        secureTextEntry={obscureText}
+        editable={editable}
+        secureTextEntry={secureTextEntry}
         autoCapitalize="none"
+        placeholderTextColor="hsl(var(--muted-foreground))"
         className={cn(
-          'text-neutral-900 placeholder:text-neutral-500',
-          variant === 'normal'
-            ? 'text-[14px] p-0 leading-[17.3px] font-[MartianGrotesk-StdRg]'
-            : 'font-[MartianGrotesk-NrBl] text-[36.65px] leading-[40.3px] tracking-[-0.2px] p-0',
+          'text-foreground p-0',
+          variant === 'default'
+            ? 'font-martian-regular text-[14px] leading-[20px]'
+            : 'font-martian-black-narrow text-[36px] leading-[42px] tracking-[-0.5px]',
           className,
         )}
         {...props}

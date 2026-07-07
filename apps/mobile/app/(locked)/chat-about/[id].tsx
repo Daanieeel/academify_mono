@@ -19,7 +19,9 @@ const ChatAboutPage = () => {
   const { data: chatDetail } = useQuery({
     queryKey: ['chat', id],
     queryFn: async () => {
-      if (typeof id !== 'string') {throw new Error('Invalid chat ID');}
+      if (typeof id !== 'string') {
+        throw new Error('Invalid chat ID');
+      }
       const { data, error } = await api.chats[id].get();
       if (error) {
         throw error;
@@ -62,9 +64,9 @@ const ChatAboutPage = () => {
         }}
         className="flex-1"
       >
-        <Avatar size="large"></Avatar>
+        <Avatar size="lg"></Avatar>
         <View style={{ gap: 5, alignItems: 'center' }}>
-          <Text variant="heading2">{peer?.display_name ?? 'Chat'}</Text>
+          <Text variant="h2">{peer?.display_name ?? 'Chat'}</Text>
           <Text variant="caption">Direktnachricht</Text>
         </View>
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">

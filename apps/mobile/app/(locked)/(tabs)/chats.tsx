@@ -272,7 +272,7 @@ const Chats = () => {
         >
           <View className="flex-row items-center gap-[8px]">
             <Button
-              variant="inverted"
+              variant="outline"
               onPress={() => onChatModeSelected('single')}
               className="px-[16px] py-[14px] rounded-[22px]"
             >
@@ -280,7 +280,7 @@ const Chats = () => {
               <Text>Einzel</Text>
             </Button>
             <Button
-              variant="inverted"
+              variant="outline"
               onPress={() => onChatModeSelected('group')}
               className="px-[16px] py-[14px] rounded-[22px]"
             >
@@ -288,7 +288,7 @@ const Chats = () => {
               <Text>Gruppe</Text>
             </Button>
             <Button
-              variant="normal"
+              variant="secondary"
               onPress={onNewChatTogglePressed}
               className="p-0 rounded-[24px]"
               style={{ height: 48, width: 48 }}
@@ -314,7 +314,7 @@ const Chats = () => {
           pointerEvents={newChatMenuOpen ? 'none' : 'auto'}
         >
           <Button
-            variant="inverted"
+            variant="outline"
             onPress={onNewChatTogglePressed}
             className="px-[24px] py-[14px] rounded-[22px]"
           >

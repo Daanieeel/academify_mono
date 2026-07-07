@@ -12,24 +12,33 @@ import Animated, {
 
 const TOGGLE_WIDTH = 71;
 const THUMB_WIDTH = 45;
-const DURATION = 50;
+const DURATION = 200;
 const EASING = Easing.bezier(0.4, 0, 0.2, 1);
 
 export type SwitchProps = {
   checked?: boolean;
   defaultChecked?: boolean;
   onCheckedChange?: (checked: boolean) => void;
+  /** Text shown inside thumb when checked */
   labelOn?: string;
+  /** Text shown inside thumb when unchecked */
   labelOff?: string;
   disabled?: boolean;
 };
 
+/**
+ * Switch — Shadcn-compatible.
+ *
+ * Custom animated pill switch using primary/secondary color tokens.
+ * Checked: primary track + parchment-colored thumb
+ * Unchecked: transparent track with dashed border + dark thumb
+ */
 export function Switch({
   checked: checkedProp,
   defaultChecked = false,
   onCheckedChange,
-  labelOn = 'an',
-  labelOff = 'aus',
+  labelOn = 'on',
+  labelOff = 'off',
   disabled,
 }: SwitchProps) {
   const [uncontrolledChecked, setUncontrolledChecked] =
@@ -39,7 +48,7 @@ export function Switch({
 
   React.useEffect(() => {
     progress.value = withTiming(checked ? 1 : 0, {
-      duration: DURATION + 150,
+      duration: DURATION,
       easing: EASING,
     });
   }, [checked, progress]);
@@ -52,7 +61,7 @@ export function Switch({
   };
 
   const thumbAnimatedStyle = useAnimatedStyle(() => {
-    const maxTranslate = TOGGLE_WIDTH - THUMB_WIDTH - 6;
+    const maxTranslate = TOGGLE_WIDTH - THUMB_WIDTH - 4;
     return {
       transform: [{ translateX: progress.value * maxTranslate }],
     };
@@ -64,33 +73,32 @@ export function Switch({
       onCheckedChange={handleCheckedChange}
       disabled={disabled}
       className={cn(
-        'py-[1.5px] px-[1.5px] w-[71px] h-[28px] rounded-full justify-center border-[1.5px] border-dashed',
+        'py-0.5 px-0.5 w-[71px] h-[28px] rounded-full justify-center border-2 border-dashed',
         checked
-          ? 'bg-primary-900 border-transparent'
-          : 'bg-transparent border-primary-900',
+          ? 'bg-primary border-transparent'
+          : 'bg-transparent border-primary',
         disabled && 'opacity-50',
       )}
     >
       <SwitchPrimitive.Thumb asChild>
-        {/* className + a useAnimatedStyle() style can't coexist on the same
-            Animated.View (breaks Reanimated's recognition of the component),
-            so the transform lives here and visual styling lives on the plain
-            View nested inside. */}
+        {/* className + useAnimatedStyle() cannot coexist on the same Animated.View
+            (breaks Reanimated's recognition), so transform lives in the animated
+            style and visual styling lives on the plain View nested inside. */}
         <Animated.View
           style={[
-            { width: 45, height: '100%', alignSelf: 'flex-start' },
+            { width: THUMB_WIDTH, height: '100%', alignSelf: 'flex-start' },
             thumbAnimatedStyle,
           ]}
         >
           <View
             className={cn(
               'rounded-full h-full w-full justify-center items-center',
-              checked ? 'bg-primary-100' : 'bg-primary-900',
+              checked ? 'bg-primary-foreground' : 'bg-primary',
             )}
           >
             <Text
               variant="caption"
-              className={checked ? 'text-primary-900' : 'text-primary-100'}
+              className={checked ? 'text-primary' : 'text-primary-foreground'}
             >
               {checked ? labelOn : labelOff}
             </Text>

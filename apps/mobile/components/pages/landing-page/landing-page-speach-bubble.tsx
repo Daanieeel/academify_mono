@@ -14,17 +14,19 @@ const LandingPageSpeachBubble = ({
   content,
   style,
 }: LandingPageSpeachBubbleProps) => {
-  const bgColorClass =
-    type === 'inverted' ? 'bg-neutral-900' : 'bg-neutral-200';
-  const textColorClass =
-    type === 'inverted' ? 'text-neutral-200' : 'text-neutral-900';
+  const bgColorClass = type === 'inverted' ? 'bg-primary' : 'bg-secondary';
 
   return (
     <View
       className={`rounded-[18px] max-w-[70%] p-[12px] ${bgColorClass}`}
       style={style}
     >
-      <Text variant="heading2" className={textColorClass}>
+      <Text
+        variant="h2"
+        style={{
+          color: type === 'inverted' ? 'hsl(38 50% 96%)' : 'hsl(25 25% 22%)',
+        }}
+      >
         {content}
       </Text>
     </View>

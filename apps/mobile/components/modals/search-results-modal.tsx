@@ -137,7 +137,7 @@ const SearchResultsModal = ({
                 Fertig
               </Text>
             </Button>
-            <Text variant="heading2">{categoryLabel}</Text>
+            <Text variant="h2">{categoryLabel}</Text>
             <View className="w-[50px]" />
           </View>
         </SafeAreaView>

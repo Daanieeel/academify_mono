@@ -85,7 +85,7 @@ const ProfileEditPage = () => {
       <ScrollView className="gap-[20px] px-[15px]">
         <View className="mt-[150px] gap-[40px] mb-[50px]">
           <View className="w-full items-center gap-[10px]">
-            <Text className="w-[80%] text-center" variant="heading2">
+            <Text className="w-[80%] text-center" variant="h2">
               {APPLICATION_CONSTANTS.PROFILE_EDIT_PAGE_HEADING}
             </Text>
             <Text className="w-[80%] text-center" variant="body">
@@ -93,7 +93,7 @@ const ProfileEditPage = () => {
             </Text>
           </View>
           <View className="w-full justify-center flex-row gap-[30px] items-center">
-            <Avatar size={'large'}></Avatar>
+            <Avatar size={'lg'}></Avatar>
             <View className="w-[2px] h-[80px] bg-neutral-400"></View>
             <Icon name="sparkle" size={70} color={neutral900Color}></Icon>
           </View>
@@ -103,10 +103,9 @@ const ProfileEditPage = () => {
             <Input
               key={inputField.id}
               placeholder={inputField.value ?? 'Hinzufügen'}
-              fieldDescription={inputField.description}
+              label={inputField.description}
               value={values[inputField.id] ?? ''}
-              isEditable={inputField.isEditable}
-              heightBased={65}
+              editable={inputField.isEditable}
               onChangeText={(input) => handleChange(inputField.id, input)}
             ></Input>
           </View>
@@ -114,7 +113,7 @@ const ProfileEditPage = () => {
         <View className="h-[200px]"></View>
       </ScrollView>
       <SafeAreaView className="absolute left-0 right-0 px-[15px] bottom-[20px]">
-        <Button variant="primary" size="lg" onPress={handleContinueButtonPress}>
+        <Button variant="default" size="lg" onPress={handleContinueButtonPress}>
           <Text>{APPLICATION_CONSTANTS.GENERAL_NEXT_PAGE}</Text>
           <Icon name="arrow-right" size={24} />
         </Button>

@@ -8,11 +8,7 @@ const ThemedAcademiBackground = () => {
       {Array.from({ length: 30 }).map((_, index) => (
         <View key={index} className="flex-row gap-[25px]">
           {Array.from({ length: 30 }).map((__, innerIndex) => (
-            <Text
-              key={innerIndex}
-              className="text-neutral-200"
-              variant="heading2"
-            >
+            <Text key={innerIndex} className="text-neutral-200" variant="h2">
               academi
             </Text>
           ))}

@@ -10,6 +10,12 @@ import Animated, {
   withSpring,
 } from 'react-native-reanimated';
 
+/**
+ * Progress — Shadcn-compatible.
+ *
+ * Track: muted background. Indicator: primary color.
+ * Animated width via Reanimated spring.
+ */
 export function Progress({
   className,
   value,
@@ -21,7 +27,7 @@ export function Progress({
   return (
     <ProgressPrimitive.Root
       className={cn(
-        'h-[8px] w-full overflow-hidden rounded-full bg-neutral-200',
+        'h-2 w-full overflow-hidden rounded-full bg-muted',
         className,
       )}
       {...props}
@@ -49,11 +55,10 @@ function Indicator({
 
   return (
     <ProgressPrimitive.Indicator asChild>
-      {/* className + a useAnimatedStyle() style can't coexist on the same
-          Animated.View, so width animation lives here and color lives on
-          the plain View nested inside. */}
+      {/* className + useAnimatedStyle() can't coexist on the same Animated.View,
+          so width animation lives here and color lives on the plain View nested inside. */}
       <Animated.View style={[{ height: '100%' }, indicatorStyle]}>
-        <View className={cn('h-full w-full bg-primary-900', className)} />
+        <View className={cn('h-full w-full bg-primary', className)} />
       </Animated.View>
     </ProgressPrimitive.Indicator>
   );

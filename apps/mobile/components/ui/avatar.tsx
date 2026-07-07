@@ -6,28 +6,43 @@ import * as AvatarPrimitive from '@rn-primitives/avatar';
 import { Text, View } from 'react-native';
 
 const AVATAR_SIZE = {
-  small: 45,
-  medium: 60,
-  large: 110,
-  'extra-large': 150,
+  sm: 45,
+  md: 60,
+  lg: 110,
+  xl: 150,
 } as const;
 
+export type AvatarSize = keyof typeof AVATAR_SIZE;
+
 export type AvatarProps = {
-  size?: keyof typeof AVATAR_SIZE;
+  /** Size preset. Defaults to 'sm'. */
+  size?: AvatarSize;
+  /** Image URI for the avatar photo */
   source?: string;
+  /** Custom border color override */
   customBorderColor?: string;
   onPress?: () => void;
+  /** Icomoon icon name for fallback */
   icomoonIcon?: string;
+  /** Show border ring around the avatar */
   showBorder?: boolean;
-  variant?: 'person' | 'group';
-  /** Generated avatar (no real photo yet) — background color + emoji. */
+  /** Shape variant */
+  variant?: 'circle' | 'rounded';
+  /** Generated avatar background color (for gradient fallback) */
   backgroundColor?: string | null;
+  /** Emoji character for generated avatar fallback */
   emoji?: string | null;
 };
 
+/**
+ * Avatar — Shadcn-compatible.
+ *
+ * Supports photo, emoji+gradient, and icon fallbacks.
+ * Shape: `circle` (person) or `rounded` (group/entity).
+ */
 export function Avatar({
-  size = 'small',
-  variant = 'person',
+  size = 'sm',
+  variant = 'circle',
   source,
   showBorder = true,
   customBorderColor,
@@ -37,9 +52,9 @@ export function Avatar({
   emoji,
 }: AvatarProps) {
   const avatarSize = AVATAR_SIZE[size];
-  const borderRadius = variant === 'person' ? 9999 : 40;
+  const borderRadius = variant === 'circle' ? 9999 : 20;
   const fallbackIcon =
-    icomoonIcon ?? (variant === 'person' ? 'user' : 'users-three');
+    icomoonIcon ?? (variant === 'circle' ? 'user' : 'users-three');
   const gradient = parseAvatarGradient(backgroundColor);
 
   return (
@@ -48,14 +63,14 @@ export function Avatar({
       onPress={onPress ?? (() => {})}
     >
       <AvatarPrimitive.Root
-        alt={variant === 'person' ? 'Profilbild' : 'Gruppenbild'}
-        className="overflow-hidden bg-neutral-200 items-center justify-center border-[2px]"
+        alt={variant === 'circle' ? 'Profile picture' : 'Group picture'}
+        className="overflow-hidden bg-muted items-center justify-center border-2"
         style={{
           borderRadius,
           height: avatarSize,
           width: avatarSize,
           borderColor: showBorder
-            ? (customBorderColor ?? 'rgba(39, 35, 28, 0.12)')
+            ? (customBorderColor ?? 'hsl(35 18% 76%)') // --border
             : 'transparent',
         }}
       >
@@ -81,7 +96,7 @@ export function Avatar({
           ) : (
             <View>
               <Icon
-                className="text-neutral-700"
+                className="text-muted-foreground"
                 size={avatarSize / 2}
                 name={fallbackIcon}
               />
@@ -92,3 +107,13 @@ export function Avatar({
     </ThemedPressable>
   );
 }
+
+/**
+ * AvatarImage — standalone avatar image (for use within AvatarPrimitive contexts).
+ */
+export const AvatarImage = AvatarPrimitive.Image;
+
+/**
+ * AvatarFallback — standalone avatar fallback (for use within AvatarPrimitive contexts).
+ */
+export const AvatarFallback = AvatarPrimitive.Fallback;

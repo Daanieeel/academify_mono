@@ -57,16 +57,13 @@ const UserCardPage = () => {
           className="h-[65%] max-h-[430px] w-[80%] rounded-[20px] items-center justify-between py-[10%] px-[20px] z-[1] bg-neutral-50 border-[2.5px] border-neutral-900"
           style={{ transform: [{ scale: scaleAnim }] }}
         >
-          <Avatar
-            size="extra-large"
-            customBorderColor={neutral400Color}
-          ></Avatar>
+          <Avatar size="xl" customBorderColor={neutral400Color}></Avatar>
           <Icon name="hand-peace" size={60} color={green500Color}></Icon>
           <View className="gap-[10px] items-center">
             <Text
               className="text-center"
               color={neutral900Color}
-              variant="heading2"
+              variant="h2"
             >{`${userName}!`}</Text>
             <Text
               className="text-center"
@@ -79,7 +76,7 @@ const UserCardPage = () => {
         </Animated.View>
         <SafeAreaView className="w-[80%] absolute bottom-[20px]">
           <Button
-            variant="primary"
+            variant="default"
             size="lg"
             onPress={handleContinueButtonPress}
           >

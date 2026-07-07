@@ -146,7 +146,7 @@ const ThemedAvatarPickerModal = (props: ThemedAvatarPickerModalProps) => {
     <ThemedModal visible={props.visible} onRequestClose={props.onRequestClose}>
       <View className="items-center pt-[20px] pb-[20px]">
         <Avatar
-          size="extra-large"
+          size="xl"
           backgroundColor={backgroundColor}
           emoji={emoji}
           showBorder={false}
@@ -206,7 +206,7 @@ const ThemedAvatarPickerModal = (props: ThemedAvatarPickerModalProps) => {
         </View>
 
         <View className="px-[15px] pt-[20px]">
-          <Button variant="normal" onPress={onEmojiButtonPressed}>
+          <Button variant="secondary" onPress={onEmojiButtonPressed}>
             <Icon name="smiley" size={18} />
             <Text>Emoji auswählen</Text>
           </Button>
@@ -248,7 +248,7 @@ const ThemedAvatarPickerModal = (props: ThemedAvatarPickerModalProps) => {
 
       <View className="absolute bottom-[30px] left-[15px] right-[15px]">
         <Button
-          variant="primary"
+          variant="default"
           size="lg"
           disabled={saving}
           onPress={onFinishPressed}

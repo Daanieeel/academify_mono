@@ -167,7 +167,7 @@ const ThemedChatPageFooter = ({
           <View className="pl-[15px]">
             <Animated.View style={sendButtonStyle}>
               <Button
-                variant="inverted"
+                variant="outline"
                 onPress={() => {
                   const text = input.trim();
                   if (text === '') {

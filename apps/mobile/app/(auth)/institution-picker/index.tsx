@@ -11,6 +11,7 @@ import {
   TextInput,
 } from 'react-native';
 import { Image } from 'expo-image';
+import { Card } from '@/components/ui/card';
 import { registryClient } from '@/lib/registry';
 import { getAssetUrl } from '@/lib/utils';
 import { useInfiniteQuery, keepPreviousData } from '@tanstack/react-query';
@@ -90,93 +91,103 @@ export default function InstitutionPicker() {
         : undefined;
 
       return (
-        <TouchableOpacity
-          onPress={() => handleSelect(item)}
-          className="bg-neutral-100 dark:bg-neutral-800 rounded-2xl mb-4 shadow-sm border border-[#4a3b32]/20 dark:border-[#5a4b42]/30 overflow-hidden"
-        >
-          {/* Banner */}
-          {item.banner_url ? (
-            <Image
-              source={{ uri: bannerUri }}
-              style={{ width: '100%', height: 96 }}
-              contentFit="cover"
-            />
-          ) : (
-            <View className="w-full h-24 bg-neutral-200 dark:bg-neutral-700" />
-          )}
+        <TouchableOpacity onPress={() => handleSelect(item)} className="mb-4">
+          <Card className="bg-card">
+            {/* Banner */}
+            {item.banner_url ? (
+              <Image
+                source={{ uri: bannerUri }}
+                style={{
+                  width: '100%',
+                  height: 96,
+                  borderTopLeftRadius: 10,
+                  borderTopRightRadius: 10,
+                }}
+                contentFit="cover"
+              />
+            ) : (
+              <View
+                className="w-full h-24 bg-muted"
+                style={{ borderTopLeftRadius: 10, borderTopRightRadius: 10 }}
+              />
+            )}
 
-          {/* Content area */}
-          <View className="p-4 pt-10 relative">
-            {/* Avatar (overlapping banner) */}
-            <View className="absolute -top-10 left-4 bg-white dark:bg-neutral-900 rounded-2xl border-2 border-white dark:border-neutral-900 shadow-sm z-10 overflow-hidden">
-              {item.avatar_url ? (
-                <Image
-                  source={{ uri: avatarUri }}
-                  style={{ width: 64, height: 64 }}
-                  contentFit="cover"
-                />
-              ) : (
-                <View
-                  style={{ width: 64, height: 64 }}
-                  className="bg-neutral-100 dark:bg-neutral-800 items-center justify-center"
-                >
-                  <Icon
-                    name="buildings"
-                    size={24}
-                    className="text-neutral-400"
+            {/* Content area */}
+            <View className="p-4 pt-10 relative">
+              {/* Avatar (overlapping banner) */}
+              <View className="absolute -top-10 left-4 bg-card rounded-xl border-2 border-foreground shadow-brutal z-10">
+                {item.avatar_url ? (
+                  <Image
+                    source={{ uri: avatarUri }}
+                    style={{ width: 64, height: 64, borderRadius: 10 }}
+                    contentFit="cover"
                   />
-                </View>
-              )}
-            </View>
-
-            <View className="flex-row justify-between items-end mt-2">
-              <View className="flex-1 pr-4">
-                <Text className="font-semibold text-lg text-neutral-900 dark:text-neutral-100">
-                  {item.display_name}
-                </Text>
-
-                <View className="flex-row items-center mt-1.5 flex-wrap">
-                  {item.type && (
-                    <View className="bg-primary-100 dark:bg-primary-900/30 px-2 py-0.5 rounded-md mr-2 mb-1">
-                      <Text className="text-xs text-primary-700 dark:text-primary-400 font-medium">
-                        {item.type}
-                      </Text>
-                    </View>
-                  )}
-                  {(item.region || item.country) && (
-                    <Text className="text-xs text-neutral-500 mb-1">
-                      {item.region ? `${item.region}, ` : ''}
-                      {item.country || ''}
-                    </Text>
-                  )}
-                </View>
-
-                {item.address && (
-                  <View className="flex-row items-center mt-2">
+                ) : (
+                  <View
+                    style={{ width: 64, height: 64, borderRadius: 10 }}
+                    className="bg-muted items-center justify-center"
+                  >
                     <Icon
-                      name="map-pin"
-                      size={14}
-                      className="text-neutral-400 mr-1.5"
+                      name="buildings"
+                      size={24}
+                      className="text-muted-foreground"
                     />
-                    <Text
-                      className="text-sm text-neutral-500 dark:text-neutral-400 flex-1"
-                      numberOfLines={1}
-                    >
-                      {item.address}
-                    </Text>
                   </View>
                 )}
               </View>
 
-              <View className="bg-neutral-200 dark:bg-neutral-700 w-8 h-8 rounded-full items-center justify-center mb-1">
-                <Icon
-                  name="caret-right"
-                  size={16}
-                  className="text-neutral-600 dark:text-neutral-300"
-                />
+              <View className="flex-row justify-between items-end mt-2">
+                <View className="flex-1 pr-4">
+                  <Text
+                    variant="subheading"
+                    className="text-foreground font-martian-extrabold"
+                  >
+                    {item.display_name}
+                  </Text>
+
+                  <View className="flex-row items-center mt-1.5 flex-wrap">
+                    {item.type && (
+                      <View className="bg-primary px-2 py-0.5 rounded-md mr-2 mb-1 border border-foreground">
+                        <Text className="text-xs text-primary-foreground font-martian-extrabold uppercase">
+                          {item.type}
+                        </Text>
+                      </View>
+                    )}
+                    {(item.region || item.country) && (
+                      <Text className="text-xs text-muted-foreground font-martian-bold mb-1">
+                        {item.region ? `${item.region}, ` : ''}
+                        {item.country || ''}
+                      </Text>
+                    )}
+                  </View>
+
+                  {item.address && (
+                    <View className="flex-row items-center mt-2">
+                      <Icon
+                        name="map-pin"
+                        size={14}
+                        className="text-muted-foreground mr-1.5"
+                      />
+                      <Text
+                        className="text-sm text-muted-foreground flex-1 font-martian-bold"
+                        numberOfLines={1}
+                      >
+                        {item.address}
+                      </Text>
+                    </View>
+                  )}
+                </View>
+
+                <View className="bg-primary w-8 h-8 rounded-full items-center justify-center mb-1 border-2 border-foreground shadow-brutal">
+                  <Icon
+                    name="caret-right"
+                    size={16}
+                    style={{ color: 'hsl(38 50% 96%)' }}
+                  />
+                </View>
               </View>
             </View>
-          </View>
+          </Card>
         </TouchableOpacity>
       );
     },
@@ -245,9 +256,10 @@ export default function InstitutionPicker() {
             ].map((filter) => (
               <Button
                 key={filter.id}
-                variant={activeFilter === filter.id ? 'primary' : 'normal'}
+                size="sm"
+                variant={activeFilter === filter.id ? 'default' : 'secondary'}
                 onPress={() => setActiveFilter(filter.id)}
-                className="rounded-full px-[15px] py-[8px]"
+                className="rounded-full"
               >
                 <Text
                   className={activeFilter === filter.id ? 'text-white' : ''}

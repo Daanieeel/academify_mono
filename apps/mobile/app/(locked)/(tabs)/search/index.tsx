@@ -216,7 +216,7 @@ export default function SearchIndex() {
             {SEARCH_FILTERS.map((filter) => (
               <Button
                 key={filter.id}
-                variant={activeFilter === filter.id ? 'primary' : 'normal'}
+                variant={activeFilter === filter.id ? 'default' : 'secondary'}
                 onPress={() => setActiveFilter(filter.id)}
                 className="rounded-full px-[15px] py-[8px]"
               >
@@ -245,7 +245,7 @@ export default function SearchIndex() {
                 size={48}
                 className="text-neutral-300 mb-[15px]"
               />
-              <Text variant="subHeading" className="text-neutral-400">
+              <Text variant="subheading" className="text-neutral-400">
                 {APPLICATION_CONSTANTS.SEARCH_EMPTY_STATE}
               </Text>
             </View>
@@ -255,7 +255,7 @@ export default function SearchIndex() {
             </View>
           ) : !hasAnyResults ? (
             <View className="items-center justify-center pt-[100px]">
-              <Text variant="subHeading" className="text-neutral-400">
+              <Text variant="subheading" className="text-neutral-400">
                 {APPLICATION_CONSTANTS.SEARCH_NO_RESULTS}
               </Text>
             </View>

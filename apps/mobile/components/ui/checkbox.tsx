@@ -3,6 +3,12 @@ import { cn } from '@/lib/utils';
 import * as CheckboxPrimitive from '@rn-primitives/checkbox';
 import type * as React from 'react';
 
+/**
+ * Checkbox — Shadcn-compatible.
+ *
+ * Brutalist: thick 2px border, square (not pill).
+ * Checked state: primary bg with a checkmark icon.
+ */
 export function Checkbox({
   className,
   ...props
@@ -10,8 +16,8 @@ export function Checkbox({
   return (
     <CheckboxPrimitive.Root
       className={cn(
-        'h-[22px] w-[22px] items-center justify-center rounded-[6px] border-[1.5px] border-neutral-400',
-        props.checked && 'bg-primary-900 border-primary-900',
+        'h-[22px] w-[22px] items-center justify-center rounded-md border-2 border-border',
+        props.checked && 'bg-primary border-primary',
         props.disabled && 'opacity-50',
         className,
       )}
@@ -19,7 +25,7 @@ export function Checkbox({
       {...props}
     >
       <CheckboxPrimitive.Indicator className="items-center justify-center">
-        <Icon name="check" size={14} className="text-neutral-50" />
+        <Icon name="check" size={13} className="text-primary-foreground" />
       </CheckboxPrimitive.Indicator>
     </CheckboxPrimitive.Root>
   );

@@ -1,0 +1,1 @@
+ALTER TABLE "institution_registry" ALTER COLUMN "address" SET DEFAULT '';

@@ -1,72 +1,90 @@
-// colors are used in tailwind.config.js and are imported here
-// all colors come from the design system in figma
+/**
+ * Academi.fy Design System — Semantic Color Tokens
+ *
+ * These are used for native StyleSheet / inline styles where Tailwind classes
+ * cannot be applied (e.g. react-navigation themes, expo-status-bar, native alerts).
+ *
+ * The values here mirror the CSS variables defined in global.css.
+ */
 
-module.exports = {
-  'neutral-50': { light: '#fafaf5', dark: '#27231c' },
-  'neutral-100': { light: '#f5f5e9', dark: '#27231c' },
-  'neutral-200': { light: '#e9e7dc', dark: '#27231c' },
-  'neutral-300': { light: '#dcd9cc', dark: '#27231c' },
-  'neutral-400': { light: '#b8b4a5', dark: '#27231c' },
-  'neutral-500': { light: '#938e7a', dark: '#27231c' },
-  'neutral-600': { light: '#726d5e', dark: '#27231c' },
-  'neutral-700': { light: '#575246', dark: '#27231c' },
-  'neutral-800': { light: '#3c372e', dark: '#27231c' },
-  'neutral-900': { light: '#27231c', dark: '#27231c' },
+export interface ColorScale {
+  readonly light: string;
+  readonly dark: string;
+}
 
-  'primary-50': { light: '#fffbeb', dark: '#78350f' },
-  'primary-100': { light: '#fef3c7', dark: '#78350f' },
-  'primary-200': { light: '#fde68a', dark: '#78350f' },
-  'primary-300': { light: '#fcd34d', dark: '#78350f' },
-  'primary-400': { light: '#fbbf24', dark: '#78350f' },
-  'primary-500': { light: '#f59e0b', dark: '#78350f' },
-  'primary-600': { light: '#d97706', dark: '#78350f' },
-  'primary-700': { light: '#b45309', dark: '#78350f' },
-  'primary-800': { light: '#92400e', dark: '#78350f' },
-  'primary-900': { light: '#78350f', dark: '#78350f' },
+const light = {
+  background: '#f6f4ef',
+  foreground: '#27231c',
 
-  'green-50': { light: '#f6faf5', dark: '#223b14' },
-  'green-100': { light: '#e3f2dc', dark: '#223b14' },
-  'green-200': { light: '#c8e6b9', dark: '#223b14' },
-  'green-300': { light: '#a6d78d', dark: '#223b14' },
-  'green-400': { light: '#7ec75d', dark: '#223b14' },
-  'green-500': { light: '#5bab34', dark: '#223b14' },
-  'green-600': { light: '#4b8e2b', dark: '#223b14' },
-  'green-700': { light: '#3c7123', dark: '#223b14' },
-  'green-800': { light: '#2e541b', dark: '#223b14' },
-  'green-900': { light: '#223b14', dark: '#223b14' },
+  card: '#ece9e0',
+  cardForeground: '#27231c',
 
-  'red-50': { light: '#fef5f5', dark: '#661616' },
-  'red-100': { light: '#fde0e0', dark: '#661616' },
-  'red-200': { light: '#fab8b8', dark: '#661616' },
-  'red-300': { light: '#f58c8c', dark: '#661616' },
-  'red-400': { light: '#ec5d5d', dark: '#661616' },
-  'red-500': { light: '#dc2626', dark: '#661616' },
-  'red-600': { light: '#b91c1c', dark: '#661616' },
-  'red-700': { light: '#991b1b', dark: '#661616' },
-  'red-800': { light: '#7f1d1d', dark: '#661616' },
-  'red-900': { light: '#661616', dark: '#661616' },
+  popover: '#f2f0e8',
+  popoverForeground: '#27231c',
 
-  'yellow-50': { light: '#fff8ec', dark: '#7c2d12' },
-  'yellow-100': { light: '#ffecc7', dark: '#7c2d12' },
-  'yellow-200': { light: '#ffd999', dark: '#7c2d12' },
-  'yellow-300': { light: '#fec566', dark: '#7c2d12' },
-  'yellow-400': { light: '#fbab33', dark: '#7c2d12' },
-  'yellow-500': { light: '#f97316', dark: '#7c2d12' },
-  'yellow-600': { light: '#ea580c', dark: '#7c2d12' },
-  'yellow-700': { light: '#c2410c', dark: '#7c2d12' },
-  'yellow-800': { light: '#9a3412', dark: '#7c2d12' },
-  'yellow-900': { light: '#7c2d12', dark: '#7c2d12' },
+  primary: '#6b3314',
+  primaryForeground: '#faf6ef',
 
-  'blue-50': { light: '#f4fafb', dark: '#0284c7' },
-  'blue-100': { light: '#daf0f4', dark: '#0284c7' },
-  'blue-200': { light: '#b8e0ea', dark: '#0284c7' },
-  'blue-300': { light: '#89ccdd', dark: '#0284c7' },
-  'blue-400': { light: '#51b6cf', dark: '#0284c7' },
-  'blue-500': { light: '#0ea5e9', dark: '#0284c7' },
-  'blue-600': { light: '#0c4a6e', dark: '#0284c7' },
-  'blue-700': { light: '#075985', dark: '#0284c7' },
-  'blue-800': { light: '#0369a1', dark: '#0284c7' },
-  'blue-900': { light: '#ff6033', dark: '#ff6033' },
+  secondary: '#dcd9cc',
+  secondaryForeground: '#3c372e',
 
-  'untis-orange': { light: '#ff6033', dark: '#ff6033' },
-};
+  muted: '#dcd9cc',
+  mutedForeground: '#726d5e',
+
+  accent: '#d97f1e',
+  accentForeground: '#1a1611',
+
+  destructive: '#b71c1c',
+  destructiveForeground: '#fafafa',
+
+  border: '#c6c0b2',
+  input: '#e4e1d7',
+  ring: '#6b3314',
+} as const;
+
+const dark = {
+  background: '#1a1611',
+  foreground: '#ede9e0',
+
+  card: '#241f19',
+  cardForeground: '#ede9e0',
+
+  popover: '#241f19',
+  popoverForeground: '#ede9e0',
+
+  primary: '#e8d4b0',
+  primaryForeground: '#2e2017',
+
+  secondary: '#362d24',
+  secondaryForeground: '#e0dbd2',
+
+  muted: '#362d24',
+  mutedForeground: '#a09077',
+
+  accent: '#c97a1a',
+  accentForeground: '#f6f4ef',
+
+  destructive: '#c23333',
+  destructiveForeground: '#fafafa',
+
+  border: '#3d342a',
+  input: '#3d342a',
+  ring: '#b39470',
+} as const;
+
+export type ColorScheme = typeof light;
+
+export const colors = { light, dark } as const;
+
+/** Resolve a semantic color for the given color scheme. */
+export function resolveColor(
+  key: keyof ColorScheme,
+  colorScheme: 'light' | 'dark',
+): string {
+  return colors[colorScheme][key];
+}
+
+// ─── Brand colors (not part of shadcn scheme) ──────────────────────────────
+export const brand = {
+  untisOrange: '#ff6033',
+} as const;

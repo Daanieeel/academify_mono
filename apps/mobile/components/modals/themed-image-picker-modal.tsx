@@ -28,16 +28,16 @@ const ThemedImagePickerModal = (props: ThemedImagePickerModalProps) => {
       <Avatar
         key={uri}
         onPress={() => onAvatarPressed(uri)}
-        variant="group"
-        size="large"
+        variant="rounded"
+        size="lg"
         source={uri}
       ></Avatar>
     )),
     <Avatar
       key="no-image"
       onPress={() => onAvatarPressed(undefined)}
-      variant="group"
-      size="large"
+      variant="rounded"
+      size="lg"
       source={undefined}
       icomoonIcon="prohibit"
     ></Avatar>,
