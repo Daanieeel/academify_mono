@@ -26,7 +26,10 @@ const buttonVariants = cva(
         destructive:
           'bg-destructive border border-foreground rounded-xl shadow-brutal',
         outline: 'bg-transparent border border-foreground rounded-xl',
-        secondary: 'bg-secondary border border-border rounded-xl',
+        secondary:
+          'bg-secondary border border-foreground rounded-xl shadow-brutal',
+        untis:
+          'bg-untis-orange border border-foreground rounded-xl shadow-brutal',
         ghost: 'bg-transparent',
         link: 'bg-transparent',
       },
@@ -52,6 +55,7 @@ const buttonTextVariants = cva('font-martian-extrabold', {
       destructive: 'text-destructive-foreground',
       outline: 'text-foreground',
       secondary: 'text-secondary-foreground',
+      untis: 'text-white',
       ghost: 'text-foreground',
       link: 'text-primary underline',
     },

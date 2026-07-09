@@ -3,9 +3,10 @@ import { cva, type VariantProps } from 'class-variance-authority';
 import * as React from 'react';
 import { TextInput, View } from 'react-native';
 import { Text } from '@/components/ui/text';
+import { useThemeColor } from '@/hooks/use-theme-color';
 
 const inputContainerVariants = cva(
-  'rounded-xl border border-foreground bg-input shadow-brutal will-change-variable',
+  'rounded-xl border border-foreground bg-input will-change-variable',
   {
     variants: {
       variant: {
@@ -38,6 +39,8 @@ export type InputProps = React.ComponentProps<typeof TextInput> &
     label?: string;
     /** Optional icon to display on the left side of the input */
     leftIcon?: React.ReactNode;
+    /** Highlights the border in destructive red to signal a validation error */
+    error?: boolean;
     containerClassName?: string;
     ref?: React.Ref<TextInput> | undefined;
   };
@@ -55,6 +58,7 @@ export function Input({
   variant = 'default',
   label,
   leftIcon,
+  error = false,
   containerClassName,
   className,
   ref,
@@ -62,6 +66,9 @@ export function Input({
   secureTextEntry,
   ...props
 }: InputProps) {
+  const destructiveColor = useThemeColor({}, 'destructive');
+  const foregroundColor = useThemeColor({}, 'neutral-900');
+  const shadowColor = error ? destructiveColor : foregroundColor;
   return (
     <View
       className={cn(
@@ -69,6 +76,14 @@ export function Input({
         !editable && 'opacity-50',
         containerClassName,
       )}
+      style={{
+        borderColor: error ? destructiveColor : undefined,
+        shadowColor,
+        shadowOffset: { width: 3, height: 3 },
+        shadowOpacity: 1,
+        shadowRadius: 0,
+        elevation: 3,
+      }}
     >
       {label && (
         <Text

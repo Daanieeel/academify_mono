@@ -1,6 +1,6 @@
 import { useThemeColor } from '@/hooks/use-theme-color';
 import { Stack, useRouter, useLocalSearchParams } from 'expo-router';
-import React, { useState } from 'react';
+import React from 'react';
 import { View, TouchableOpacity } from 'react-native';
 import { Image } from 'expo-image';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -8,21 +8,29 @@ import { Button } from '@/components/ui/button';
 import { Text } from '@/components/ui/text';
 import { Icon } from '@/components/ui/icon';
 import { Input } from '@/components/ui/input';
+import { Field, FieldError } from '@/components/ui/field';
+import { useForm } from '@tanstack/react-form';
+import * as z from 'zod';
 
 import { useSession } from '@/context/auth-context';
 import { useInstitution } from '@/context/institution-context';
 import { setInstitutionId } from '@/lib/api-client';
 
-const UsernamePage = () => {
-  const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('');
-  const [inputError, setInputError] = useState('');
-  const [isValid, setIsValid] = useState(true);
+const loginSchema = z.object({
+  username: z
+    .string()
+    .min(1, 'Benutzername darf nicht leer sein.')
+    .refine(
+      (v) => !/\s/.test(v),
+      'Benutzername darf keine Leerzeichen enthalten.',
+    ),
+  password: z.string().min(1, 'Passwort darf nicht leer sein.'),
+});
 
+const UsernamePage = () => {
   const router = useRouter();
   const { signIn } = useSession();
   const { setActiveInstitutionId } = useInstitution();
-  const errorColor = useThemeColor({}, 'red-500');
   const neutral900Color = useThemeColor({}, 'neutral-900');
 
   const params = useLocalSearchParams();
@@ -34,46 +42,39 @@ const UsernamePage = () => {
     }
   }, [institutionId]);
 
+  const form = useForm({
+    defaultValues: { username: '', password: '' },
+    validators: { onSubmit: loginSchema },
+    onSubmit: async ({ value }) => {
+      const { error, session } = await signIn(value.username, value.password);
+
+      if (error) {
+        // Surface server errors on the username field so they appear inline
+        form.setFieldMeta('username', (prev) => ({
+          ...prev,
+          errors: [error],
+          isTouched: true,
+          isValid: false,
+        }));
+        return;
+      }
+
+      if (session?.mainInstitutionId) {
+        await setActiveInstitutionId(session.mainInstitutionId);
+      } else {
+        await setActiveInstitutionId(null);
+      }
+
+      router.push(`/(auth)/user-card-page/${value.username}`);
+    },
+  });
+
   const handleBackButtonPress = () => {
     router.back();
   };
 
-  const handleContinueButtonPress = async () => {
-    if (username.length < 1 || password.length < 1) {
-      setIsValid(false);
-      setInputError('Bitte gib Benutzernamen und Passwort ein.');
-      return;
-    }
-
-    const { error, session } = await signIn(username, password);
-    if (error) {
-      setIsValid(false);
-      setInputError(error);
-      return;
-    }
-
-    if (session?.mainInstitutionId) {
-      await setActiveInstitutionId(session.mainInstitutionId);
-    } else {
-      // Fallback if no mainInstitutionId
-      await setActiveInstitutionId(null);
-    }
-
-    setIsValid(true);
-    router.push(`/(auth)/user-card-page/${username}`);
-  };
-
   const handleUntisLoginButtonPress = () => {
     // Implement Untis login here using backendUrl
-  };
-
-  const handleUsernameChange = (input: string) => {
-    if (input.includes(' ')) {
-      const withoutSpaces = input.replace(/\s/g, '');
-      setUsername(withoutSpaces);
-    } else {
-      setUsername(input);
-    }
   };
 
   return (
@@ -94,7 +95,7 @@ const UsernamePage = () => {
         }}
       ></Stack.Screen>
       <View className="pt-[70px] px-[15px] w-full gap-[20px]">
-        <View className="gap-[10px] items-center mb-10">
+        <View className="gap-[10px] items-center mb-12">
           <Icon size={62} name="user-focus" color={neutral900Color}></Icon>
           <Text color={neutral900Color} variant="h2" className="text-center">
             Anmelden
@@ -104,33 +105,58 @@ const UsernamePage = () => {
           </Text>
         </View>
 
-        <Input
-          placeholder="Benutzername oder E-Mail"
-          value={username}
-          onChangeText={handleUsernameChange}
-          autoCorrect={false}
-          spellCheck={false}
-          autoCapitalize="none"
-        ></Input>
+        <View className="gap-[12px]">
+          <form.Field name="username">
+            {(field) => {
+              const isInvalid =
+                field.state.meta.isTouched && !field.state.meta.isValid;
+              return (
+                <Field>
+                  <Input
+                    placeholder="Benutzername oder E-Mail"
+                    value={field.state.value}
+                    onChangeText={(v) =>
+                      field.handleChange(v.replace(/\s/g, ''))
+                    }
+                    onBlur={field.handleBlur}
+                    autoCorrect={false}
+                    spellCheck={false}
+                    autoCapitalize="none"
+                    error={isInvalid}
+                  />
+                  {isInvalid && <FieldError errors={field.state.meta.errors} />}
+                </Field>
+              );
+            }}
+          </form.Field>
 
-        <Input
-          placeholder="Passwort"
-          value={password}
-          onChangeText={setPassword}
-          secureTextEntry={true}
-          autoCapitalize="none"
-        ></Input>
+          <form.Field name="password">
+            {(field) => {
+              const isInvalid =
+                field.state.meta.isTouched && !field.state.meta.isValid;
+              return (
+                <Field>
+                  <Input
+                    placeholder="Passwort"
+                    value={field.state.value}
+                    onChangeText={field.handleChange}
+                    onBlur={field.handleBlur}
+                    secureTextEntry={true}
+                    autoCapitalize="none"
+                    error={isInvalid}
+                  />
+                  {isInvalid && <FieldError errors={field.state.meta.errors} />}
+                </Field>
+              );
+            }}
+          </form.Field>
+        </View>
 
-        {!isValid && (
-          <View className="mt-[10px] flex-row gap-[5px] items-center pr-[15px]">
-            <Icon name="warning-circle" size={15} color={errorColor}></Icon>
-            <Text color={errorColor} variant="caption" className="flex-1">
-              {inputError}
-            </Text>
-          </View>
-        )}
-
-        <Button variant="default" size="lg" onPress={handleContinueButtonPress}>
+        <Button
+          variant="secondary"
+          size="lg"
+          onPress={() => form.handleSubmit()}
+        >
           <Text>Anmelden</Text>
           <Icon name="arrow-right" size={24} />
         </Button>
@@ -143,11 +169,7 @@ const UsernamePage = () => {
           <View className="flex-1 h-[1px] bg-neutral-200" />
         </View>
 
-        <Button
-          variant="secondary"
-          size="lg"
-          onPress={handleUntisLoginButtonPress}
-        >
+        <Button variant="untis" size="lg" onPress={handleUntisLoginButtonPress}>
           <Image
             style={{ width: 24, height: 24, borderRadius: 4 }}
             source={{
@@ -155,9 +177,7 @@ const UsernamePage = () => {
             }}
             contentFit="contain"
           />
-          <Text color={useThemeColor({}, 'untis-orange')}>
-            Mit Untis anmelden
-          </Text>
+          <Text>Mit Untis anmelden</Text>
         </Button>
       </View>
     </SafeAreaView>

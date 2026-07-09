@@ -11,6 +11,7 @@ const legacyMap: Record<string, keyof ColorScheme | 'untisOrange'> = {
   'primary-900': 'primary',
   'neutral-900': 'foreground',
   'red-500': 'destructive',
+  destructive: 'destructive',
   'green-500': 'primary', // Green mapped to primary for brutalist theme
   'neutral-400': 'mutedForeground',
   'untis-orange': 'untisOrange',
