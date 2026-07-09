@@ -11,7 +11,7 @@ import { Text } from 'react-native';
 import { cva, type VariantProps } from 'class-variance-authority';
 
 const badgeVariants = cva(
-  'inline-flex flex-row items-center rounded-full border-2 px-2.5 py-0.5 self-start',
+  'inline-flex flex-row items-center rounded-full border px-2.5 py-0.5 self-start',
   {
     variants: {
       variant: {

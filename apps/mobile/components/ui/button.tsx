@@ -22,12 +22,11 @@ const buttonVariants = cva(
   {
     variants: {
       variant: {
-        default:
-          'bg-primary border-2 border-foreground rounded-xl shadow-brutal',
+        default: 'bg-primary border border-foreground rounded-xl shadow-brutal',
         destructive:
-          'bg-destructive border-2 border-foreground rounded-xl shadow-brutal',
-        outline: 'bg-transparent border-2 border-foreground rounded-xl',
-        secondary: 'bg-secondary border-2 border-border rounded-xl',
+          'bg-destructive border border-foreground rounded-xl shadow-brutal',
+        outline: 'bg-transparent border border-foreground rounded-xl',
+        secondary: 'bg-secondary border border-border rounded-xl',
         ghost: 'bg-transparent',
         link: 'bg-transparent',
       },

@@ -19,6 +19,8 @@ export type ThemedPressableProps = Omit<PressableProps, 'style'> & {
   animationEnabled?: boolean;
   disabled?: boolean;
   style?: StyleProp<ViewStyle>;
+  innerClassName?: string;
+  innerStyle?: StyleProp<ViewStyle>;
 };
 
 const ThemedPressable = ({
@@ -28,17 +30,19 @@ const ThemedPressable = ({
   animationEnabled = true,
   className,
   style,
+  innerClassName,
+  innerStyle,
   ...props
 }: ThemedPressableProps) => {
   const selectionHaptic = useHaptic(feedBackType);
-  const scaleAnim = useRef(new Animated.Value(1)).current;
+  const translateYAnim = useRef(new Animated.Value(0)).current;
 
   const { children, ...restProps } = props;
 
   const handlePressIn = () => {
     if (animationEnabled) {
-      Animated.spring(scaleAnim, {
-        toValue: scaleFactor,
+      Animated.spring(translateYAnim, {
+        toValue: 2,
         useNativeDriver: true,
         speed: 30,
         bounciness: 5,
@@ -48,8 +52,8 @@ const ThemedPressable = ({
 
   const handlePressOut = () => {
     if (animationEnabled) {
-      Animated.spring(scaleAnim, {
-        toValue: 1,
+      Animated.spring(translateYAnim, {
+        toValue: 0,
         useNativeDriver: true,
         speed: 30,
         bounciness: 5,
@@ -72,7 +76,7 @@ const ThemedPressable = ({
       style={[
         style,
         { opacity: disabled ? 0.6 : 1 },
-        { transform: [{ scale: scaleAnim }] },
+        { transform: [{ translateY: translateYAnim }] },
       ]}
     >
       <Pressable
@@ -91,12 +95,16 @@ const ThemedPressable = ({
         onPressOut={handlePressOut}
       />
       <View
-        style={{
-          flexDirection: 'row',
-          alignItems: 'center',
-          justifyContent: 'center',
-          gap: 8,
-        }}
+        className={innerClassName}
+        style={[
+          {
+            flexDirection: 'row',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: 8,
+          },
+          innerStyle,
+        ]}
         pointerEvents="none"
       >
         {children}

@@ -16,7 +16,7 @@ export function Card({
   return (
     <View
       className={cn(
-        'rounded-xl border-2 border-foreground bg-card shadow-brutal',
+        'rounded-xl border border-foreground bg-card shadow-brutal',
         className,
       )}
       {...props}

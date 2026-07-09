@@ -5,7 +5,7 @@ import { TextInput, View } from 'react-native';
 import { Text } from '@/components/ui/text';
 
 const inputContainerVariants = cva(
-  'rounded-xl border-2 border-foreground bg-input shadow-brutal',
+  'rounded-xl border border-foreground bg-input shadow-brutal will-change-variable',
   {
     variants: {
       variant: {
@@ -36,6 +36,8 @@ export type InputProps = React.ComponentProps<typeof TextInput> &
   VariantProps<typeof inputContainerVariants> & {
     /** Optional label shown above the input field */
     label?: string;
+    /** Optional icon to display on the left side of the input */
+    leftIcon?: React.ReactNode;
     containerClassName?: string;
     ref?: React.Ref<TextInput> | undefined;
   };
@@ -52,6 +54,7 @@ export type InputProps = React.ComponentProps<typeof TextInput> &
 export function Input({
   variant = 'default',
   label,
+  leftIcon,
   containerClassName,
   className,
   ref,
@@ -75,19 +78,27 @@ export function Input({
           {label}
         </Text>
       )}
-      <TextInput
-        ref={ref}
-        editable={editable}
-        secureTextEntry={secureTextEntry}
-        autoCapitalize="none"
-        placeholderTextColor="hsl(30, 15%, 55%)"
-        className={cn(
-          inputFieldVariants({ variant }),
-          label && 'pt-[4px]',
-          className,
+      <View className="relative justify-center">
+        {leftIcon && (
+          <View className="absolute left-[16px] z-10 pointer-events-none">
+            {leftIcon}
+          </View>
         )}
-        {...props}
-      />
+        <TextInput
+          ref={ref}
+          editable={editable}
+          secureTextEntry={secureTextEntry}
+          autoCapitalize="none"
+          placeholderTextColor="hsl(30, 15%, 55%)"
+          className={cn(
+            inputFieldVariants({ variant }),
+            leftIcon && 'pl-[48px]',
+            label && 'pt-[4px]',
+            className,
+          )}
+          {...props}
+        />
+      </View>
     </View>
   );
 }

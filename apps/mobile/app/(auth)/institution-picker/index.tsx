@@ -1,17 +1,19 @@
 import { Icon } from '@/components/ui/icon';
 import { Text } from '@/components/ui/text';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import { Stack, useRouter } from 'expo-router';
 import React, { useState, useCallback } from 'react';
 import {
   View,
   FlatList,
   ScrollView,
-  TouchableOpacity,
   TextInput,
+  TouchableOpacity,
 } from 'react-native';
 import { Image } from 'expo-image';
 import { Card } from '@/components/ui/card';
+import ThemedPressable from '@/components/themed-pressable';
 import { registryClient } from '@/lib/registry';
 import { getAssetUrl } from '@/lib/utils';
 import { useInfiniteQuery, keepPreviousData } from '@tanstack/react-query';
@@ -91,7 +93,11 @@ export default function InstitutionPicker() {
         : undefined;
 
       return (
-        <TouchableOpacity onPress={() => handleSelect(item)} className="mb-4">
+        <ThemedPressable
+          onPress={() => handleSelect(item)}
+          className="mb-4"
+          innerStyle={{ flexDirection: 'column', alignItems: 'stretch' }}
+        >
           <Card className="bg-card">
             {/* Banner */}
             {item.banner_url ? (
@@ -188,7 +194,7 @@ export default function InstitutionPicker() {
               </View>
             </View>
           </Card>
-        </TouchableOpacity>
+        </ThemedPressable>
       );
     },
     [handleSelect],
@@ -207,28 +213,30 @@ export default function InstitutionPicker() {
 
       <View className="flex-1 pt-2">
         <View className="px-4 mb-4 relative justify-center">
-          <View className="absolute left-8 z-10">
-            <Icon
-              name="magnifying-glass"
-              size={20}
-              className="text-neutral-400"
-            />
-          </View>
-          <TextInput
-            className="w-full bg-white dark:bg-neutral-800 rounded-xl pl-12 pr-12 py-3.5 text-lg border border-neutral-200 dark:border-neutral-700 text-neutral-900 dark:text-neutral-100"
+          <Input
             placeholder="Schule suchen..."
-            placeholderTextColor="#9ca3af"
             value={query}
             onChangeText={setQuery}
             autoCapitalize="none"
             autoCorrect={false}
+            leftIcon={
+              <Icon
+                name="magnifying-glass"
+                size={20}
+                className="text-muted-foreground"
+              />
+            }
           />
           {query.length > 0 && (
             <TouchableOpacity
               className="absolute right-8 z-10"
               onPress={() => setQuery('')}
             >
-              <Icon name="x-circle" size={20} className="text-neutral-400" />
+              <Icon
+                name="x-circle"
+                size={20}
+                className="text-muted-foreground"
+              />
             </TouchableOpacity>
           )}
         </View>
