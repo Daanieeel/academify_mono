@@ -33,14 +33,16 @@ export function Input({
   return (
     <View
       className={cn(
-        'rounded-xl border-2 border-border bg-input px-4 gap-1',
-        variant === 'default' ? 'py-3' : 'py-4',
+        'rounded-xl border-2 border-foreground bg-input overflow-hidden',
         !editable && 'opacity-60',
         containerClassName,
       )}
     >
       {label && (
-        <Text variant="label" className="text-muted-foreground">
+        <Text
+          variant="label"
+          className="text-muted-foreground pt-[12px] px-[20px]"
+        >
           {label}
         </Text>
       )}
@@ -51,10 +53,11 @@ export function Input({
         autoCapitalize="none"
         placeholderTextColor="hsl(var(--muted-foreground))"
         className={cn(
-          'text-foreground p-0',
+          'text-foreground px-[20px]',
           variant === 'default'
-            ? 'font-martian-regular text-[14px] leading-[20px]'
-            : 'font-martian-black-narrow text-[36px] leading-[42px] tracking-[-0.5px]',
+            ? 'font-martian-regular text-[16px] leading-[20px] py-[18px]'
+            : 'font-martian-black-narrow text-[36px] leading-[42px] tracking-[-0.5px] py-[20px]',
+          label && 'pt-[4px]',
           className,
         )}
         {...props}

@@ -1,7 +1,7 @@
 import { useThemeColor } from '@/hooks/use-theme-color';
 import { Stack, useRouter, useLocalSearchParams } from 'expo-router';
 import React, { useState } from 'react';
-import { View } from 'react-native';
+import { View, TouchableOpacity } from 'react-native';
 import { Image } from 'expo-image';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Button } from '@/components/ui/button';
@@ -84,10 +84,12 @@ const UsernamePage = () => {
           headerShown: true,
           headerTransparent: true,
           headerLeft: () => (
-            <Button onPress={handleBackButtonPress}>
-              <Icon name="arrow-left" />
-              <Text>Zurück</Text>
-            </Button>
+            <TouchableOpacity
+              onPress={handleBackButtonPress}
+              className="flex-row items-center gap-2 px-2 py-1"
+            >
+              <Icon name="arrow-left" size={24} className="text-foreground" />
+            </TouchableOpacity>
           ),
         }}
       ></Stack.Screen>
@@ -147,8 +149,11 @@ const UsernamePage = () => {
           onPress={handleUntisLoginButtonPress}
         >
           <Image
-            className="h-[26px] w-[26px]"
-            source={require('@/assets/images/app/untis-3x.png')}
+            style={{ width: 24, height: 24, borderRadius: 4 }}
+            source={{
+              uri: 'https://www.untis.at/fileadmin/user_upload/Icon-1024x1024.svg',
+            }}
+            contentFit="contain"
           />
           <Text color={useThemeColor({}, 'untis-orange')}>
             Mit Untis anmelden
