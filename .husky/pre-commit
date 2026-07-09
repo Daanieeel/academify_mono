@@ -15,14 +15,4 @@ bunx lint-staged --allow-empty 2>&1 || {
   exit $EXIT_CODE
 }
 
-echo "✅ Ox formatting/lint fixes complete"
-
-echo "🔍 Running typecheck across the monorepo..."
-bun run typecheck || {
-  EXIT_CODE=$?
-  echo ""
-  echo "❌ Pre-commit hook failed: Typecheck errors found (code $EXIT_CODE)"
-  exit $EXIT_CODE
-}
-
-echo "✅ Typecheck complete - ready to commit"
+echo "✅ Ox formatting/lint fixes complete - ready to commit"

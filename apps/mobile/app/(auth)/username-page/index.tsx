@@ -94,7 +94,7 @@ const UsernamePage = () => {
         }}
       ></Stack.Screen>
       <View className="pt-[70px] px-[15px] w-full gap-[20px]">
-        <View className="gap-[10px] items-center">
+        <View className="gap-[10px] items-center mb-10">
           <Icon size={62} name="user-focus" color={neutral900Color}></Icon>
           <Text color={neutral900Color} variant="h2" className="text-center">
             Anmelden

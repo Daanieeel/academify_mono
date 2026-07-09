@@ -1,23 +1,52 @@
 import { cn } from '@/lib/utils';
+import { cva, type VariantProps } from 'class-variance-authority';
 import * as React from 'react';
 import { TextInput, View } from 'react-native';
 import { Text } from '@/components/ui/text';
 
-export type InputProps = React.ComponentProps<typeof TextInput> & {
-  /** Optional label shown above the input field */
-  label?: string;
-  /** Visual size variant */
-  variant?: 'default' | 'display';
-  containerClassName?: string;
-  ref?: React.Ref<TextInput> | undefined;
-};
+const inputContainerVariants = cva(
+  'rounded-xl border-2 border-foreground bg-input shadow-brutal',
+  {
+    variants: {
+      variant: {
+        default: '',
+        display: '',
+      },
+    },
+    defaultVariants: {
+      variant: 'default',
+    },
+  },
+);
+
+const inputFieldVariants = cva('text-foreground px-[20px]', {
+  variants: {
+    variant: {
+      default: 'font-martian-regular text-[16px] leading-[20px] py-[18px]',
+      display:
+        'font-martian-black-narrow text-[36px] leading-[42px] tracking-[-0.5px] py-[20px]',
+    },
+  },
+  defaultVariants: {
+    variant: 'default',
+  },
+});
+
+export type InputProps = React.ComponentProps<typeof TextInput> &
+  VariantProps<typeof inputContainerVariants> & {
+    /** Optional label shown above the input field */
+    label?: string;
+    containerClassName?: string;
+    ref?: React.Ref<TextInput> | undefined;
+  };
 
 /**
  * Shadcn-compatible Input component.
  *
- * Brutalist design: thick border, clear focus ring, warm background.
+ * Brutalist design: thick border + hard offset shadow (matches Button/Card).
+ * Background matches the page surface so the input reads as a clean canvas.
  * Variants:
- * - `default`: standard 14px body text input
+ * - `default`: standard 16px body text input
  * - `display`: large heading-style input (e.g., group name entry)
  */
 export function Input({
@@ -33,15 +62,15 @@ export function Input({
   return (
     <View
       className={cn(
-        'rounded-xl border-2 border-foreground bg-input overflow-hidden',
-        !editable && 'opacity-60',
+        inputContainerVariants({ variant }),
+        !editable && 'opacity-50',
         containerClassName,
       )}
     >
       {label && (
         <Text
           variant="label"
-          className="text-muted-foreground pt-[12px] px-[20px]"
+          className="text-foreground/50 pt-[12px] px-[20px]"
         >
           {label}
         </Text>
@@ -51,12 +80,9 @@ export function Input({
         editable={editable}
         secureTextEntry={secureTextEntry}
         autoCapitalize="none"
-        placeholderTextColor="hsl(var(--muted-foreground))"
+        placeholderTextColor="hsl(30, 15%, 55%)"
         className={cn(
-          'text-foreground px-[20px]',
-          variant === 'default'
-            ? 'font-martian-regular text-[16px] leading-[20px] py-[18px]'
-            : 'font-martian-black-narrow text-[36px] leading-[42px] tracking-[-0.5px] py-[20px]',
+          inputFieldVariants({ variant }),
           label && 'pt-[4px]',
           className,
         )}
